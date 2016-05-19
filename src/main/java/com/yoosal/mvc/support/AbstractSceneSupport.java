@@ -18,7 +18,18 @@ public abstract class AbstractSceneSupport implements SceneSupport {
     public Object invoke() throws SceneInvokeException {
         try {
             //执行之前检查一下用户自定义的权限是否可执行
-            
+            AuthoritySupport authoritySupport = AuthoritySupport.getAuthSupport();
+            if (authoritySupport != null) {
+                AuthorityReply authorityReply = new AuthorityReply(
+                        this.controllerClassSupport.getClazz(),
+                        this.controllerClassSupport.getControllerName(),
+                        this.controllerClassSupport.getInvokeName(),
+                        this.controllerClassSupport.getInstance());
+                authorityReply = authoritySupport.judge(authorityReply);
+                if (!authorityReply.isCanExecute()) {
+                    return authorityReply.getMessage();
+                }
+            }
             //获得当前方法需要的参数值
             Object[] objects = emerge.getAssignment(controllerClassSupport.getJavaMethodParamNames(), controllerClassSupport.getMethod(),
                     this.getParams(), this.getPenetrate());

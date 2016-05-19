@@ -3,7 +3,7 @@ package com.yoosal.mvc;
 import com.yoosal.common.CollectionUtils;
 import com.yoosal.common.scan.DefaultFrameworkScanClass;
 import com.yoosal.common.scan.FrameworkScanClass;
-import com.yoosal.mvc.annotation.ApiController;
+import com.yoosal.mvc.annotation.APIController;
 import com.yoosal.mvc.exception.MvcNotFoundConfigException;
 
 import java.util.*;
@@ -127,6 +127,6 @@ public final class EntryPointManager {
 
     public static void setScanClassAndInstance() throws InstantiationException, IllegalAccessException {
         //扫描并实例所有的类
-        classesInstanceFromScan = frameworkScanClass.getScanClassAndInstance(getScanPackage(), ApiController.class);
+        classesInstanceFromScan = frameworkScanClass.getScanClassAndInstance(getScanPackage(), APIController.class);
     }
 }

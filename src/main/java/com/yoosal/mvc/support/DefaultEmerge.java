@@ -4,6 +4,7 @@ import com.yoosal.asm.*;
 import com.yoosal.common.ClassUtils;
 import com.yoosal.json.JSON;
 import com.yoosal.json.JSONArray;
+import com.yoosal.json.JSONException;
 import com.yoosal.mvc.convert.ConversionService;
 import com.yoosal.mvc.convert.service.DefaultConversionService;
 
@@ -55,13 +56,19 @@ public class DefaultEmerge implements Emerge {
                 } catch (Exception e) {
                     throw new ClassCastException("request parameter case to " + s.getName() + " error.");
                 }
-            } else if (ServletRequest.class.isAssignableFrom(s)) {
-                return penetrate.get(HttpServletRequest.class);
-            } else if (ServletResponse.class.isAssignableFrom(s)) {
-                return penetrate.get(HttpServletResponse.class);
+            } else {
+                for (Class key : penetrate.keySet()) {
+                    if (key.isAssignableFrom(s)) {
+                        return penetrate.get(key);
+                    }
+                }
+                try {
+                    return JSON.toJavaObject(JSON.parseObject(String.valueOf(object[0])), s);
+                } catch (JSONException e) {
+                    return null;
+                }
             }
         }
-        return null;
     }
 
     @Override

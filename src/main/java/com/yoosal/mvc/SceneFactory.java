@@ -2,7 +2,7 @@ package com.yoosal.mvc;
 
 import com.yoosal.common.AnnotationUtils;
 import com.yoosal.common.StringUtils;
-import com.yoosal.mvc.annotation.ApiController;
+import com.yoosal.mvc.annotation.APIController;
 import com.yoosal.mvc.annotation.OutMethod;
 import com.yoosal.mvc.exception.InitializeSceneException;
 import com.yoosal.mvc.support.*;
@@ -49,7 +49,7 @@ public abstract class SceneFactory {
         classSupport.setClazz(clazz);
         classSupport.setInstance(object);
         //判断类中注解配置的名称
-        Annotation clazzAnnotation = AnnotationUtils.findAnnotation(clazz, ApiController.class);
+        Annotation clazzAnnotation = AnnotationUtils.findAnnotation(clazz, APIController.class);
         if (clazzAnnotation == null) return null;
         Object clazzAnnotationDefaultValue = AnnotationUtils.getDefaultValue(clazzAnnotation);
         if (clazzAnnotationDefaultValue != null) {
