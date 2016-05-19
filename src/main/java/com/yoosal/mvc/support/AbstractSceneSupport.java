@@ -8,15 +8,17 @@ import java.util.Map;
 
 public abstract class AbstractSceneSupport implements SceneSupport {
     private static final Emerge emerge = new DefaultEmerge();
-    private ControllerClassSupport controllerClassSupport;
+    private ControllerSupportModel controllerClassSupport;
 
-    public AbstractSceneSupport(ControllerClassSupport controllerClassSupport) {
+    public AbstractSceneSupport(ControllerSupportModel controllerClassSupport) {
         this.controllerClassSupport = controllerClassSupport;
     }
 
     @Override
     public Object invoke() throws SceneInvokeException {
         try {
+            //执行之前检查一下用户自定义的权限是否可执行
+            
             //获得当前方法需要的参数值
             Object[] objects = emerge.getAssignment(controllerClassSupport.getJavaMethodParamNames(), controllerClassSupport.getMethod(),
                     this.getParams(), this.getPenetrate());
@@ -28,12 +30,12 @@ public abstract class AbstractSceneSupport implements SceneSupport {
     }
 
     @Override
-    public void setControllerClassSupport(ControllerClassSupport controllerClassSupport) {
+    public void setControllerClassSupport(ControllerSupportModel controllerClassSupport) {
         this.controllerClassSupport = controllerClassSupport;
     }
 
     @Override
-    public ControllerClassSupport getControllerClassSupport() {
+    public ControllerSupportModel getControllerClassSupport() {
         return this.controllerClassSupport;
     }
 

@@ -8,9 +8,9 @@ import com.yoosal.mvc.exception.SceneInvokeException;
 public interface SceneSupport {
     Object invoke() throws SceneInvokeException;
 
-    void setControllerClassSupport(ControllerClassSupport controllerClassSupport);
+    void setControllerClassSupport(ControllerSupportModel controllerClassSupport);
 
-    ControllerClassSupport getControllerClassSupport();
+    ControllerSupportModel getControllerClassSupport();
 
     String serialize(Object object);
 }

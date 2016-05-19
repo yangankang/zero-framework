@@ -13,6 +13,9 @@ import java.util.*;
  */
 public final class EntryPointManager {
 
+    /**
+     * 所有的配置信息都在这里
+     */
     private static final Map<String, Object> properties = new HashMap<String, Object>();
     private static List classesInstanceFromProperties = null;
     private static List classesInstanceFromScan = null;

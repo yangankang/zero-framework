@@ -10,7 +10,7 @@ public class HttpSceneSupport extends AbstractSceneSupport {
     private Map<String, String[]> params;
     private Map<Class, Object> penetrate;
 
-    public HttpSceneSupport(HttpServletRequest request, HttpServletResponse response, ControllerClassSupport controllerClassSupport) {
+    public HttpSceneSupport(HttpServletRequest request, HttpServletResponse response, ControllerSupportModel controllerClassSupport) {
         super(controllerClassSupport);
         this.request = request;
         this.response = response;

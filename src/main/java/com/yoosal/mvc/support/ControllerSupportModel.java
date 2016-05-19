@@ -1,10 +1,8 @@
 package com.yoosal.mvc.support;
 
-import com.yoosal.common.StringUtils;
-
 import java.lang.reflect.Method;
 
-public class ControllerClassSupport {
+public class ControllerSupportModel {
     private Class clazz;
     private Object instance;
     private Method method;
@@ -60,8 +58,8 @@ public class ControllerClassSupport {
         this.invokeName = invokeName;
     }
 
-    public ControllerClassSupport clone() {
-        ControllerClassSupport classSupport = new ControllerClassSupport();
+    public ControllerSupportModel clone() {
+        ControllerSupportModel classSupport = new ControllerSupportModel();
         classSupport.setClazz(clazz);
         classSupport.setInstance(instance);
         classSupport.setMethod(method);
