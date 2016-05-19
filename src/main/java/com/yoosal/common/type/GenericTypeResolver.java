@@ -1,7 +1,7 @@
 package com.yoosal.common.type;
 
 
-import com.yoosal.core.util.Assert;
+import com.yoosal.common.Assert;
 
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;

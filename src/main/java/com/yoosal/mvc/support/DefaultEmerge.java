@@ -15,7 +15,6 @@ import java.io.IOException;
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -66,12 +65,12 @@ public class DefaultEmerge implements Emerge {
     }
 
     @Override
-    public Object[] getAssignment(String[] javaClassParamNames, Method method, Map<String, String[]> paramFromRequest, Map<Class, Object> penetrate) throws ClassNotFoundException {
+    public Object[] getAssignment(String[] javaMethodParamNames, Method method, Map<String, String[]> paramFromRequest, Map<Class, Object> penetrate) throws ClassNotFoundException {
         Class[] types = method.getParameterTypes();
         Object[] objects = new Object[types.length];
         int i = 0;
         for (Class o : types) {
-            objects[i] = getStringToObject(o, paramFromRequest.get(javaClassParamNames[i]), penetrate);
+            objects[i] = getStringToObject(o, paramFromRequest.get(javaMethodParamNames[i]), penetrate);
             i++;
         }
         return objects;

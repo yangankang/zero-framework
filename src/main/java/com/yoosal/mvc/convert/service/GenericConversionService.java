@@ -78,7 +78,7 @@ public class GenericConversionService implements ConversionService {
         sourceClass = convertToWrapperClassIfNecessary(sourceClass);
         targetClass = convertToWrapperClassIfNecessary(targetClass);
         if (targetClass.isAssignableFrom(sourceClass)) {
-            return new StaticConversionExecutor(sourceClass, targetClass, new com.yoosal.mvc.convert.service.NoOpConverter(sourceClass, targetClass));
+            return new StaticConversionExecutor(sourceClass, targetClass, new NoOpConverter(sourceClass, targetClass));
         }
         // special handling for arrays since they are not indexable classes
         if (sourceClass.isArray()) {
