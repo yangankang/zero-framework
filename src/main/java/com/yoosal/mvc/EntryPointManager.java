@@ -39,8 +39,10 @@ public final class EntryPointManager {
      *
      * @param prop
      */
-    public static void setProperties(Properties prop) {
-
+    public static void setProperties(Properties prop) throws IllegalAccessException, InstantiationException, ClassNotFoundException {
+        // TODO: 2016/5/19  将配置文件复制到properties中
+        classForName(prop);
+        afterInstanceClassMethod();
     }
 
     private static void classForName(Properties prop) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
@@ -128,5 +130,10 @@ public final class EntryPointManager {
     public static void setScanClassAndInstance() throws InstantiationException, IllegalAccessException {
         //扫描并实例所有的类
         classesInstanceFromScan = frameworkScanClass.getScanClassAndInstance(getScanPackage(), APIController.class);
+        afterInstanceClassMethod();
+    }
+
+    private static void afterInstanceClassMethod() {
+
     }
 }
