@@ -18,7 +18,7 @@ import java.util.Map;
 
 public abstract class SceneFactory {
 
-    private static final Map<String, ControllerSupportModel> controllers = new HashMap<String, ControllerSupportModel>();
+    private static final Map<String, ControllerMethodParse> controllers = new HashMap<String, ControllerMethodParse>();
     private static final Emerge emerge = new DefaultEmerge();
     private static String KEY_METHOD_NAME = null;
     private static String KEY_CLASS_NAME = null;
@@ -33,9 +33,9 @@ public abstract class SceneFactory {
              * 将所有的配置的类的信息缓存到Map中去
              */
             for (Object object : objects) {
-                List<ControllerSupportModel> classSupports = createSupportFromObject(object);
+                List<ControllerMethodParse> classSupports = createSupportFromObject(object);
                 if (classSupports != null) {
-                    for (ControllerSupportModel classSupport : classSupports) {
+                    for (ControllerMethodParse classSupport : classSupports) {
                         controllers.put(classSupport.getControllerName().toLowerCase(), classSupport);
                     }
                 }
@@ -43,8 +43,8 @@ public abstract class SceneFactory {
         }
     }
 
-    private static List<ControllerSupportModel> createSupportFromObject(Object object) {
-        ControllerSupportModel classSupport = new ControllerSupportModel();
+    private static List<ControllerMethodParse> createSupportFromObject(Object object) {
+        ControllerMethodParse classSupport = new ControllerMethodParse();
         Class<?> clazz = object.getClass();
         classSupport.setClazz(clazz);
         classSupport.setInstance(object);
@@ -53,8 +53,8 @@ public abstract class SceneFactory {
         if (clazzAnnotation == null) return null;
         Object clazzAnnotationDefaultValue = AnnotationUtils.getDefaultValue(clazzAnnotation);
         if (clazzAnnotationDefaultValue != null) {
-            String defaultValue = String.valueOf(clazzAnnotationDefaultValue);
-            if (!defaultValue.isEmpty()) {
+            String defaultValue = (String) clazzAnnotationDefaultValue;
+            if (StringUtils.isNotBlank(defaultValue)) {
                 classSupport.setControllerName(defaultValue);
             }
         }
@@ -69,10 +69,11 @@ public abstract class SceneFactory {
         for (Method method : methods) {
             Annotation annotation = AnnotationUtils.findAnnotation(method, OutMethod.class);
             if (annotation != null) {
-                ControllerSupportModel methodClassSupport = classSupport.clone();
+                ControllerMethodParse methodClassSupport = classSupport.clone();
                 methodClassSupport.setMethod(method);
                 String invokeName = classSupport.getControllerName() + "." + method.getName();
                 methodClassSupport.setInvokeName(invokeName);
+                methodClassSupport.setMethodName(method.getName());
                 //获得方法的参数代码定义的名称
                 methodClassSupport.setJavaMethodParamNames(emerge.getMethodParamNames(method));
                 classSupports.add(methodClassSupport);
@@ -84,7 +85,7 @@ public abstract class SceneFactory {
 
     public static SceneSupport createHttpScene(HttpServletRequest request, HttpServletResponse response) {
         String findMethodKey = request.getParameter(KEY_CLASS_NAME) + "." + request.getParameter(KEY_METHOD_NAME);
-        ControllerSupportModel classSupport = controllers.get(findMethodKey.toLowerCase());
+        ControllerMethodParse classSupport = controllers.get(findMethodKey.toLowerCase());
         if (classSupport == null) {
             throw new InitializeSceneException("no class or method name " + findMethodKey);
         }

@@ -43,7 +43,7 @@ public class DefaultEmerge implements Emerge {
             if (Collection.class.isAssignableFrom(s)) {
                 //simple Implementation
                 try {
-                    List list = JSON.parseArray(String.valueOf(object[0]));
+                    List list = JSON.parseArray((String) object[0]);
                     return list;
                 } catch (Exception e) {
                     throw new ClassCastException("action parameter case to " + s.getName() + " error.");
@@ -51,7 +51,7 @@ public class DefaultEmerge implements Emerge {
             } else if (Map.class.isAssignableFrom(s)) {
                 //simple Implementation
                 try {
-                    Map map = JSON.parseObject(String.valueOf(object[0]));
+                    Map map = JSON.parseObject((String) object[0]);
                     return map;
                 } catch (Exception e) {
                     throw new ClassCastException("request parameter case to " + s.getName() + " error.");
@@ -63,7 +63,7 @@ public class DefaultEmerge implements Emerge {
                     }
                 }
                 try {
-                    return JSON.toJavaObject(JSON.parseObject(String.valueOf(object[0])), s);
+                    return JSON.toJavaObject(JSON.parseObject((String) object[0]), s);
                 } catch (JSONException e) {
                     return null;
                 }

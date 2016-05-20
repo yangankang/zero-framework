@@ -8,9 +8,9 @@ import java.util.Map;
 
 public abstract class AbstractSceneSupport implements SceneSupport {
     private static final Emerge emerge = new DefaultEmerge();
-    private ControllerSupportModel controllerClassSupport;
+    private ControllerMethodParse controllerClassSupport;
 
-    public AbstractSceneSupport(ControllerSupportModel controllerClassSupport) {
+    public AbstractSceneSupport(ControllerMethodParse controllerClassSupport) {
         this.controllerClassSupport = controllerClassSupport;
     }
 
@@ -41,12 +41,12 @@ public abstract class AbstractSceneSupport implements SceneSupport {
     }
 
     @Override
-    public void setControllerClassSupport(ControllerSupportModel controllerClassSupport) {
+    public void setControllerClassSupport(ControllerMethodParse controllerClassSupport) {
         this.controllerClassSupport = controllerClassSupport;
     }
 
     @Override
-    public ControllerSupportModel getControllerClassSupport() {
+    public ControllerMethodParse getControllerClassSupport() {
         return this.controllerClassSupport;
     }
 
@@ -57,7 +57,7 @@ public abstract class AbstractSceneSupport implements SceneSupport {
     @Override
     public String serialize(Object object) {
         if (ClassUtils.isPrimitiveOrWrapper(object.getClass()) || object.getClass().isAssignableFrom(String.class)) {
-            return String.valueOf(object);
+            return object == null ? "" : (String) object;
         } else {
             return JSON.toJSONString(object);
         }

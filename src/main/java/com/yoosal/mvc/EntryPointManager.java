@@ -81,11 +81,11 @@ public final class EntryPointManager {
     }
 
     public static String getWritePath() {
-        return String.valueOf(getProperty(KEY_WRITE_PATH));
+        return (String) getProperty(KEY_WRITE_PATH);
     }
 
     public static String getApiPrefix() {
-        return String.valueOf(getProperty(KEY_API_PREFIX));
+        return (String) getProperty(KEY_API_PREFIX);
     }
 
     public static boolean isDebugger() {
@@ -97,7 +97,7 @@ public final class EntryPointManager {
     }
 
     public static String getFormatException() {
-        return String.valueOf(getProperty(KEY_FORMAT_EXCEPTION));
+        return (String) getProperty(KEY_FORMAT_EXCEPTION);
     }
 
     public static String getScanPackage() {
@@ -109,15 +109,15 @@ public final class EntryPointManager {
     }
 
     public static String getMethodKey() {
-        return String.valueOf(getProperty(KEY_METHOD_KEY));
+        return (String) getProperty(KEY_METHOD_KEY);
     }
 
     public static String getClassKey() {
-        return String.valueOf(getProperty(KEY_CLASS_KEY));
+        return (String) getProperty(KEY_CLASS_KEY);
     }
 
     public static String getRequestUri() {
-        return String.valueOf(getProperty(KEY_REQUEST_URI));
+        return (String) getProperty(KEY_REQUEST_URI);
     }
 
     public static List getApiClass() {

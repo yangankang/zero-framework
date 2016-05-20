@@ -2,11 +2,12 @@ package com.yoosal.mvc.support;
 
 import java.lang.reflect.Method;
 
-public class ControllerSupportModel {
+public class ControllerMethodParse {
     private Class clazz;
     private Object instance;
     private Method method;
     private String invokeName;
+    private String methodName;
     private String controllerName;
     private String[] javaMethodParamNames;
 
@@ -58,14 +59,23 @@ public class ControllerSupportModel {
         this.invokeName = invokeName;
     }
 
-    public ControllerSupportModel clone() {
-        ControllerSupportModel classSupport = new ControllerSupportModel();
+    public String getMethodName() {
+        return methodName;
+    }
+
+    public void setMethodName(String methodName) {
+        this.methodName = methodName;
+    }
+
+    public ControllerMethodParse clone() {
+        ControllerMethodParse classSupport = new ControllerMethodParse();
         classSupport.setClazz(clazz);
         classSupport.setInstance(instance);
         classSupport.setMethod(method);
         classSupport.setInvokeName(invokeName);
         classSupport.setControllerName(controllerName);
         classSupport.setJavaMethodParamNames(javaMethodParamNames);
+        classSupport.setMethodName(methodName);
         return classSupport;
     }
 }
