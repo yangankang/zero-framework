@@ -15,7 +15,7 @@ public interface JavaScriptMapping {
 
     void setMethodParses(List<ControllerMethodParse> methodParses);
 
-    void generateToFile(boolean isCompress);
+    void generateToFile(String path, boolean isCompress) throws IOException, ParseTemplateException;
 
-    void generateToFile();
+    void generateToFile(String path) throws ParseTemplateException, IOException;
 }

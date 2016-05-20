@@ -42,7 +42,7 @@ function executor(cinfo) {
 
 var templateFunction = function (_params_) {
     var object = new Object();
-    object.return = function (SuccessFunction, FailedFunction) {
+    object.call = function (SuccessFunction, FailedFunction) {
         __mvc_ajax_object("POST", _address_ + "_url_", _json_, SuccessFunction, FailedFunction);
     };
     return object;

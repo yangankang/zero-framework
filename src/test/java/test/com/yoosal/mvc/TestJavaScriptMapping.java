@@ -7,6 +7,7 @@ import com.yoosal.mvc.support.DefaultJavaScriptMapping;
 import com.yoosal.mvc.support.JavaScriptMapping;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,5 +28,22 @@ public class TestJavaScriptMapping {
         JavaScriptMapping mapping = new DefaultJavaScriptMapping();
         mapping.setMethodParses(list);
         System.out.println(mapping.parseTemplate());
+    }
+
+    @Test
+    public void testCreateFileJavaScript() throws ParseTemplateException, IOException {
+        EntryPointManager.setProperty("mvc.api.prefix", "FromController");
+        EntryPointManager.setProperty("mvc.key.method", "_METHOD");
+        EntryPointManager.setProperty("mvc.key.class", "_CLASS");
+        ControllerMethodParse methodParse = new ControllerMethodParse();
+        methodParse.setControllerName("Abc");
+        methodParse.setMethodName("hello");
+        methodParse.setJavaMethodParamNames(new String[]{"p1", "p2"});
+        methodParse.setClazz(ControllerMethodParse.class);
+        List list = new ArrayList();
+        list.add(methodParse);
+        JavaScriptMapping mapping = new DefaultJavaScriptMapping();
+        mapping.setMethodParses(list);
+        mapping.generateToFile("D:\\a.js", true);
     }
 }

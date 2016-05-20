@@ -5,14 +5,14 @@ import com.yoosal.json.JSON;
 import com.yoosal.json.JSONObject;
 import com.yoosal.mvc.EntryPointManager;
 import com.yoosal.mvc.exception.ParseTemplateException;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -72,13 +72,30 @@ public class DefaultJavaScriptMapping implements JavaScriptMapping {
     }
 
     @Override
-    public void generateToFile(boolean isCompress) {
-
+    public void generateToFile(String path, boolean isCompress) throws IOException, ParseTemplateException {
+        String js = this.parseTemplate();
+        if (isCompress) {
+            Writer writer = null;
+            try {
+                Class.forName("com.yahoo.platform.yui.compressor.JavaScriptCompressor");
+                writer = new FileWriter(path);
+                YuiCompressorUtils.compress(js, writer);
+            } catch (ClassNotFoundException e) {
+                FileUtils.writeStringToFile(new File(path), js);
+            } finally {
+                if (writer != null) {
+                    writer.close();
+                }
+            }
+        } else {
+            FileUtils.writeStringToFile(new File(path), js);
+        }
     }
 
     @Override
-    public void generateToFile() {
-
+    public void generateToFile(String path) throws ParseTemplateException, IOException {
+        String js = this.parseTemplate();
+        FileUtils.writeStringToFile(new File(path), js);
     }
 
     class CInfo {
