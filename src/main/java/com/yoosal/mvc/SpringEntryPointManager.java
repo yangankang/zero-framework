@@ -20,6 +20,7 @@ public class SpringEntryPointManager extends HandlerInterceptorAdapter implement
     private String methodParamName;
     private String classParamName;
     private String requestUri;
+    private String isCompressorJs;
 
     public void setWritePath(String writePath) {
         this.writePath = writePath;
@@ -64,6 +65,11 @@ public class SpringEntryPointManager extends HandlerInterceptorAdapter implement
     public void setRequestUri(String requestUri) {
         this.requestUri = requestUri;
         EntryPointManager.setProperty(EntryPointManager.KEY_REQUEST_URI, requestUri);
+    }
+
+    public void setIsCompressorJs(String isCompressorJs) {
+        this.isCompressorJs = isCompressorJs;
+        EntryPointManager.setProperty(EntryPointManager.KEY_COMPRESSOR_JS, isCompressorJs);
     }
 
     @Override

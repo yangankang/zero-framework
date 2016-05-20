@@ -26,7 +26,13 @@ public abstract class SceneFactory {
     static {
         KEY_METHOD_NAME = EntryPointManager.getMethodKey();
         KEY_CLASS_NAME = EntryPointManager.getClassKey();
+        cacheControllerInfo();
+    }
 
+    public static void cacheControllerInfo() {
+        if (controllers != null && controllers.size() > 0) {
+            return;
+        }
         List objects = EntryPointManager.getApiClass();
         if (objects != null) {
             /**
@@ -41,6 +47,14 @@ public abstract class SceneFactory {
                 }
             }
         }
+    }
+
+    public static List<ControllerMethodParse> getControllersInfo() {
+        List<ControllerMethodParse> controllerMethodParses = new ArrayList<ControllerMethodParse>();
+        for (String key : controllers.keySet()) {
+            controllerMethodParses.add(controllers.get(key));
+        }
+        return controllerMethodParses;
     }
 
     private static List<ControllerMethodParse> createSupportFromObject(Object object) {

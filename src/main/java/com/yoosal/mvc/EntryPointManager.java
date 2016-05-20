@@ -1,11 +1,18 @@
 package com.yoosal.mvc;
 
 import com.yoosal.common.CollectionUtils;
+import com.yoosal.common.ResourceUtils;
+import com.yoosal.common.StringUtils;
 import com.yoosal.common.scan.DefaultFrameworkScanClass;
 import com.yoosal.common.scan.FrameworkScanClass;
 import com.yoosal.mvc.annotation.APIController;
 import com.yoosal.mvc.exception.MvcNotFoundConfigException;
+import com.yoosal.mvc.exception.ParseTemplateException;
+import com.yoosal.mvc.support.DefaultJavaScriptMapping;
+import com.yoosal.mvc.support.JavaScriptMapping;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.*;
 
 /**
@@ -30,6 +37,7 @@ public final class EntryPointManager {
     //http请求中代表类名的字段
     static final String KEY_CLASS_KEY = "mvc.key.class";
     static final String KEY_REQUEST_URI = "mvc.request.uri";
+    static final String KEY_COMPRESSOR_JS = "mvc.compressor.js";
 
 
     private static FrameworkScanClass frameworkScanClass = new DefaultFrameworkScanClass();
@@ -127,13 +135,39 @@ public final class EntryPointManager {
         return classes;
     }
 
+    public static boolean isCompressorJs() {
+        if (String.valueOf(getProperty(KEY_COMPRESSOR_JS)).equalsIgnoreCase("true")) {
+            return true;
+        }
+        return false;
+    }
+
     public static void setScanClassAndInstance() throws InstantiationException, IllegalAccessException {
         //扫描并实例所有的类
         classesInstanceFromScan = frameworkScanClass.getScanClassAndInstance(getScanPackage(), APIController.class);
         afterInstanceClassMethod();
     }
 
+    /**
+     * 读取完成所有的配置之后，执行解析类，JS生成等功能
+     */
     private static void afterInstanceClassMethod() {
-
+        SceneFactory.cacheControllerInfo();
+        if (StringUtils.isNotBlank(getWritePath())) {
+            JavaScriptMapping javaScriptMapping = new DefaultJavaScriptMapping();
+            javaScriptMapping.setMethodParses(SceneFactory.getControllersInfo());
+            String webRootPath = (ResourceUtils.getWebRootPath() + getWritePath()).replace("/", File.separator);
+            try {
+                if (isCompressorJs()) {
+                    javaScriptMapping.generateToFile(webRootPath, true);
+                } else {
+                    javaScriptMapping.generateToFile(webRootPath);
+                }
+            } catch (ParseTemplateException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }
