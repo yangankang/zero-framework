@@ -184,6 +184,14 @@
             <scope>provided</scope>
             <optional>true</optional>
         </dependency>
+
+        <!-- http://mvnrepository.com/artifact/com.yahoo.platform.yui/yuicompressor -->
+        <dependency>
+            <groupId>com.yahoo.platform.yui</groupId>
+            <artifactId>yuicompressor</artifactId>
+            <version>2.4.8</version>
+        </dependency>
+
     </dependencies>
 
     <distributionManagement>
