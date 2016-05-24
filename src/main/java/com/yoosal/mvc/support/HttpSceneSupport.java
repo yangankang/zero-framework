@@ -28,4 +28,14 @@ public class HttpSceneSupport extends AbstractSceneSupport {
     public Map<Class, Object> getPenetrate() {
         return penetrate;
     }
+
+    @Override
+    public void addParam(String key, String[] values) {
+        params.put(key, values);
+    }
+
+    @Override
+    public void addParam(Class clazz, Object obj) {
+        penetrate.put(clazz, obj);
+    }
 }

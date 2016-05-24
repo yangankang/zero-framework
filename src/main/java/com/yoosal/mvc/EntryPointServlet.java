@@ -2,7 +2,7 @@ package com.yoosal.mvc;
 
 import com.yoosal.mvc.exception.InitializeSceneException;
 import com.yoosal.mvc.exception.SceneInvokeException;
-import com.yoosal.mvc.support.SceneSupport;
+import com.yoosal.mvc.exception.ViewResolverException;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -21,11 +21,10 @@ public class EntryPointServlet extends HttpServlet {
     @Override
     protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
-            SceneSupport sceneSupport = SceneFactory.createHttpScene(req, resp);
-            Object object = sceneSupport.invoke();
-            String serialize = sceneSupport.serialize(object);
-            resp.getWriter().write(serialize);
+            EntryPointManager.getViewResolver().resolver(req, resp);
         } catch (SceneInvokeException e) {
+            e.printStackTrace();
+        } catch (ViewResolverException e) {
             e.printStackTrace();
         }
     }

@@ -30,7 +30,7 @@ public abstract class AbstractSceneSupport implements SceneSupport {
                     return authorityReply.getMessage();
                 }
             }
-            //获得当前方法需要的参数值
+            //获得当前方法需要的参数值,通过request的获得String类型的参数进行转换类型
             Object[] objects = emerge.getAssignment(controllerClassSupport.getJavaMethodParamNames(), controllerClassSupport.getMethod(),
                     this.getParams(), this.getPenetrate());
             //开始执行当前方法

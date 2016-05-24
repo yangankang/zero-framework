@@ -1,7 +1,8 @@
 package com.yoosal.mvc.support;
 
-import javax.servlet.http.HttpServletRequest;
-
+/**
+ * 权限判断的数据模型
+ */
 public class AuthorityReply {
     private Class clazz;
     private String controllerName;

@@ -10,6 +10,8 @@ import com.yoosal.mvc.exception.MvcNotFoundConfigException;
 import com.yoosal.mvc.exception.ParseTemplateException;
 import com.yoosal.mvc.support.DefaultJavaScriptMapping;
 import com.yoosal.mvc.support.JavaScriptMapping;
+import com.yoosal.mvc.support.NormalViewResolver;
+import com.yoosal.mvc.support.ViewResolver;
 
 import java.io.File;
 import java.io.IOException;
@@ -41,6 +43,7 @@ public final class EntryPointManager {
 
 
     private static FrameworkScanClass frameworkScanClass = new DefaultFrameworkScanClass();
+    private static ViewResolver viewResolver = null;
 
     /**
      * 将Properties文件中的配置转换成全局变量
@@ -126,6 +129,13 @@ public final class EntryPointManager {
 
     public static String getRequestUri() {
         return (String) getProperty(KEY_REQUEST_URI);
+    }
+
+    public static ViewResolver getViewResolver() {
+        if (viewResolver == null) {
+            viewResolver = new NormalViewResolver();
+        }
+        return viewResolver;
     }
 
     public static List getApiClass() {

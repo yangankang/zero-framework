@@ -3,7 +3,7 @@ package com.yoosal.mvc;
 import com.yoosal.common.AnnotationUtils;
 import com.yoosal.common.StringUtils;
 import com.yoosal.mvc.annotation.APIController;
-import com.yoosal.mvc.annotation.OutMethod;
+import com.yoosal.mvc.annotation.Printer;
 import com.yoosal.mvc.exception.InitializeSceneException;
 import com.yoosal.mvc.support.*;
 
@@ -81,7 +81,7 @@ public abstract class SceneFactory {
         //对象表示的类或接口声明的所有方法，包括公共、保护、默认（包）访问和私有方法。
         Method[] methods = clazz.getDeclaredMethods();
         for (Method method : methods) {
-            Annotation annotation = AnnotationUtils.findAnnotation(method, OutMethod.class);
+            Annotation annotation = AnnotationUtils.findAnnotation(method, Printer.class);
             if (annotation != null) {
                 ControllerMethodParse methodClassSupport = classSupport.clone();
                 methodClassSupport.setMethod(method);

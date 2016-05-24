@@ -13,4 +13,8 @@ public interface SceneSupport {
     ControllerMethodParse getControllerClassSupport();
 
     String serialize(Object object);
+
+    void addParam(String key, String[] values);
+
+    void addParam(Class clazz, Object obj);
 }

@@ -81,9 +81,7 @@ public class SpringEntryPointManager extends HandlerInterceptorAdapter implement
     public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
         String url = request.getRequestURL().toString();
         if (url.endsWith(this.requestUri) || url.matches(this.requestUri)) {
-            SceneSupport sceneSupport = SceneFactory.createHttpScene(request, response);
-            Object returnObject = sceneSupport.invoke();
-            response.getWriter().write(sceneSupport.serialize(returnObject));
+            EntryPointManager.getViewResolver().resolver(request, response);
         }
         super.postHandle(request, response, handler, modelAndView);
     }
