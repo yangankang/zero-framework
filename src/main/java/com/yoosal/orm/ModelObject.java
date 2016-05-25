@@ -1,4 +1,6 @@
-package com.yoosal.json;
+package com.yoosal.orm;
+
+import com.yoosal.json.JSONObject;
 
 public class ModelObject extends JSONObject {
     private Class clazz;
