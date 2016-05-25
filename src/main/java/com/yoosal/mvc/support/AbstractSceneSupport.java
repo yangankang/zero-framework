@@ -23,10 +23,11 @@ public abstract class AbstractSceneSupport implements SceneSupport {
                 AuthorityReply authorityReply = new AuthorityReply(
                         this.controllerClassSupport.getClazz(),
                         this.controllerClassSupport.getControllerName(),
+                        this.controllerClassSupport.getMethodName(),
                         this.controllerClassSupport.getInvokeName(),
                         this.controllerClassSupport.getInstance());
                 authorityReply = authoritySupport.judge(authorityReply);
-                if (!authorityReply.isCanExecute()) {
+                if (authorityReply != null && !authorityReply.isCanExecute()) {
                     return authorityReply.getMessage();
                 }
             }

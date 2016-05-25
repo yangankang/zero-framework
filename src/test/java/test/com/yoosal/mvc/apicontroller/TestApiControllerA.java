@@ -44,4 +44,15 @@ public class TestApiControllerA {
         System.out.println(JSONObject.toJSONString(bean));
         return bean;
     }
+
+    /**
+     * 测试地址
+     * http://localhost:9999/invoke.do?_class=TestApiControllerA&_method=sendRedirect
+     *
+     * @return
+     */
+    @Printer
+    public String sendRedirect() {
+        return "redirect:http://www.google.com.hk";
+    }
 }

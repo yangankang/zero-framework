@@ -37,12 +37,6 @@ public abstract class ResourceUtils {
         }
     }
 
-    public static String getWebRootPath() {
-        String WEB_INF_PATH = ResourceUtils.class.getResource("/").getPath();
-        WEB_INF_PATH = WEB_INF_PATH.substring(0, WEB_INF_PATH.lastIndexOf(ResourceUtils.WEBINF_URL_PREFIX) - 1);
-        return WEB_INF_PATH;
-    }
-
     public static URL getURL(String resourceLocation) throws FileNotFoundException {
         Assert.notNull(resourceLocation, "Resource location must not be null");
         if (resourceLocation.startsWith(CLASSPATH_URL_PREFIX)) {

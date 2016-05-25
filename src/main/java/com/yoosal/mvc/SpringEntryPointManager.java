@@ -2,9 +2,7 @@ package com.yoosal.mvc;
 
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.web.context.ContextLoader;
 import org.springframework.web.context.ServletContextAware;
-import org.springframework.web.context.WebApplicationContext;
 
 import javax.servlet.ServletContext;
 import java.util.List;
@@ -81,8 +79,7 @@ public class SpringEntryPointManager extends EntryPointManager implements Initia
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        this.setScanClassAndInstance();
-        this.produceJavaScriptMapping(servletContext);
+        this.setScanClassAndInstance(servletContext);
     }
 
     @Override

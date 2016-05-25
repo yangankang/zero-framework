@@ -53,11 +53,10 @@ public class EntryPointServlet extends HttpServlet {
         if (StringUtils.isNotBlank(frameworkConfigLocation)) {
             try {
                 properties.load(propertiesInputStream);
-                pointManager.setProperties(properties);
+                pointManager.setProperties(properties, config.getServletContext());
             } catch (Exception e) {
                 throw new InitializeSceneException("initialize by properties failed", e);
             }
         }
-        pointManager.produceJavaScriptMapping(config.getServletContext());
     }
 }

@@ -12,5 +12,6 @@
         <property name="scanPackage" value="test.com.yoosal.mvc.apicontroller"/>
         <property name="writePath" value="/js/api.js"/>
     </bean>
-</beans> 
+
+</beans>
 

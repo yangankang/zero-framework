@@ -7,13 +7,15 @@ public class AuthorityReply {
     private Class clazz;
     private String controllerName;
     private String invokeName;
+    private String methodName;
     private Object object;
     private String message;
-    private boolean canExecute;
+    private boolean canExecute = true;
 
-    public AuthorityReply(Class clazz, String controllerName, String invokeName, Object object) {
+    public AuthorityReply(Class clazz, String controllerName, String methodName, String invokeName, Object object) {
         this.clazz = clazz;
         this.controllerName = controllerName;
+        this.methodName = methodName;
         this.invokeName = invokeName;
         this.object = object;
     }
@@ -48,5 +50,13 @@ public class AuthorityReply {
 
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    public String getMethodName() {
+        return methodName;
+    }
+
+    public void setMethodName(String methodName) {
+        this.methodName = methodName;
     }
 }

@@ -55,14 +55,14 @@ public class EntryPointManager {
      *
      * @param prop
      */
-    public void setProperties(Properties prop) throws IllegalAccessException, InstantiationException, ClassNotFoundException {
+    public void setProperties(Properties prop, ServletContext servletContext) throws IllegalAccessException, InstantiationException, ClassNotFoundException {
         if (prop != null) {
             for (Map.Entry<Object, Object> entry : prop.entrySet()) {
                 properties.put((String) entry.getKey(), entry.getValue());
             }
         }
         classForName(prop);
-        setScanClassAndInstance();
+        setScanClassAndInstance(servletContext);
     }
 
     private void classForName(Properties prop) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
@@ -183,19 +183,20 @@ public class EntryPointManager {
         return false;
     }
 
-    public void setScanClassAndInstance() throws InstantiationException, IllegalAccessException {
+    public void setScanClassAndInstance(ServletContext servletContext) throws InstantiationException, IllegalAccessException {
         //扫描并实例所有的类
         if (StringUtils.isNotBlank(getScanPackage())) {
             classesInstanceFromScan = frameworkScanClass.getScanClassAndInstance(getScanPackage(), APIController.class);
         }
-        afterInstanceClassMethod();
+        afterInstanceClassMethod(servletContext);
     }
 
     /**
      * 读取完成所有的配置之后，执行解析类，JS生成等功能
      */
-    private void afterInstanceClassMethod() {
+    private void afterInstanceClassMethod(ServletContext servletContext) {
         SceneFactory.cacheControllerInfo();
+        this.produceJavaScriptMapping(servletContext);
     }
 
     public void produceJavaScriptMapping(ServletContext servletContext) {
