@@ -13,6 +13,8 @@ import com.yoosal.mvc.support.JavaScriptMapping;
 import com.yoosal.mvc.support.NormalViewResolver;
 import com.yoosal.mvc.support.ViewResolver;
 
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
@@ -26,6 +28,8 @@ public class EntryPointManager {
      * 所有的配置信息都在这里
      */
     private static final Map<String, Object> properties = new HashMap<String, Object>();
+    private static final String DEFAULT_CLASS_KEY = "_class";
+    private static final String DEFAULT_METHOD_KEY = "_method";
     private static List classesInstanceFromProperties = null;
     private static List classesInstanceFromScan = null;
     static final String KEY_WRITE_PATH = "mvc.write.path";
@@ -52,9 +56,13 @@ public class EntryPointManager {
      * @param prop
      */
     public void setProperties(Properties prop) throws IllegalAccessException, InstantiationException, ClassNotFoundException {
-        // TODO: 2016/5/19  将配置文件复制到properties中
+        if (prop != null) {
+            for (Map.Entry<Object, Object> entry : prop.entrySet()) {
+                properties.put((String) entry.getKey(), entry.getValue());
+            }
+        }
         classForName(prop);
-        afterInstanceClassMethod();
+        setScanClassAndInstance();
     }
 
     private void classForName(Properties prop) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
@@ -121,11 +129,21 @@ public class EntryPointManager {
     }
 
     public static String getMethodKey() {
-        return (String) getProperty(KEY_METHOD_KEY);
+        String ck = (String) getProperty(KEY_METHOD_KEY);
+        if (StringUtils.isNotBlank(ck)) {
+            return ck;
+        } else {
+            return DEFAULT_METHOD_KEY;
+        }
     }
 
     public static String getClassKey() {
-        return (String) getProperty(KEY_CLASS_KEY);
+        String ck = (String) getProperty(KEY_CLASS_KEY);
+        if (StringUtils.isNotBlank(ck)) {
+            return ck;
+        } else {
+            return DEFAULT_CLASS_KEY;
+        }
     }
 
     public static String getRequestUri() {
@@ -167,7 +185,9 @@ public class EntryPointManager {
 
     public void setScanClassAndInstance() throws InstantiationException, IllegalAccessException {
         //扫描并实例所有的类
-        classesInstanceFromScan = frameworkScanClass.getScanClassAndInstance(getScanPackage(), APIController.class);
+        if (StringUtils.isNotBlank(getScanPackage())) {
+            classesInstanceFromScan = frameworkScanClass.getScanClassAndInstance(getScanPackage(), APIController.class);
+        }
         afterInstanceClassMethod();
     }
 
@@ -176,10 +196,13 @@ public class EntryPointManager {
      */
     private void afterInstanceClassMethod() {
         SceneFactory.cacheControllerInfo();
+    }
+
+    public void produceJavaScriptMapping(ServletContext servletContext) {
         if (StringUtils.isNotBlank(getWritePath())) {
             JavaScriptMapping javaScriptMapping = new DefaultJavaScriptMapping();
             javaScriptMapping.setMethodParses(SceneFactory.getControllersInfo());
-            String webRootPath = (ResourceUtils.getWebRootPath() + getWritePath()).replace("/", File.separator);
+            String webRootPath = servletContext.getRealPath(getWritePath());
             try {
                 if (isCompressorJs()) {
                     javaScriptMapping.generateToFile(webRootPath, true);

@@ -1,10 +1,10 @@
 package com.yoosal.mvc;
 
 import com.yoosal.common.AnnotationUtils;
+import com.yoosal.common.Logger;
 import com.yoosal.common.StringUtils;
 import com.yoosal.mvc.annotation.APIController;
 import com.yoosal.mvc.annotation.Printer;
-import com.yoosal.mvc.exception.InitializeSceneException;
 import com.yoosal.mvc.support.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -17,13 +17,9 @@ import java.util.List;
 import java.util.Map;
 
 public abstract class SceneFactory {
-
+    private static Logger logger = Logger.getLogger(SceneFactory.class);
     private static final Map<String, ControllerMethodParse> controllers = new HashMap<String, ControllerMethodParse>();
     private static final Emerge emerge = new DefaultEmerge();
-
-    static {
-        cacheControllerInfo();
-    }
 
     public static void cacheControllerInfo() {
         if (controllers != null && controllers.size() > 0) {
@@ -38,7 +34,7 @@ public abstract class SceneFactory {
                 List<ControllerMethodParse> classSupports = createSupportFromObject(object);
                 if (classSupports != null) {
                     for (ControllerMethodParse classSupport : classSupports) {
-                        controllers.put(classSupport.getControllerName().toLowerCase(), classSupport);
+                        controllers.put(classSupport.getInvokeName().toLowerCase(), classSupport);
                     }
                 }
             }
@@ -98,7 +94,8 @@ public abstract class SceneFactory {
         String findMethodKey = className + "." + methodName;
         ControllerMethodParse classSupport = controllers.get(findMethodKey.toLowerCase());
         if (classSupport == null) {
-            throw new InitializeSceneException("no class or method name " + findMethodKey);
+            logger.info("no class or method name " + findMethodKey);
+            return null;
         }
         return new HttpSceneSupport(request, response, classSupport);
     }

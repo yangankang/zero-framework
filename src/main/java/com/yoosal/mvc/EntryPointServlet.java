@@ -1,5 +1,6 @@
 package com.yoosal.mvc;
 
+import com.yoosal.common.ResourceUtils;
 import com.yoosal.common.StringUtils;
 import com.yoosal.mvc.exception.InitializeSceneException;
 import com.yoosal.mvc.exception.SceneInvokeException;
@@ -12,6 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Properties;
 
 /**
@@ -41,14 +43,21 @@ public class EntryPointServlet extends HttpServlet {
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
         String frameworkConfigLocation = config.getInitParameter("frameworkConfigLocation");
+        InputStream propertiesInputStream;
+        if (frameworkConfigLocation.startsWith(ResourceUtils.CLASSPATH_URL_PREFIX)) {
+            propertiesInputStream = this.getClass().getResourceAsStream("/" + frameworkConfigLocation.split(":")[1]);
+        } else {
+            propertiesInputStream = config.getServletContext().getResourceAsStream(frameworkConfigLocation);
+        }
         Properties properties = new Properties();
         if (StringUtils.isNotBlank(frameworkConfigLocation)) {
             try {
-                properties.load(new FileInputStream(frameworkConfigLocation));
+                properties.load(propertiesInputStream);
                 pointManager.setProperties(properties);
             } catch (Exception e) {
                 throw new InitializeSceneException("initialize by properties failed", e);
             }
         }
+        pointManager.produceJavaScriptMapping(config.getServletContext());
     }
 }

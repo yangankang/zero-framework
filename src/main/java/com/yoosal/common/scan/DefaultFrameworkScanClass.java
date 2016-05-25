@@ -18,7 +18,7 @@ public class DefaultFrameworkScanClass implements FrameworkScanClass {
         List<Class<?>> allClasses = getClasses(packagePath);
         List<Class<?>> classes = new ArrayList<Class<?>>();
         for (Class<?> clazz : allClasses) {
-            if (AnnotationUtils.isAnnotationInherited(annotationClass, clazz)) {
+            if (AnnotationUtils.isAnnotationDeclaredLocally(annotationClass, clazz)) {
                 classes.add(clazz);
             }
         }

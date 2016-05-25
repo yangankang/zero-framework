@@ -30,7 +30,7 @@ public class TestMVCStart {
 
     @Test
     public void controllerExceptionHandler() throws Exception {
-        this.mockMvc.perform(get("/index.jsp"))
+        this.mockMvc.perform(get("/invoke.do?_class=TestApiControllerA&_method=printer&name=ankang"))
                 .andExpect(status().isOk());
     }
 

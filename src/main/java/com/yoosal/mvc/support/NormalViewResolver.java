@@ -14,6 +14,9 @@ public class NormalViewResolver implements ViewResolver {
     @Override
     public void resolver(HttpServletRequest request, HttpServletResponse response, String className, String methodName) throws SceneInvokeException, ViewResolverException {
         SceneSupport sceneSupport = SceneFactory.createHttpScene(request, response, className, methodName);
+        if (sceneSupport == null) {
+            return;
+        }
         SceneView sceneView = new SceneView();
         sceneView.setRequest(request);
         sceneView.setResponse(response);
@@ -24,6 +27,9 @@ public class NormalViewResolver implements ViewResolver {
 
     private void resolverInvoke(HttpServletRequest request, HttpServletResponse response, SceneSupport sceneSupport, Object o) throws ViewResolverException {
         try {
+            if (o == null) {
+                return;
+            }
             if (o.getClass().isAssignableFrom(String.class)) {
                 String string = (String) o;
                 if (string.startsWith("forward:")) {

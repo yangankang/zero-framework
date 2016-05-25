@@ -2,13 +2,14 @@ package com.yoosal.mvc.support;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.HashMap;
 import java.util.Map;
 
 public class HttpSceneSupport extends AbstractSceneSupport {
     private HttpServletRequest request;
     private HttpServletResponse response;
-    private Map<String, String[]> params;
-    private Map<Class, Object> penetrate;
+    private Map<String, String[]> params = new HashMap<String, String[]>();
+    private Map<Class, Object> penetrate = new HashMap<Class, Object>();
 
     public HttpSceneSupport(HttpServletRequest request, HttpServletResponse response, ControllerMethodParse controllerClassSupport) {
         super(controllerClassSupport);

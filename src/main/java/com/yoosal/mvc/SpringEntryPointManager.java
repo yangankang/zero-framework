@@ -2,10 +2,16 @@ package com.yoosal.mvc;
 
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.web.context.ContextLoader;
+import org.springframework.web.context.ServletContextAware;
+import org.springframework.web.context.WebApplicationContext;
 
+import javax.servlet.ServletContext;
 import java.util.List;
 
-public class SpringEntryPointManager extends EntryPointManager implements InitializingBean, DisposableBean {
+public class SpringEntryPointManager extends EntryPointManager implements InitializingBean, DisposableBean, ServletContextAware {
+    private ServletContext servletContext;
+
     private String writePath;
     private String apiPrefix;
     private String isDebugger;
@@ -25,22 +31,22 @@ public class SpringEntryPointManager extends EntryPointManager implements Initia
 
     public void setApiPrefix(String apiPrefix) {
         this.apiPrefix = apiPrefix;
-        this.setProperty(EntryPointManager.KEY_API_PREFIX, writePath);
+        this.setProperty(EntryPointManager.KEY_API_PREFIX, apiPrefix);
     }
 
     public void setIsDebugger(String isDebugger) {
         this.isDebugger = isDebugger;
-        this.setProperty(EntryPointManager.KEY_DEBUGGER, writePath);
+        this.setProperty(EntryPointManager.KEY_DEBUGGER, isDebugger);
     }
 
     public void setFormatException(String formatException) {
         this.formatException = formatException;
-        this.setProperty(EntryPointManager.KEY_FORMAT_EXCEPTION, writePath);
+        this.setProperty(EntryPointManager.KEY_FORMAT_EXCEPTION, formatException);
     }
 
     public void setScanPackage(String scanPackage) {
         this.scanPackage = scanPackage;
-        this.setProperty(EntryPointManager.KEY_SCAN_PACKAGE, writePath);
+        this.setProperty(EntryPointManager.KEY_SCAN_PACKAGE, scanPackage);
     }
 
     public void setApiController(List apiController) {
@@ -76,10 +82,16 @@ public class SpringEntryPointManager extends EntryPointManager implements Initia
     @Override
     public void afterPropertiesSet() throws Exception {
         this.setScanClassAndInstance();
+        this.produceJavaScriptMapping(servletContext);
     }
 
     @Override
     public void destroy() throws Exception {
         // TODO: 2016/5/19 Bean销毁时处理
+    }
+
+    @Override
+    public void setServletContext(ServletContext servletContext) {
+        this.servletContext = servletContext;
     }
 }

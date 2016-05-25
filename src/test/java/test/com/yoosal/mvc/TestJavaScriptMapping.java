@@ -15,9 +15,10 @@ public class TestJavaScriptMapping {
 
     @Test
     public void testCallJavaScript() throws ParseTemplateException {
-        EntryPointManager.setProperty("mvc.api.prefix", "FromController");
-        EntryPointManager.setProperty("mvc.key.method", "_METHOD");
-        EntryPointManager.setProperty("mvc.key.class", "_CLASS");
+        EntryPointManager entryPointManager = new EntryPointManager();
+        entryPointManager.setProperty("mvc.api.prefix", "FromController");
+        entryPointManager.setProperty("mvc.key.method", "_METHOD");
+        entryPointManager.setProperty("mvc.key.class", "_CLASS");
         ControllerMethodParse methodParse = new ControllerMethodParse();
         methodParse.setControllerName("Abc");
         methodParse.setMethodName("hello");
@@ -32,9 +33,10 @@ public class TestJavaScriptMapping {
 
     @Test
     public void testCreateFileJavaScript() throws ParseTemplateException, IOException {
-        EntryPointManager.setProperty("mvc.api.prefix", "FromController");
-        EntryPointManager.setProperty("mvc.key.method", "_METHOD");
-        EntryPointManager.setProperty("mvc.key.class", "_CLASS");
+        EntryPointManager entryPointManager = new EntryPointManager();
+        entryPointManager.setProperty("mvc.api.prefix", "FromController");
+        entryPointManager.setProperty("mvc.key.method", "_METHOD");
+        entryPointManager.setProperty("mvc.key.class", "_CLASS");
         ControllerMethodParse methodParse = new ControllerMethodParse();
         methodParse.setControllerName("Abc");
         methodParse.setMethodName("hello");
