@@ -51,27 +51,27 @@ import com.yoosal.json.util.TypeUtils;
 @SuppressWarnings("serial")
 public class JSONObject extends JSON implements Map<String, Object>, Cloneable, Serializable, InvocationHandler {
 
-    private static final int          DEFAULT_INITIAL_CAPACITY = 16;
+    private static final int DEFAULT_INITIAL_CAPACITY = 16;
 
     private final Map<String, Object> map;
 
-    public JSONObject(){
+    public JSONObject() {
         this(DEFAULT_INITIAL_CAPACITY, false);
     }
 
-    public JSONObject(Map<String, Object> map){
+    public JSONObject(Map<String, Object> map) {
         this.map = map;
     }
 
-    public JSONObject(boolean ordered){
+    public JSONObject(boolean ordered) {
         this(DEFAULT_INITIAL_CAPACITY, ordered);
     }
 
-    public JSONObject(int initialCapacity){
+    public JSONObject(int initialCapacity) {
         this(initialCapacity, false);
     }
 
-    public JSONObject(int initialCapacity, boolean ordered){
+    public JSONObject(int initialCapacity, boolean ordered) {
         if (ordered) {
             map = new LinkedHashMap<String, Object>(initialCapacity);
         } else {
@@ -289,11 +289,11 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
 
         return castToTimestamp(value);
     }
-    
+
     public Object put(String key, Object value) {
         return map.put(key, value);
     }
-    
+
     public JSONObject fluentPut(String key, Object value) {
         map.put(key, value);
         return this;
@@ -341,9 +341,9 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
     @Override
     public Object clone() {
         return new JSONObject(map instanceof LinkedHashMap //
-                              ? new LinkedHashMap<String, Object>(map) //
-                                  : new HashMap<String, Object>(map)
-                                  );
+                ? new LinkedHashMap<String, Object>(map) //
+                : new HashMap<String, Object>(map)
+        );
     }
 
     public boolean equals(Object obj) {
@@ -360,7 +360,7 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
             if (method.getName().equals("equals")) {
                 return this.equals(args[0]);
             }
-            
+
             Class<?> returnType = method.getReturnType();
             if (returnType != void.class) {
                 throw new JSONException("illegal setter");
@@ -376,7 +376,7 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
 
             if (name == null) {
                 name = method.getName();
-                
+
                 if (!name.startsWith("set")) {
                     throw new JSONException("illegal setter");
                 }
@@ -428,7 +428,7 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
                     throw new JSONException("illegal getter");
                 }
             }
-            
+
             Object value = map.get(name);
             return TypeUtils.cast(value, method.getGenericReturnType(), ParserConfig.getGlobalInstance());
         }
