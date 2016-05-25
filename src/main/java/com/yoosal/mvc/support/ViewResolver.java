@@ -8,5 +8,5 @@ import javax.servlet.http.HttpServletResponse;
 
 public interface ViewResolver {
 
-    void resolver(HttpServletRequest request, HttpServletResponse response) throws SceneInvokeException, ViewResolverException;
+    void resolver(HttpServletRequest request, HttpServletResponse response, String className, String methodName) throws SceneInvokeException, ViewResolverException;
 }

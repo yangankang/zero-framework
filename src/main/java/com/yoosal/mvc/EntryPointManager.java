@@ -20,7 +20,7 @@ import java.util.*;
 /**
  * 这里是完成初始化工作,必须在启动的时候完成，读取配置，扫描类等
  */
-public final class EntryPointManager {
+public class EntryPointManager {
 
     /**
      * 所有的配置信息都在这里
@@ -39,6 +39,7 @@ public final class EntryPointManager {
     //http请求中代表类名的字段
     static final String KEY_CLASS_KEY = "mvc.key.class";
     static final String KEY_REQUEST_URI = "mvc.request.uri";
+    static final String KEY_REQUEST_RESTFUL = "mvc.request.restful";
     static final String KEY_COMPRESSOR_JS = "mvc.compressor.js";
 
 
@@ -50,13 +51,13 @@ public final class EntryPointManager {
      *
      * @param prop
      */
-    public static void setProperties(Properties prop) throws IllegalAccessException, InstantiationException, ClassNotFoundException {
+    public void setProperties(Properties prop) throws IllegalAccessException, InstantiationException, ClassNotFoundException {
         // TODO: 2016/5/19  将配置文件复制到properties中
         classForName(prop);
         afterInstanceClassMethod();
     }
 
-    private static void classForName(Properties prop) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
+    private void classForName(Properties prop) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
         Enumeration enumeration = prop.propertyNames();
         List classes = new ArrayList();
         while (enumeration.hasMoreElements()) {
@@ -72,15 +73,15 @@ public final class EntryPointManager {
         classesInstanceFromProperties = classes;
     }
 
-    public static void setClassesInstanceFromProperties(List list) {
+    public void setClassesInstanceFromProperties(List list) {
         classesInstanceFromProperties = list;
     }
 
-    public static void setClassesInstanceFromScan(List list) {
+    public void setClassesInstanceFromScan(List list) {
         classesInstanceFromScan = list;
     }
 
-    public static void setProperty(String key, Object value) {
+    public void setProperty(String key, Object value) {
         properties.put(key, value);
     }
 
@@ -131,6 +132,14 @@ public final class EntryPointManager {
         return (String) getProperty(KEY_REQUEST_URI);
     }
 
+    public static boolean isRestful() {
+        String isRestful = String.valueOf(getProperty(KEY_REQUEST_RESTFUL));
+        if (isRestful.equalsIgnoreCase("true")) {
+            return true;
+        }
+        return false;
+    }
+
     public static ViewResolver getViewResolver() {
         if (viewResolver == null) {
             viewResolver = new NormalViewResolver();
@@ -140,8 +149,12 @@ public final class EntryPointManager {
 
     public static List getApiClass() {
         List classes = new ArrayList();
-        classes.addAll(classesInstanceFromProperties);
-        classes.addAll(classesInstanceFromScan);
+        if (classesInstanceFromProperties != null) {
+            classes.addAll(classesInstanceFromProperties);
+        }
+        if (classesInstanceFromScan != null) {
+            classes.addAll(classesInstanceFromScan);
+        }
         return classes;
     }
 
@@ -152,7 +165,7 @@ public final class EntryPointManager {
         return false;
     }
 
-    public static void setScanClassAndInstance() throws InstantiationException, IllegalAccessException {
+    public void setScanClassAndInstance() throws InstantiationException, IllegalAccessException {
         //扫描并实例所有的类
         classesInstanceFromScan = frameworkScanClass.getScanClassAndInstance(getScanPackage(), APIController.class);
         afterInstanceClassMethod();
@@ -161,7 +174,7 @@ public final class EntryPointManager {
     /**
      * 读取完成所有的配置之后，执行解析类，JS生成等功能
      */
-    private static void afterInstanceClassMethod() {
+    private void afterInstanceClassMethod() {
         SceneFactory.cacheControllerInfo();
         if (StringUtils.isNotBlank(getWritePath())) {
             JavaScriptMapping javaScriptMapping = new DefaultJavaScriptMapping();

@@ -20,12 +20,8 @@ public abstract class SceneFactory {
 
     private static final Map<String, ControllerMethodParse> controllers = new HashMap<String, ControllerMethodParse>();
     private static final Emerge emerge = new DefaultEmerge();
-    private static String KEY_METHOD_NAME = null;
-    private static String KEY_CLASS_NAME = null;
 
     static {
-        KEY_METHOD_NAME = EntryPointManager.getMethodKey();
-        KEY_CLASS_NAME = EntryPointManager.getClassKey();
         cacheControllerInfo();
     }
 
@@ -97,8 +93,9 @@ public abstract class SceneFactory {
         return classSupports;
     }
 
-    public static SceneSupport createHttpScene(HttpServletRequest request, HttpServletResponse response) {
-        String findMethodKey = request.getParameter(KEY_CLASS_NAME) + "." + request.getParameter(KEY_METHOD_NAME);
+    public static SceneSupport createHttpScene(HttpServletRequest request, HttpServletResponse response,
+                                               String className, String methodName) {
+        String findMethodKey = className + "." + methodName;
         ControllerMethodParse classSupport = controllers.get(findMethodKey.toLowerCase());
         if (classSupport == null) {
             throw new InitializeSceneException("no class or method name " + findMethodKey);

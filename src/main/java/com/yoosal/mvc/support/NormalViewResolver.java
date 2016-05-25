@@ -12,8 +12,8 @@ import java.io.IOException;
 
 public class NormalViewResolver implements ViewResolver {
     @Override
-    public void resolver(HttpServletRequest request, HttpServletResponse response) throws SceneInvokeException, ViewResolverException {
-        SceneSupport sceneSupport = SceneFactory.createHttpScene(request, response);
+    public void resolver(HttpServletRequest request, HttpServletResponse response, String className, String methodName) throws SceneInvokeException, ViewResolverException {
+        SceneSupport sceneSupport = SceneFactory.createHttpScene(request, response, className, methodName);
         SceneView sceneView = new SceneView();
         sceneView.setRequest(request);
         sceneView.setResponse(response);
