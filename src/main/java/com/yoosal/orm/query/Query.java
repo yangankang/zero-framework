@@ -11,6 +11,7 @@ public class Query {
     private Class<Enum> clazz;
     private String dataSourceName;
     private List<Wheres> wheres = new ArrayList<Wheres>();
+    private List<Join> joins = new ArrayList<Join>();
 
     public static Query query(Class clazz) {
         return new Query(clazz);
@@ -37,12 +38,14 @@ public class Query {
         this.dataSourceName = dataSourceName;
     }
 
-    public void setClazz(Class<Enum> clazz) {
+    public Query setClazz(Class<Enum> clazz) {
         this.clazz = clazz;
+        return this;
     }
 
-    public void setDataSourceName(String dataSourceName) {
+    public Query setDataSourceName(String dataSourceName) {
         this.dataSourceName = dataSourceName;
+        return this;
     }
 
     /**
@@ -104,4 +107,12 @@ public class Query {
         return this;
     }
 
+    public Query join(Join join) {
+        joins.add(join);
+        return this;
+    }
+
+    public List<Join> getJoins() {
+        return joins;
+    }
 }

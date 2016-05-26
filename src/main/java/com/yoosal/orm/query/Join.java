@@ -8,6 +8,11 @@ import java.util.List;
  * 右表一般是Join查询
  */
 public class Join {
+    //left join的标示
+    public static final byte LEFT = 1;
+    //inner join的标示
+    public static final byte INNER = 2;
+
     private Class<Enum> clazz;
     private String dataSourceName;
     /**
@@ -23,6 +28,9 @@ public class Join {
      * 的joinName，如果没有joinName那么会默认用Enum的类名
      */
     private String joinName;
+
+    private byte type = LEFT;
+
 
     public static Join join(Class clazz) {
         return new Join(clazz);
@@ -68,31 +76,36 @@ public class Join {
         return joinName;
     }
 
-    public void setJoinName(String joinName) {
+    public Join setJoinName(String joinName) {
         this.joinName = joinName;
+        return this;
     }
 
-    public Class<Enum> getClazz() {
-        return clazz;
-    }
-
-    public void setClazz(Class<Enum> clazz) {
+    public Join setClazz(Class<Enum> clazz) {
         this.clazz = clazz;
+        return this;
     }
 
-    public String getDataSourceName() {
-        return dataSourceName;
-    }
-
-    public void setDataSourceName(String dataSourceName) {
+    public Join setDataSourceName(String dataSourceName) {
         this.dataSourceName = dataSourceName;
+        return this;
     }
 
     public List<Wheres> getWheres() {
         return wheres;
     }
 
-    public void setWheres(List<Wheres> wheres) {
+    public Join setWheres(List<Wheres> wheres) {
         this.wheres = wheres;
+        return this;
+    }
+
+    public byte getType() {
+        return type;
+    }
+
+    public Join setType(byte type) {
+        this.type = type;
+        return this;
     }
 }
