@@ -4,6 +4,10 @@ public class BeanModel {
     private int id;
     private String name;
 
+    static {
+        System.out.println("aaa");
+    }
+
     public int getId() {
         return id;
     }
