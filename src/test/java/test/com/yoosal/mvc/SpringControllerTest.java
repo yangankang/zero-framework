@@ -15,10 +15,7 @@ public class SpringControllerTest {
     @RequestMapping("/invoke.do")
     public void doing(HttpServletRequest request, HttpServletResponse response) {
         try {
-            //这里使用GET/POST的传参方式，还有一种是Restful方式
-            String classNameFromParam = request.getParameter(EntryPointManager.getClassKey());
-            String methodNameFromParam = request.getParameter(EntryPointManager.getMethodKey());
-            EntryPointManager.getViewResolver().resolver(request, response, classNameFromParam, methodNameFromParam);
+            EntryPointManager.getViewResolver().resolver(request, response);
         } catch (SceneInvokeException e) {
             e.printStackTrace();
         } catch (ViewResolverException e) {

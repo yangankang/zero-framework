@@ -28,10 +28,7 @@ public class EntryPointServlet extends HttpServlet {
     @Override
     protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
-            //这里使用GET/POST的传参方式，还有一种是Restful方式
-            String classNameFromParam = req.getParameter(EntryPointManager.getClassKey());
-            String methodNameFromParam = req.getParameter(EntryPointManager.getMethodKey());
-            EntryPointManager.getViewResolver().resolver(req, resp, classNameFromParam, methodNameFromParam);
+            EntryPointManager.getViewResolver().resolver(req, resp);
         } catch (SceneInvokeException e) {
             e.printStackTrace();
         } catch (ViewResolverException e) {

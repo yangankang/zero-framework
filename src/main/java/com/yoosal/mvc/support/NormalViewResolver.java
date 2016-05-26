@@ -1,5 +1,6 @@
 package com.yoosal.mvc.support;
 
+import com.yoosal.mvc.EntryPointManager;
 import com.yoosal.mvc.SceneFactory;
 import com.yoosal.mvc.exception.SceneInvokeException;
 import com.yoosal.mvc.exception.ViewResolverException;
@@ -12,8 +13,9 @@ import java.io.IOException;
 
 public class NormalViewResolver implements ViewResolver {
     @Override
-    public void resolver(HttpServletRequest request, HttpServletResponse response, String className, String methodName) throws SceneInvokeException, ViewResolverException {
-        SceneSupport sceneSupport = SceneFactory.createHttpScene(request, response, className, methodName);
+    public void resolver(HttpServletRequest request, HttpServletResponse response) throws SceneInvokeException, ViewResolverException {
+        String[] classAndMethodName = this.getClassAndMethodName(request);
+        SceneSupport sceneSupport = SceneFactory.createHttpScene(request, response, classAndMethodName[0], classAndMethodName[1]);
         if (sceneSupport == null) {
             return;
         }
@@ -23,6 +25,19 @@ public class NormalViewResolver implements ViewResolver {
         sceneSupport.addParam(SceneView.class, sceneView);
         Object o = sceneSupport.invoke();
         this.resolverInvoke(request, response, sceneSupport, o);
+    }
+
+    private String[] getClassAndMethodName(HttpServletRequest request) {
+        String[] strings = new String[2];
+        if (EntryPointManager.isRestful()) {
+            //todo:restful实现方式
+        } else {
+            String classNameFromParam = request.getParameter(EntryPointManager.getClassKey());
+            String methodNameFromParam = request.getParameter(EntryPointManager.getMethodKey());
+            strings[0] = classNameFromParam;
+            strings[1] = methodNameFromParam;
+        }
+        return strings;
     }
 
     private void resolverInvoke(HttpServletRequest request, HttpServletResponse response, SceneSupport sceneSupport, Object o) throws ViewResolverException {
