@@ -11,6 +11,7 @@
         <property name="requestUri" value="/invoke.do"/>
         <property name="scanPackage" value="test.com.yoosal.mvc.apicontroller"/>
         <property name="writePath" value="/js/api.js"/>
+        <property name="authoritySupport" ref="authoritySupport"/>
     </bean>
 
 </beans>

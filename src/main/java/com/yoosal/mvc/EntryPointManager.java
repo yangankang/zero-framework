@@ -8,10 +8,7 @@ import com.yoosal.common.scan.FrameworkScanClass;
 import com.yoosal.mvc.annotation.APIController;
 import com.yoosal.mvc.exception.MvcNotFoundConfigException;
 import com.yoosal.mvc.exception.ParseTemplateException;
-import com.yoosal.mvc.support.DefaultJavaScriptMapping;
-import com.yoosal.mvc.support.JavaScriptMapping;
-import com.yoosal.mvc.support.NormalViewResolver;
-import com.yoosal.mvc.support.ViewResolver;
+import com.yoosal.mvc.support.*;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
@@ -54,10 +51,12 @@ public class EntryPointManager {
     static final String KEY_REQUEST_URI = "mvc.request.uri";
     static final String KEY_REQUEST_RESTFUL = "mvc.request.restful";
     static final String KEY_COMPRESSOR_JS = "mvc.compressor.js";
+    static final String KEY_AUTH_CLASS = "mvc.auth.class";
 
 
     private static FrameworkScanClass frameworkScanClass = new DefaultFrameworkScanClass();
     private static ViewResolver viewResolver = null;
+    private static AuthoritySupport authoritySupport = null;
 
     /**
      * 将Properties文件中的配置转换成全局变量
@@ -72,6 +71,15 @@ public class EntryPointManager {
         }
         classForName(prop);
         setScanClassAndInstance(servletContext);
+
+        String authClass = (String) getProperty(KEY_AUTH_CLASS);
+        if (authClass != null) {
+            this.setAuthoritySupport((AuthoritySupport) Class.forName(authClass).newInstance());
+        }
+    }
+
+    public void setAuthoritySupport(AuthoritySupport authoritySupport) {
+        EntryPointManager.authoritySupport = authoritySupport;
     }
 
     private void classForName(Properties prop) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
@@ -194,6 +202,10 @@ public class EntryPointManager {
             return true;
         }
         return false;
+    }
+
+    public static AuthoritySupport getAuthoritySupport() {
+        return authoritySupport;
     }
 
     public void setScanClassAndInstance(ServletContext servletContext) throws InstantiationException, IllegalAccessException {

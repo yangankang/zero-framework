@@ -2,6 +2,7 @@ package com.yoosal.mvc.support;
 
 import com.yoosal.common.ClassUtils;
 import com.yoosal.json.JSON;
+import com.yoosal.mvc.EntryPointManager;
 import com.yoosal.mvc.exception.SceneInvokeException;
 
 import java.util.Map;
@@ -18,7 +19,7 @@ public abstract class AbstractSceneSupport implements SceneSupport {
     public Object invoke() throws SceneInvokeException {
         try {
             //执行之前检查一下用户自定义的权限是否可执行
-            AuthoritySupport authoritySupport = AuthoritySupport.getAuthSupport();
+            AuthoritySupport authoritySupport = EntryPointManager.getAuthoritySupport();
             if (authoritySupport != null) {
                 AuthorityReply authorityReply = new AuthorityReply(
                         this.controllerClassSupport.getClazz(),

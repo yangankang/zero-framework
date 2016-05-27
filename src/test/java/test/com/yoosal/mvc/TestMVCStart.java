@@ -1,6 +1,5 @@
 package test.com.yoosal.mvc;
 
-import com.yoosal.mvc.EntryPointManager;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,7 +30,6 @@ public class TestMVCStart {
 
     @Test
     public void controllerExceptionHandler() throws Exception {
-        TestAuthoritySupport authoritySupport = new TestAuthoritySupport();
         this.mockMvc.perform(get("/invoke.do?_class=TestApiControllerA&_method=printer&name=ankang"))
                 .andExpect(status().isOk());
     }

@@ -1,6 +1,7 @@
 package com.yoosal.mvc;
 
 import com.yoosal.mvc.annotation.APIController;
+import com.yoosal.mvc.support.AuthoritySupport;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
@@ -32,6 +33,13 @@ public class SpringEntryPointManager extends EntryPointManager implements Initia
     private String requestUri;
     private String isCompressorJs;
     private String isRestful;
+    private AuthoritySupport authoritySupport;
+
+    @Override
+    public void setAuthoritySupport(AuthoritySupport authoritySupport) {
+        this.authoritySupport = authoritySupport;
+        super.setAuthoritySupport(authoritySupport);
+    }
 
     public void setWritePath(String writePath) {
         this.writePath = writePath;
