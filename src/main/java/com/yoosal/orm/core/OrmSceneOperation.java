@@ -1,5 +1,6 @@
-package com.yoosal.orm;
+package com.yoosal.orm.core;
 
+import com.yoosal.orm.ModelObject;
 import com.yoosal.orm.query.Query;
 
 import java.util.List;

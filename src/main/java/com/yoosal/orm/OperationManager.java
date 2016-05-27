@@ -5,6 +5,8 @@ import com.yoosal.common.Logger;
 import com.yoosal.common.scan.DefaultFrameworkScanClass;
 import com.yoosal.common.scan.FrameworkScanClass;
 import com.yoosal.orm.annotation.Table;
+import com.yoosal.orm.core.DataSourceManager;
+import com.yoosal.orm.core.SimpleDataSourceManager;
 
 import java.util.*;
 
@@ -22,8 +24,16 @@ public class OperationManager {
     static final String KEY_MAPPING_CLASS = "orm.mapping.";
     //映射的时候如果没有发现字段，是否允许添加字段,Boolean类型
     static final String KEY_MAPPING_ALTER = "orm.mapping.alter";
+    /**
+     * 配置数据库连接，所有的数据都是对应的连接池中的DataSource的属性，比如：
+     * orm.ds.proxool.dbType=mysql
+     * orm.ds.proxool.driver=com.mysql.jdbc.Driver
+     */
+    static final String KEY_DATASOURCE_INFO = "orm.ds.";
 
     private static FrameworkScanClass frameworkScanClass = new DefaultFrameworkScanClass();
+    private static DataSourceManager dataSourceManager = new SimpleDataSourceManager();
+
     /**
      * 存放所有的映射为表的Class 类
      */
@@ -55,6 +65,10 @@ public class OperationManager {
 
     public void setMappingClassByString(Set<String> classNames) throws ClassNotFoundException {
         this.propertiesToClass(classNames);
+    }
+
+    public static DataSourceManager getDataSourceManager() {
+        return dataSourceManager;
     }
 
     public void scanClassInSet(String packageName) {
