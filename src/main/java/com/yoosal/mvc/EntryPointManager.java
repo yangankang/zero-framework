@@ -28,10 +28,15 @@ public class EntryPointManager {
      * 所有的配置信息都在这里
      */
     private static final Map<String, Object> properties = new HashMap<String, Object>();
+
+    //默认的类名的传参名称 比如：request.getParameter(DEFAULT_CLASS_KEY)
     private static final String DEFAULT_CLASS_KEY = "_class";
+    //默认的方法名的传参名称 比如：request.getParameter(DEFAULT_METHOD_KEY)
     private static final String DEFAULT_METHOD_KEY = "_method";
+
     private static List classesInstanceFromProperties = null;
     private static List classesInstanceFromScan = null;
+    
     static final String KEY_WRITE_PATH = "mvc.write.path";
     static final String KEY_API_PREFIX = "mvc.api.prefix";
     static final String KEY_DEBUGGER = "mvc.debugger";

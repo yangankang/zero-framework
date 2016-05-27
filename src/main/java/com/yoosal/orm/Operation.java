@@ -8,6 +8,11 @@ import java.util.List;
  * 数据库基本操作的基类，直接面向开发者的接口
  */
 public interface Operation {
+    /**
+     * Transaction 的开始，
+     */
+    void begin();
+
     Object save(ModelObject object);
 
     void update(ModelObject object);
@@ -21,4 +26,9 @@ public interface Operation {
     ModelObject query(Query query);
 
     long count(Query query);
+
+    /**
+     * 提交事务
+     */
+    void commit();
 }
