@@ -34,9 +34,13 @@ public class EntryPointManager {
     //默认的方法名的传参名称 比如：request.getParameter(DEFAULT_METHOD_KEY)
     private static final String DEFAULT_METHOD_KEY = "_method";
 
-    private static List classesInstanceFromProperties = null;
-    private static List classesInstanceFromScan = null;
-    
+    /**
+     * classesInstanceFromProperties 和 classesInstanceFromScan 都是存放实例化的APIController对象，除了来源不一样其他
+     * 的都一样的
+     */
+    private static Set<Object> classesInstanceFromProperties = null;
+    private static Set<Object> classesInstanceFromScan = null;
+
     static final String KEY_WRITE_PATH = "mvc.write.path";
     static final String KEY_API_PREFIX = "mvc.api.prefix";
     static final String KEY_DEBUGGER = "mvc.debugger";
@@ -72,7 +76,7 @@ public class EntryPointManager {
 
     private void classForName(Properties prop) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
         Enumeration enumeration = prop.propertyNames();
-        List classes = new ArrayList();
+        Set classes = new HashSet();
         while (enumeration.hasMoreElements()) {
             Object object = enumeration.nextElement();
             if (object != null) {
@@ -86,12 +90,16 @@ public class EntryPointManager {
         classesInstanceFromProperties = classes;
     }
 
-    public void setClassesInstanceFromProperties(List list) {
-        classesInstanceFromProperties = list;
+    public void setClassesInstanceFromProperties(Set set) {
+        if (classesInstanceFromProperties != null) {
+            classesInstanceFromProperties.addAll(set);
+        } else {
+            classesInstanceFromProperties = set;
+        }
     }
 
-    public void setClassesInstanceFromScan(List list) {
-        classesInstanceFromScan = list;
+    public void setClassesInstanceFromScan(Set set) {
+        classesInstanceFromScan = set;
     }
 
     public void setProperty(String key, Object value) {
@@ -129,7 +137,7 @@ public class EntryPointManager {
         return String.valueOf(getProperty(KEY_SCAN_PACKAGE));
     }
 
-    public static List getConfigApiClass() {
+    public static Set getConfigApiClass() {
         return classesInstanceFromProperties;
     }
 

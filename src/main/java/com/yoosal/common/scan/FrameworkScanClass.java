@@ -2,9 +2,10 @@ package com.yoosal.common.scan;
 
 import java.lang.annotation.Annotation;
 import java.util.List;
+import java.util.Set;
 
 public interface FrameworkScanClass {
-    List getScanClass(String packagePath, Class<? extends Annotation> annotationClass);
+    Set getScanClass(String packagePath, Class<? extends Annotation> annotationClass);
 
-    List getScanClassAndInstance(String packagePath, Class<? extends Annotation> annotationClass) throws IllegalAccessException, InstantiationException;
+    Set getScanClassAndInstance(String packagePath, Class<? extends Annotation> annotationClass) throws IllegalAccessException, InstantiationException;
 }

@@ -14,9 +14,9 @@ import java.util.jar.JarFile;
 public class DefaultFrameworkScanClass implements FrameworkScanClass {
 
     @Override
-    public List getScanClass(String packagePath, Class<? extends Annotation> annotationClass) {
+    public Set getScanClass(String packagePath, Class<? extends Annotation> annotationClass) {
         List<Class<?>> allClasses = getClasses(packagePath);
-        List<Class<?>> classes = new ArrayList<Class<?>>();
+        Set<Class<?>> classes = new HashSet<Class<?>>();
         for (Class<?> clazz : allClasses) {
             if (AnnotationUtils.isAnnotationDeclaredLocally(annotationClass, clazz)) {
                 classes.add(clazz);
@@ -26,9 +26,9 @@ public class DefaultFrameworkScanClass implements FrameworkScanClass {
     }
 
     @Override
-    public List getScanClassAndInstance(String packagePath, Class<? extends Annotation> annotationClass) throws IllegalAccessException, InstantiationException {
-        List<Class<?>> classes = this.getScanClass(packagePath, annotationClass);
-        List instanceClasses = new ArrayList();
+    public Set getScanClassAndInstance(String packagePath, Class<? extends Annotation> annotationClass) throws IllegalAccessException, InstantiationException {
+        Set<Class<?>> classes = this.getScanClass(packagePath, annotationClass);
+        Set instanceClasses = new HashSet();
         for (Class clazz : classes) {
             instanceClasses.add(clazz.newInstance());
         }

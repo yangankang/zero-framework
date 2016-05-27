@@ -1,21 +1,32 @@
 package com.yoosal.mvc;
 
+import com.yoosal.mvc.annotation.APIController;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.web.context.ServletContextAware;
 
 import javax.servlet.ServletContext;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
-public class SpringEntryPointManager extends EntryPointManager implements InitializingBean, DisposableBean, ServletContextAware {
+public class SpringEntryPointManager extends EntryPointManager implements InitializingBean, DisposableBean, ServletContextAware, ApplicationContextAware {
     private ServletContext servletContext;
+    private ApplicationContext applicationContext;
+    /**
+     * 是否扫描所有的Spring Bean获得已经实例化的APIController
+     */
+    private boolean scanSpringContext = false;
 
     private String writePath;
     private String apiPrefix;
     private String isDebugger;
     private String formatException;
     private String scanPackage;
-    private List apiController;
+    private Set<Object> apiController;
     private String methodParamName;
     private String classParamName;
     private String requestUri;
@@ -47,7 +58,7 @@ public class SpringEntryPointManager extends EntryPointManager implements Initia
         this.setProperty(EntryPointManager.KEY_SCAN_PACKAGE, scanPackage);
     }
 
-    public void setApiController(List apiController) {
+    public void setApiController(Set apiController) {
         this.apiController = apiController;
         this.setClassesInstanceFromProperties(this.apiController);
     }
@@ -75,6 +86,30 @@ public class SpringEntryPointManager extends EntryPointManager implements Initia
     public void setIsRestful(String isRestful) {
         this.isRestful = isRestful;
         this.setProperty(EntryPointManager.KEY_REQUEST_RESTFUL, isRestful);
+    }
+
+    public void setScanSpringContext(boolean scanSpringContext) {
+        this.scanSpringContext = scanSpringContext;
+        scanBeanToApiController();
+    }
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        this.applicationContext = applicationContext;
+        scanBeanToApiController();
+    }
+
+    private void scanBeanToApiController() {
+        if (this.scanSpringContext) {
+            Map<String, Object> beans = applicationContext.getBeansWithAnnotation(APIController.class);
+            if (beans != null) {
+                Set<Object> objects = new HashSet<Object>();
+                for (Map.Entry<String, Object> entry : beans.entrySet()) {
+                    objects.add(entry.getValue());
+                }
+                this.setClassesInstanceFromProperties(objects);
+            }
+        }
     }
 
     @Override
