@@ -3,6 +3,9 @@ package com.yoosal.orm.core;
 import javax.sql.DataSource;
 import java.util.*;
 
+/**
+ * 把数据源分组，暂时没用到
+ */
 public class GroupDataSource {
     private String groupName;
     private Set<SourceObject> sourceObjects;

@@ -23,7 +23,7 @@ public class SimpleDataSourceManager implements DataSourceManager {
     }
 
     static {
-        dataSourceResolve.put(SupportList.MYSQL.toString(), null);
+        dataSourceResolve.put(SupportList.MYSQL.toString(), new MySqlDataSourceResolve());
     }
 
     @Override
@@ -69,7 +69,7 @@ public class SimpleDataSourceManager implements DataSourceManager {
     }
 
     @Override
-    public void fromProperties(Map<String, Object> properties) throws IllegalAccessException, InvocationTargetException, InstantiationException {
+    public void fromProperties(Map<String, Object> properties) throws IllegalAccessException, InvocationTargetException, InstantiationException, ClassNotFoundException {
         Map<String, Map<String, String>> splitProperties = new HashMap();
         for (Map.Entry<String, Object> entry : properties.entrySet()) {
             String key = entry.getKey();
@@ -94,7 +94,7 @@ public class SimpleDataSourceManager implements DataSourceManager {
         dataSourceResolve.put(resolve.getDBType(), resolve);
     }
 
-    private DataSource propertiesToDatSource(String dbType, Map<String, String> map) throws IllegalAccessException, InstantiationException, InvocationTargetException {
+    private DataSource propertiesToDatSource(String dbType, Map<String, String> map) throws IllegalAccessException, InstantiationException, InvocationTargetException, ClassNotFoundException {
         DataSourceResolve resolve = dataSourceResolve.get(dbType);
         if (resolve != null) {
             Class clazz = resolve.getDataSourceClass();

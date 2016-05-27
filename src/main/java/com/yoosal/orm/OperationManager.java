@@ -8,6 +8,7 @@ import com.yoosal.orm.annotation.Table;
 import com.yoosal.orm.core.DataSourceManager;
 import com.yoosal.orm.core.SimpleDataSourceManager;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
 /**
@@ -39,7 +40,7 @@ public class OperationManager {
      */
     private static Set<Class> classesFromScan = new HashSet<Class>();
 
-    public void setProperties(Properties prop) throws ClassNotFoundException {
+    public void setProperties(Properties prop) throws ClassNotFoundException, InstantiationException, IllegalAccessException, InvocationTargetException {
         if (prop != null) {
             for (Map.Entry<Object, Object> entry : prop.entrySet()) {
                 properties.put((String) entry.getKey(), entry.getValue());
@@ -48,6 +49,19 @@ public class OperationManager {
         Set<String> classNames = getConfigMappingClasses();
         this.propertiesToClass(classNames);
         this.scanClassInSet(getScanPackage());
+        initDataSource();
+
+        doMapping();
+    }
+
+    private void initDataSource() throws InvocationTargetException, ClassNotFoundException, InstantiationException, IllegalAccessException {
+        Map<String, Object> dsmap = new HashMap<String, Object>();
+        for (Map.Entry<String, Object> entry : properties.entrySet()) {
+            if (entry.getKey().startsWith(KEY_DATASOURCE_INFO)) {
+                dsmap.put(entry.getKey(), entry.getValue());
+            }
+        }
+        dataSourceManager.fromProperties(dsmap);
     }
 
     private void propertiesToClass(Set<String> classNames) throws ClassNotFoundException {
@@ -80,6 +94,10 @@ public class OperationManager {
         }
     }
 
+    public void setProperty(String key, Object value) {
+        properties.put(key, value);
+    }
+
     public static String getScanPackage() {
         return (String) getProperty(KEY_SCAN_PACKAGE);
     }
@@ -96,6 +114,10 @@ public class OperationManager {
 
     public static Set<Class> getClasses() {
         return classesFromScan;
+    }
+
+    void doMapping() {
+        //todo:检查数据库映射
     }
 
     public static boolean canAlter() {

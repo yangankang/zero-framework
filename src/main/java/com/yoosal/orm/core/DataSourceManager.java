@@ -17,7 +17,7 @@ public interface DataSourceManager {
 
     DataSource getDataSource();
 
-    void fromProperties(Map<String, Object> properties) throws IllegalAccessException, InvocationTargetException, InstantiationException;
+    void fromProperties(Map<String, Object> properties) throws IllegalAccessException, InvocationTargetException, InstantiationException, ClassNotFoundException;
 
     void registerDataSourceResolve(DataSourceResolve resolve);
 }
