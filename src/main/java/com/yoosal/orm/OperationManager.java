@@ -7,6 +7,8 @@ import com.yoosal.common.scan.FrameworkScanClass;
 import com.yoosal.orm.annotation.Table;
 import com.yoosal.orm.core.DataSourceManager;
 import com.yoosal.orm.core.SimpleDataSourceManager;
+import com.yoosal.orm.mapping.DBMapping;
+import com.yoosal.orm.mapping.DefaultDBMapping;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
@@ -34,6 +36,7 @@ public class OperationManager {
 
     private static FrameworkScanClass frameworkScanClass = new DefaultFrameworkScanClass();
     private static DataSourceManager dataSourceManager = new SimpleDataSourceManager();
+    private static DBMapping mapping = new DefaultDBMapping();
 
     /**
      * 存放所有的映射为表的Class 类
@@ -117,15 +120,20 @@ public class OperationManager {
     }
 
     void doMapping() {
-        //todo:检查数据库映射
+        boolean isCanAlter = canAlter();
+        mapping.doMapping(dataSourceManager, isCanAlter);
+    }
+
+    public static DBMapping getMapping() {
+        return mapping;
     }
 
     public static boolean canAlter() {
         String canAlter = (String) getProperty(KEY_MAPPING_ALTER);
-        if (canAlter.equalsIgnoreCase("true")) {
-            return true;
-        } else {
+        if (canAlter.equalsIgnoreCase("false")) {
             return false;
+        } else {
+            return true;
         }
     }
 }

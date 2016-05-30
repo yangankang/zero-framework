@@ -14,6 +14,7 @@ public class SimpleDataSourceManager implements DataSourceManager {
 
     private static final String DATA_SOURCE_NAME_KEY = "dataSourceName";
     private static final String DATA_SOURCE_GROUP_KEY = "group";
+    private static final String DATA_SOURCE_TABLES_KEY = "tables";
 
     /**
      * 默认支持的数据库，每个数据库默认一个连接池框架
@@ -112,9 +113,12 @@ public class SimpleDataSourceManager implements DataSourceManager {
             }
             String dataSourceName = map.get(DATA_SOURCE_NAME_KEY);
             String dataSourceGroup = map.get(DATA_SOURCE_GROUP_KEY);
+            String tablesString = map.get(DATA_SOURCE_TABLES_KEY);
+
             GroupDataSource groupDataSource = new GroupDataSource();
             groupDataSource.setGroupName(dataSourceGroup);
             groupDataSource.addGroup(dataSourceName, (DataSource) object);
+            groupDataSource.setEnumNames(Arrays.asList(tablesString.split("\\.")));
             groupDataSources.add(groupDataSource);
             dataSourceMap.put(dataSourceName, (DataSource) object);
             return (DataSource) object;

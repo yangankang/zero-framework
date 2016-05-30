@@ -8,7 +8,19 @@ import java.util.*;
  */
 public class GroupDataSource {
     private String groupName;
+    /**
+     * 能映射到数据库的枚举，表示当前的连接只会和这些表关联，比如创建表
+     */
+    private List<String> enumNames;
     private Set<SourceObject> sourceObjects;
+
+    public List<String> getEnumNames() {
+        return enumNames;
+    }
+
+    public void setEnumNames(List<String> enumNames) {
+        this.enumNames = enumNames;
+    }
 
     public String getGroupName() {
         return groupName;
