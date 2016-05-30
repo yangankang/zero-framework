@@ -59,10 +59,6 @@ public class MappingColumnModel {
         return columnName;
     }
 
-    public void setColumnName(String columnName) {
-        this.columnName = columnName;
-    }
-
     public String getColumnType() {
         return columnType;
     }
