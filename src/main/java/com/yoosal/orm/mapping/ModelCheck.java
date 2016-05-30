@@ -12,7 +12,5 @@ public interface ModelCheck {
 
     void setWordConvert(WordConvert convert);
 
-    String getName();
-
-    void setMappingName(String name);
+    void setWordConvert(String key);
 }

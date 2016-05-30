@@ -3,9 +3,20 @@ package com.yoosal.orm.mapping;
 public abstract class AbstractModelCheck implements ModelCheck {
     private WordConvert wordConvert;
 
+    enum SuppertConvert {
+        H2U
+    }
+
     @Override
     public void setWordConvert(WordConvert convert) {
         this.wordConvert = convert;
+    }
+
+    @Override
+    public void setWordConvert(String key) {
+        if (key.equalsIgnoreCase(SuppertConvert.H2U.toString())) {
+            this.wordConvert = new H2UConvert();
+        }
     }
 
     @Override
@@ -34,4 +45,9 @@ public abstract class AbstractModelCheck implements ModelCheck {
         }
         return false;
     }
+
+
+    protected abstract String getName();
+
+    protected abstract void setMappingName(String name);
 }

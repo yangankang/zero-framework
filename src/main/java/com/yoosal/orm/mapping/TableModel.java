@@ -1,12 +1,13 @@
 package com.yoosal.orm.mapping;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class MappingModel extends AbstractModelCheck {
+public class TableModel extends AbstractModelCheck {
     private String javaTableName;
     private String dbTableName;
     private String dataSourceName;
-    private List<MappingColumnModel> mappingColumnModels;
+    private List<ColumnModel> mappingColumnModels;
 
     public String getJavaTableName() {
         return javaTableName;
@@ -20,11 +21,11 @@ public class MappingModel extends AbstractModelCheck {
         return dbTableName;
     }
 
-    public List<MappingColumnModel> getMappingColumnModels() {
+    public List<ColumnModel> getMappingColumnModels() {
         return mappingColumnModels;
     }
 
-    public void setMappingColumnModels(List<MappingColumnModel> mappingColumnModels) {
+    public void setMappingColumnModels(List<ColumnModel> mappingColumnModels) {
         this.mappingColumnModels = mappingColumnModels;
     }
 
@@ -44,5 +45,12 @@ public class MappingModel extends AbstractModelCheck {
     @Override
     public void setMappingName(String name) {
         this.dbTableName = name;
+    }
+
+    public void addMappingColumnModel(ColumnModel columnModel) {
+        if (this.mappingColumnModels == null) {
+            this.mappingColumnModels = new ArrayList<ColumnModel>();
+        }
+        this.mappingColumnModels.add(columnModel);
     }
 }

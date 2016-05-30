@@ -15,7 +15,8 @@ public class SimpleDataSourceManager implements DataSourceManager {
     private static final String DATA_SOURCE_NAME_KEY = "dataSourceName";
     private static final String DATA_SOURCE_GROUP_KEY = "group";
     private static final String DATA_SOURCE_TABLES_KEY = "tables";
-    
+    private static final String DATA_SOURCE_CLASS_KEY = "class";
+
     static {
         dataSourceResolve.put(SupportList.MYSQL.toString(), new MySqlDataSourceResolve());
     }
@@ -89,9 +90,18 @@ public class SimpleDataSourceManager implements DataSourceManager {
     }
 
     private DataSource propertiesToDatSource(String dbType, Map<String, String> map) throws IllegalAccessException, InstantiationException, InvocationTargetException, ClassNotFoundException {
-        DataSourceResolve resolve = dataSourceResolve.get(dbType);
-        if (resolve != null) {
-            Class clazz = resolve.getDataSourceClass();
+        Class clazz = null;
+        if (clazz == null) {
+            String dataSourceClassString = map.get(DATA_SOURCE_CLASS_KEY);
+            clazz = Class.forName(dataSourceClassString);
+        }
+        if (clazz == null) {
+            DataSourceResolve resolve = dataSourceResolve.get(dbType);
+            if (resolve != null) {
+                clazz = resolve.getDataSourceClass();
+            }
+        }
+        if (clazz != null) {
             Object object = clazz.newInstance();
             for (Map.Entry<String, String> entry : map.entrySet()) {
                 String key = entry.getKey();

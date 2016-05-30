@@ -1,6 +1,6 @@
 package com.yoosal.orm.mapping;
 
-public class MappingColumnModel {
+public class ColumnModel extends AbstractModelCheck {
     private String javaName;
     private String javaAliasName;
     private Class javaType;
@@ -12,7 +12,7 @@ public class MappingColumnModel {
     private long length;
     private Class generateStrategy;
 
-    private boolean isPrimaryKey;
+    private int isPrimaryKey;
     private boolean isLock = false;
 
     public String getJavaName() {
@@ -83,12 +83,12 @@ public class MappingColumnModel {
         this.generateStrategy = generateStrategy;
     }
 
-    public boolean isPrimaryKey() {
+    public int getIsPrimaryKey() {
         return isPrimaryKey;
     }
 
-    public void setPrimaryKey(boolean primaryKey) {
-        isPrimaryKey = primaryKey;
+    public void setIsPrimaryKey(int isPrimaryKey) {
+        this.isPrimaryKey = isPrimaryKey;
     }
 
     public boolean isLock() {
@@ -97,5 +97,15 @@ public class MappingColumnModel {
 
     public void setLock(boolean lock) {
         isLock = lock;
+    }
+
+    @Override
+    protected String getName() {
+        return this.javaName;
+    }
+
+    @Override
+    protected void setMappingName(String name) {
+        this.columnName = name;
     }
 }
