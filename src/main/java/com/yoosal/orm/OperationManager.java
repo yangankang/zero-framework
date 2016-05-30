@@ -121,7 +121,7 @@ public class OperationManager {
 
     void doMapping() {
         boolean isCanAlter = canAlter();
-        mapping.doMapping(dataSourceManager, isCanAlter);
+        mapping.doMapping(dataSourceManager, classesFromScan, isCanAlter);
     }
 
     public static DBMapping getMapping() {

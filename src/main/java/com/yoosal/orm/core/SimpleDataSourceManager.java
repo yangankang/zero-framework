@@ -15,14 +15,7 @@ public class SimpleDataSourceManager implements DataSourceManager {
     private static final String DATA_SOURCE_NAME_KEY = "dataSourceName";
     private static final String DATA_SOURCE_GROUP_KEY = "group";
     private static final String DATA_SOURCE_TABLES_KEY = "tables";
-
-    /**
-     * 默认支持的数据库，每个数据库默认一个连接池框架
-     */
-    enum SupportList {
-        MYSQL
-    }
-
+    
     static {
         dataSourceResolve.put(SupportList.MYSQL.toString(), new MySqlDataSourceResolve());
     }
