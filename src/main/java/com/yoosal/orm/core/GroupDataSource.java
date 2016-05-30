@@ -49,7 +49,7 @@ public class GroupDataSource {
         return sourceObject;
     }
 
-    class SourceObject {
+    public class SourceObject {
         private String dataSourceName;
         private DataSource dataSource;
 

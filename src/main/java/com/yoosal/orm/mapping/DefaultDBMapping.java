@@ -1,27 +1,125 @@
 package com.yoosal.orm.mapping;
 
 import com.yoosal.common.AnnotationUtils;
+import com.yoosal.common.CollectionUtils;
 import com.yoosal.common.StringUtils;
 import com.yoosal.orm.annotation.Column;
 import com.yoosal.orm.annotation.Table;
 import com.yoosal.orm.core.DataSourceManager;
+import com.yoosal.orm.core.GroupDataSource;
+import com.yoosal.orm.dialect.SQLDialect;
 import com.yoosal.orm.exception.OrmMappingException;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import javax.sql.DataSource;
+import java.sql.*;
+import java.util.*;
 
 public class DefaultDBMapping implements DBMapping {
     private DataSourceManager dataSourceManager;
     private Set<Class> classes;
     private Map<Class, TableModel> mappingModelMap = new HashMap<Class, TableModel>();
+    private SQLDialect sqlDialect;
 
     @Override
-    public void doMapping(DataSourceManager dataSourceManager, Set<Class> classes, boolean canAlter) {
+    public void doMapping(DataSourceManager dataSourceManager, Set<Class> classes, boolean canAlter) throws SQLException {
         this.dataSourceManager = dataSourceManager;
         this.classes = classes;
 
         classToModel();
+        compareToTables(canAlter);
+    }
+
+    private void compareToTables(boolean canAlter) throws SQLException {
+        Set<GroupDataSource> groupDataSources = this.dataSourceManager.getAllDataSource();
+        for (GroupDataSource groupDataSource : groupDataSources) {
+            compareToTable(groupDataSource, canAlter);
+        }
+    }
+
+    private void compareToTable(GroupDataSource groupDataSource, boolean canAlter) throws SQLException {
+        List<String> enumNames = groupDataSource.getEnumNames();
+        List<TableModel> tableModels = new ArrayList<TableModel>();
+        if (!CollectionUtils.isEmpty(enumNames)) {
+            for (Map.Entry<Class, TableModel> entry : mappingModelMap.entrySet()) {
+                if (enumNames.contains(entry.getValue().getJavaTableName())) {
+                    tableModels.add(entry.getValue());
+                }
+            }
+        } else {
+            for (Map.Entry<Class, TableModel> entry : mappingModelMap.entrySet()) {
+                tableModels.add(entry.getValue());
+            }
+        }
+
+        Set<GroupDataSource.SourceObject> sourceObjects = groupDataSource.getSourceObjects();
+        for (GroupDataSource.SourceObject sourceObject : sourceObjects) {
+            DataSource dataSource = sourceObject.getDataSource();
+            compareDatabase(tableModels, dataSource, canAlter);
+        }
+    }
+
+    private void compareDatabase(List<TableModel> tableModels, DataSource dataSource, boolean canAlter) throws SQLException {
+        Connection connection = null;
+        Statement statement = null;
+        try {
+            connection = dataSource.getConnection();
+            String[] type = {"Table"};
+            DatabaseMetaData databaseMetaData = connection.getMetaData();
+            ResultSet tableResultSet = databaseMetaData.getTables(connection.getCatalog(), null, null, type);
+            List<String> tableNames = new ArrayList<String>();
+            while (tableResultSet.next()) {
+                String tableName = tableResultSet.getString("TABLE_NAME");
+                tableNames.add(tableName.toLowerCase());
+            }
+
+            for (TableModel tableModel : tableModels) {
+                if (tableNames.contains(tableModel.getDbTableName().toLowerCase())) {
+                    ResultSet columnResultSet = databaseMetaData.getColumns(connection.getCatalog(), null, tableModel.getDbTableName(), null);
+                    List<ColumnModel> columnModels = tableModel.getMappingColumnModels();
+                    List<ColumnModel> existColumns = new ArrayList<ColumnModel>();
+                    for (ColumnModel cm : columnModels) {
+                        existColumns.add(cm);
+                    }
+                    while (columnResultSet.next()) {
+                        String columnName = columnResultSet.getString("COLUMN_NAME");
+                        String typeName = columnResultSet.getString("TYPE_NAME");
+                        int dataType = columnResultSet.getInt("DATA_TYPE");
+
+                        String columnType = sqlDialect.getType(dataType);
+                        ColumnModel columnModel = null;
+                        for (ColumnModel cm : columnModels) {
+                            if (cm.getColumnName().equalsIgnoreCase(columnName)) {
+                                columnModel = cm;
+                                break;
+                            }
+                        }
+                        if (columnModel != null) {
+                            existColumns.remove(columnModel);
+                            columnModel.setColumnType(columnType);
+                            columnModel.setColumnTypeCode(dataType);
+                        }
+                    }
+                    if (existColumns.size() > 0) {
+                        if (canAlter) {
+                            
+                        } else {
+                            throw new OrmMappingException("can't alter table and columns mapping match the inconsistent");
+                        }
+                    }
+                    statement.close();
+                } else {
+
+                }
+            }
+            connection.close();
+        } finally {
+            if (statement != null) {
+                statement.close();
+            }
+            if (connection != null) {
+                connection.close();
+            }
+        }
     }
 
     private void classToModel() {

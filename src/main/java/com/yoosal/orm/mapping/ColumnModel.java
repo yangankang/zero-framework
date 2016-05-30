@@ -9,6 +9,7 @@ public class ColumnModel extends AbstractModelCheck {
 
     private String columnName;
     private String columnType;
+    private int columnTypeCode;
     private long length;
     private Class generateStrategy;
 
@@ -81,6 +82,14 @@ public class ColumnModel extends AbstractModelCheck {
 
     public void setGenerateStrategy(Class generateStrategy) {
         this.generateStrategy = generateStrategy;
+    }
+
+    public int getColumnTypeCode() {
+        return columnTypeCode;
+    }
+
+    public void setColumnTypeCode(int columnTypeCode) {
+        this.columnTypeCode = columnTypeCode;
     }
 
     public int getIsPrimaryKey() {
