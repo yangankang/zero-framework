@@ -44,7 +44,7 @@ public class DefaultDBMapping implements DBMapping {
         String dataBaseName = databaseMetaData.getDatabaseProductName();
         for (Map.Entry<String, SQLDialect> entry : registerSQLDialect.entrySet()) {
             String key = entry.getKey();
-            if (dataBaseName.indexOf(key) >= 0) {
+            if (dataBaseName.toLowerCase().indexOf(key.toLowerCase()) >= 0) {
                 return entry.getValue();
             }
         }
