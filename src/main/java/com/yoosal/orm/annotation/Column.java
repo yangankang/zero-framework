@@ -10,7 +10,7 @@ public @interface Column {
 
     Class type() default String.class;
 
-    long length() default 255;
+    long length() default 0;
 
     /**
      * 是否是主键，0表示不是，大于0则是主键，如果有

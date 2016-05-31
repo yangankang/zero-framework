@@ -8,5 +8,5 @@ import java.lang.annotation.*;
 public @interface Table {
     String value() default "";
 
-    String dataSourceName();
+    String dataSourceName() default "";
 }

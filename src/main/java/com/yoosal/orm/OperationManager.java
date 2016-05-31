@@ -11,6 +11,7 @@ import com.yoosal.orm.mapping.DBMapping;
 import com.yoosal.orm.mapping.DefaultDBMapping;
 
 import java.lang.reflect.InvocationTargetException;
+import java.sql.SQLException;
 import java.util.*;
 
 /**
@@ -26,7 +27,8 @@ public class OperationManager {
     static final String KEY_SCAN_PACKAGE = "orm.scan.package";
     static final String KEY_MAPPING_CLASS = "orm.mapping.";
     //映射的时候如果没有发现字段，是否允许添加字段,Boolean类型
-    static final String KEY_MAPPING_ALTER = "orm.mapping.alter";
+    static final String KEY_MAPPING_ALTER = "orm.db.alter";
+    static final String KEY_MAPPING_CONVERT = "orm.db.convert";
     /**
      * 配置数据库连接，所有的数据都是对应的连接池中的DataSource的属性，比如：
      * orm.ds.proxool.dbType=mysql
@@ -43,7 +45,7 @@ public class OperationManager {
      */
     private static Set<Class> classesFromScan = new HashSet<Class>();
 
-    public void setProperties(Properties prop) throws ClassNotFoundException, InstantiationException, IllegalAccessException, InvocationTargetException {
+    public void setProperties(Properties prop) throws ClassNotFoundException, InstantiationException, IllegalAccessException, InvocationTargetException, SQLException {
         if (prop != null) {
             for (Map.Entry<Object, Object> entry : prop.entrySet()) {
                 properties.put((String) entry.getKey(), entry.getValue());
@@ -119,9 +121,13 @@ public class OperationManager {
         return classesFromScan;
     }
 
-    void doMapping() {
+    public static String getMappingConvert() {
+        return String.valueOf(getProperty(KEY_MAPPING_CONVERT));
+    }
+
+    void doMapping() throws SQLException {
         boolean isCanAlter = canAlter();
-        mapping.doMapping(dataSourceManager, classesFromScan, isCanAlter);
+        mapping.doMapping(dataSourceManager, classesFromScan, getMappingConvert(), isCanAlter);
     }
 
     public static DBMapping getMapping() {
@@ -130,7 +136,7 @@ public class OperationManager {
 
     public static boolean canAlter() {
         String canAlter = (String) getProperty(KEY_MAPPING_ALTER);
-        if (canAlter.equalsIgnoreCase("false")) {
+        if ("false".equalsIgnoreCase(canAlter)) {
             return false;
         } else {
             return true;

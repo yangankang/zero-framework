@@ -32,7 +32,17 @@ public class DefaultDBMapping implements DBMapping {
         this.dataSourceManager = dataSourceManager;
         this.classes = classes;
 
-        classToModel();
+        classToModel(null);
+        compareToTables(canAlter);
+    }
+
+
+    @Override
+    public void doMapping(DataSourceManager dataSourceManager, Set<Class> classes, String convert, boolean canAlter) throws SQLException {
+        this.dataSourceManager = dataSourceManager;
+        this.classes = classes;
+
+        classToModel(convert);
         compareToTables(canAlter);
     }
 
@@ -84,7 +94,6 @@ public class DefaultDBMapping implements DBMapping {
 
     private void compareDatabase(List<TableModel> tableModels, DataSource dataSource, boolean canAlter) throws SQLException {
         Connection connection = null;
-        Statement statement = null;
         try {
             connection = dataSource.getConnection();
             String[] type = {"Table"};
@@ -135,7 +144,6 @@ public class DefaultDBMapping implements DBMapping {
                             throw new OrmMappingException("can't alter table and columns mapping match the inconsistent " + sb.toString());
                         }
                     }
-                    statement.close();
                 } else {
                     if (canAlter) {
                         //如果可以修改数据库表结构，那么新增表
@@ -147,7 +155,7 @@ public class DefaultDBMapping implements DBMapping {
             }
             connection.close();
         } finally {
-            ccs(connection, statement);
+            ccs(connection, null);
         }
     }
 
@@ -184,6 +192,7 @@ public class DefaultDBMapping implements DBMapping {
         Connection connection = null;
         Statement statement = null;
         try {
+            connection = dataSource.getConnection();
             DatabaseMetaData databaseMetaData = connection.getMetaData();
             String sql = getSQLDialect(databaseMetaData).createTable(tableModel);
             connection = dataSource.getConnection();
@@ -194,13 +203,17 @@ public class DefaultDBMapping implements DBMapping {
         }
     }
 
-    private void classToModel() {
+    private void classToModel(String convert) {
         if (classes != null) {
             for (Class clazz : classes) {
                 Table table = AnnotationUtils.findAnnotation(clazz, Table.class);
                 if (table == null) continue;
                 TableModel model = new TableModel();
+                model.setWordConvert(convert);
                 String tableName = table.value();
+                if (StringUtils.isBlank(tableName)) {
+                    tableName = clazz.getSimpleName();
+                }
                 model.setJavaTableName(tableName);
                 String dataSourceName = table.dataSourceName();
                 if (StringUtils.isNotBlank(dataSourceName)) {
@@ -212,6 +225,7 @@ public class DefaultDBMapping implements DBMapping {
                 int i = 0;
                 for (Object obj : objects) {
                     ColumnModel columnModel = new ColumnModel();
+                    columnModel.setWordConvert(convert);
                     columnModel.setCode(i);
                     columnModel.setJavaName(obj.toString());
                     Column column = null;
@@ -234,7 +248,6 @@ public class DefaultDBMapping implements DBMapping {
                         generateStrategy = null;
                     boolean isLock = (column == null ? false : column.lock());
                     columnModel.setIsPrimaryKey(isPrimaryKey);
-                    columnModel.setJavaAliasName(name);
                     columnModel.setJavaType(type);
                     columnModel.setLength(length);
                     columnModel.setGenerateStrategy(generateStrategy);

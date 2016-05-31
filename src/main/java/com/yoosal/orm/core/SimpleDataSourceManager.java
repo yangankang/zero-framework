@@ -1,15 +1,15 @@
 package com.yoosal.orm.core;
 
+import com.yoosal.common.StringUtils;
+
 import javax.sql.DataSource;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 public class SimpleDataSourceManager implements DataSourceManager {
-    private static final Map<String, DataSource> dataSourceMap = new ConcurrentHashMap<String, DataSource>();
-    private static final List<GroupDataSource> groupDataSources = new CopyOnWriteArrayList<GroupDataSource>();
+    private static final Map<String, DataSource> dataSourceMap = new HashMap<String, DataSource>();
+    private static final List<GroupDataSource> groupDataSources = new ArrayList<GroupDataSource>();
     private static final Map<String, DataSourceResolve> dataSourceResolve = new HashMap<String, DataSourceResolve>();
 
     private static final String DATA_SOURCE_NAME_KEY = "dataSourceName";
@@ -43,11 +43,7 @@ public class SimpleDataSourceManager implements DataSourceManager {
 
     @Override
     public Set<GroupDataSource> getAllDataSource() {
-        Set set = new HashSet();
-        for (Map.Entry<String, DataSource> entry : dataSourceMap.entrySet()) {
-            set.add(entry.getValue());
-        }
-        return set;
+        return new HashSet<GroupDataSource>(groupDataSources);
     }
 
     @Override
@@ -69,13 +65,13 @@ public class SimpleDataSourceManager implements DataSourceManager {
         for (Map.Entry<String, Object> entry : properties.entrySet()) {
             String key = entry.getKey();
             String[] keySplit = key.split("\\.");
-            if (keySplit.length > 4) {
-                Map<String, String> map = splitProperties.get(keySplit[3]);
+            if (keySplit.length >= 4) {
+                Map<String, String> map = splitProperties.get(keySplit[2]);
                 if (map == null) {
                     map = new HashMap<String, String>();
                 }
                 map.put(keySplit[3], String.valueOf(entry.getValue()));
-                splitProperties.put(keySplit[3], map);
+                splitProperties.put(keySplit[2], map);
             }
         }
 
@@ -93,7 +89,9 @@ public class SimpleDataSourceManager implements DataSourceManager {
         Class clazz = null;
         if (clazz == null) {
             String dataSourceClassString = map.get(DATA_SOURCE_CLASS_KEY);
-            clazz = Class.forName(dataSourceClassString);
+            if (StringUtils.isNotBlank(dataSourceClassString)) {
+                clazz = Class.forName(dataSourceClassString);
+            }
         }
         if (clazz == null) {
             DataSourceResolve resolve = dataSourceResolve.get(dbType);
@@ -110,7 +108,20 @@ public class SimpleDataSourceManager implements DataSourceManager {
                 Method[] methods = clazz.getMethods();
                 for (Method m : methods) {
                     if (m.getName().equals(method)) {
-                        m.invoke(object, value);
+                        Class<?>[] parameterTypes = m.getParameterTypes();
+                        if (parameterTypes != null) {
+                            if (parameterTypes[0].isAssignableFrom(int.class)) {
+                                m.invoke(object, new Object[]{Integer.parseInt(value)});
+                            } else if (parameterTypes[0].isAssignableFrom(long.class)) {
+                                m.invoke(object, new Object[]{Long.parseLong(value)});
+                            } else if (parameterTypes[0].isAssignableFrom(double.class)) {
+                                m.invoke(object, new Object[]{Long.parseLong(value)});
+                            } else {
+                                m.invoke(object, new Object[]{value});
+                            }
+                        } else {
+                            m.invoke(object);
+                        }
                     }
                 }
             }
@@ -121,7 +132,9 @@ public class SimpleDataSourceManager implements DataSourceManager {
             GroupDataSource groupDataSource = new GroupDataSource();
             groupDataSource.setGroupName(dataSourceGroup);
             groupDataSource.addGroup(dataSourceName, (DataSource) object);
-            groupDataSource.setEnumNames(Arrays.asList(tablesString.split("\\.")));
+            if (StringUtils.isNotBlank(tablesString)) {
+                groupDataSource.setEnumNames(Arrays.asList(tablesString.split("\\.")));
+            }
             groupDataSources.add(groupDataSource);
             dataSourceMap.put(dataSourceName, (DataSource) object);
             return (DataSource) object;

@@ -21,10 +21,14 @@ public abstract class AbstractModelCheck implements ModelCheck {
 
     @Override
     public String convert() {
+        String name;
         if (wordConvert == null) {
-            return this.getName();
+            name = this.getName();
+        } else {
+            name = wordConvert.convert(this.getName());
         }
-        return wordConvert.convert(this.getName());
+        this.setMappingName(name);
+        return name;
     }
 
     @Override

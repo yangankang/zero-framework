@@ -1,6 +1,7 @@
 package com.yoosal.common.scan;
 
 import com.yoosal.common.AnnotationUtils;
+import com.yoosal.common.StringUtils;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -16,13 +17,16 @@ public class DefaultFrameworkScanClass implements FrameworkScanClass {
     @Override
     public Set getScanClass(String packagePath, Class<? extends Annotation> annotationClass) {
         List<Class<?>> allClasses = getClasses(packagePath);
-        Set<Class<?>> classes = new HashSet<Class<?>>();
-        for (Class<?> clazz : allClasses) {
-            if (AnnotationUtils.isAnnotationDeclaredLocally(annotationClass, clazz)) {
-                classes.add(clazz);
+        if (allClasses != null) {
+            Set<Class<?>> classes = new HashSet<Class<?>>();
+            for (Class<?> clazz : allClasses) {
+                if (AnnotationUtils.isAnnotationDeclaredLocally(annotationClass, clazz)) {
+                    classes.add(clazz);
+                }
             }
+            return classes;
         }
-        return classes;
+        return null;
     }
 
     @Override
@@ -38,6 +42,9 @@ public class DefaultFrameworkScanClass implements FrameworkScanClass {
     public List<Class<?>> getClasses(String packageName) {
         List<Class<?>> classes = new ArrayList<Class<?>>();
         boolean recursive = true;
+        if (StringUtils.isBlank(packageName)) {
+            return null;
+        }
         String packageDirName = packageName.replace('.', '/');
         Enumeration<URL> dirs;
         try {
