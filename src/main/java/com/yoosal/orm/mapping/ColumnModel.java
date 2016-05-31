@@ -2,9 +2,7 @@ package com.yoosal.orm.mapping;
 
 public class ColumnModel extends AbstractModelCheck {
     private String javaName;
-    private String javaAliasName;
     private Class javaType;
-    private String javaAliasType;
     private int code;   //排序的数值
 
     private String columnName;
@@ -42,28 +40,12 @@ public class ColumnModel extends AbstractModelCheck {
         this.javaName = javaName;
     }
 
-    public String getJavaAliasName() {
-        return javaAliasName;
-    }
-
-    public void setJavaAliasName(String javaAliasName) {
-        this.javaAliasName = javaAliasName;
-    }
-
     public Class getJavaType() {
         return javaType;
     }
 
     public void setJavaType(Class javaType) {
         this.javaType = javaType;
-    }
-
-    public String getJavaAliasType() {
-        return javaAliasType;
-    }
-
-    public void setJavaAliasType(String javaAliasType) {
-        this.javaAliasType = javaAliasType;
     }
 
     public int getCode() {

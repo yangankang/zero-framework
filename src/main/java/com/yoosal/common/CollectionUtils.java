@@ -197,4 +197,11 @@ public abstract class CollectionUtils {
         }
     }
 
+    public static boolean isLast(List<?> list, Object o) {
+        if (list.get(list.size() - 1).equals(o)) {
+            return true;
+        }
+        return false;
+    }
+
 }

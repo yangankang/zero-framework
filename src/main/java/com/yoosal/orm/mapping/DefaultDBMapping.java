@@ -7,6 +7,7 @@ import com.yoosal.orm.annotation.Column;
 import com.yoosal.orm.annotation.Table;
 import com.yoosal.orm.core.DataSourceManager;
 import com.yoosal.orm.core.GroupDataSource;
+import com.yoosal.orm.dialect.MySQLDialect;
 import com.yoosal.orm.dialect.SQLDialect;
 import com.yoosal.orm.exception.OrmMappingException;
 
@@ -16,13 +17,14 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class DefaultDBMapping implements DBMapping {
+    private static final Map<String, SQLDialect> registerSQLDialect = new ConcurrentHashMap<String, SQLDialect>();
+
     private DataSourceManager dataSourceManager;
     private Set<Class> classes;
     private Map<Class, TableModel> mappingModelMap = new HashMap<Class, TableModel>();
-    private Map<String, SQLDialect> registerSQLDialect = new ConcurrentHashMap<String, SQLDialect>();
 
     static {
-
+        registerSQLDialect.put(DataSourceManager.SupportList.MYSQL.toString(), new MySQLDialect());
     }
 
     @Override
