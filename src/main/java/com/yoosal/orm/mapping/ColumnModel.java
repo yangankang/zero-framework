@@ -5,7 +5,7 @@ public class ColumnModel extends AbstractModelCheck {
     private String javaAliasName;
     private Class javaType;
     private String javaAliasType;
-    private int code;
+    private int code;   //排序的数值
 
     private String columnName;
     private String columnType;
@@ -15,6 +15,24 @@ public class ColumnModel extends AbstractModelCheck {
 
     private int isPrimaryKey;
     private boolean isLock = false;
+    private boolean isIndex = false;
+    private String indexName;
+
+    public boolean isIndex() {
+        return isIndex;
+    }
+
+    public void setIndex(boolean index) {
+        isIndex = index;
+    }
+
+    public String getIndexName() {
+        return indexName;
+    }
+
+    public void setIndexName(String indexName) {
+        this.indexName = indexName;
+    }
 
     public String getJavaName() {
         return javaName;

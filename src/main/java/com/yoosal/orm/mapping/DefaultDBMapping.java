@@ -13,12 +13,17 @@ import com.yoosal.orm.exception.OrmMappingException;
 import javax.sql.DataSource;
 import java.sql.*;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class DefaultDBMapping implements DBMapping {
     private DataSourceManager dataSourceManager;
     private Set<Class> classes;
     private Map<Class, TableModel> mappingModelMap = new HashMap<Class, TableModel>();
-    private SQLDialect sqlDialect;
+    private Map<String, SQLDialect> registerSQLDialect = new ConcurrentHashMap<String, SQLDialect>();
+
+    static {
+
+    }
 
     @Override
     public void doMapping(DataSourceManager dataSourceManager, Set<Class> classes, boolean canAlter) throws SQLException {
@@ -27,6 +32,23 @@ public class DefaultDBMapping implements DBMapping {
 
         classToModel();
         compareToTables(canAlter);
+    }
+
+    @Override
+    public void register(SQLDialect dialect) {
+        registerSQLDialect.put(dialect.getDBType(), dialect);
+    }
+
+    @Override
+    public SQLDialect getSQLDialect(DatabaseMetaData databaseMetaData) throws SQLException {
+        String dataBaseName = databaseMetaData.getDatabaseProductName();
+        for (Map.Entry<String, SQLDialect> entry : registerSQLDialect.entrySet()) {
+            String key = entry.getKey();
+            if (dataBaseName.indexOf(key) >= 0) {
+                return entry.getValue();
+            }
+        }
+        return null;
     }
 
     private void compareToTables(boolean canAlter) throws SQLException {
@@ -85,7 +107,7 @@ public class DefaultDBMapping implements DBMapping {
                         String typeName = columnResultSet.getString("TYPE_NAME");
                         int dataType = columnResultSet.getInt("DATA_TYPE");
 
-                        String columnType = sqlDialect.getType(dataType);
+                        String columnType = getSQLDialect(databaseMetaData).getType(dataType);
                         ColumnModel columnModel = null;
                         for (ColumnModel cm : columnModels) {
                             if (cm.getColumnName().equalsIgnoreCase(columnName)) {
@@ -101,24 +123,72 @@ public class DefaultDBMapping implements DBMapping {
                     }
                     if (existColumns.size() > 0) {
                         if (canAlter) {
-                            
+                            //如果可以修改数据库表结构，那么就将新增的字段增加到表中
+                            this.alertAddColumn(dataSource, tableModel, existColumns);
                         } else {
-                            throw new OrmMappingException("can't alter table and columns mapping match the inconsistent");
+                            StringBuilder sb = new StringBuilder();
+                            for (ColumnModel cm : existColumns) {
+                                sb.append(cm.getJavaName() + ":" + cm.getColumnName() + " ");
+                            }
+                            throw new OrmMappingException("can't alter table and columns mapping match the inconsistent " + sb.toString());
                         }
                     }
                     statement.close();
                 } else {
-
+                    if (canAlter) {
+                        //如果可以修改数据库表结构，那么新增表
+                        this.createTable(dataSource, tableModel);
+                    } else {
+                        throw new OrmMappingException("can't alter table mapping match the inconsistent " + tableModel.getJavaTableName() + ":" + tableModel.getDbTableName());
+                    }
                 }
             }
             connection.close();
         } finally {
-            if (statement != null) {
+            ccs(connection, statement);
+        }
+    }
+
+    private void ccs(Connection connection, Statement statement) {
+        if (statement != null) {
+            try {
                 statement.close();
+            } catch (SQLException e) {
             }
-            if (connection != null) {
+        }
+        if (connection != null) {
+            try {
                 connection.close();
+            } catch (SQLException e) {
             }
+        }
+    }
+
+    private void alertAddColumn(DataSource dataSource, TableModel tableModel, List<ColumnModel> existColumns) throws SQLException {
+        Connection connection = null;
+        Statement statement = null;
+        try {
+            connection = dataSource.getConnection();
+            DatabaseMetaData databaseMetaData = connection.getMetaData();
+            String sql = getSQLDialect(databaseMetaData).addColumn(tableModel, existColumns);
+            statement = connection.createStatement();
+            boolean success = statement.execute(sql);
+        } finally {
+            ccs(connection, statement);
+        }
+    }
+
+    private void createTable(DataSource dataSource, TableModel tableModel) throws SQLException {
+        Connection connection = null;
+        Statement statement = null;
+        try {
+            DatabaseMetaData databaseMetaData = connection.getMetaData();
+            String sql = getSQLDialect(databaseMetaData).createTable(tableModel);
+            connection = dataSource.getConnection();
+            statement = connection.createStatement();
+            boolean success = statement.execute(sql);
+        } finally {
+            ccs(connection, statement);
         }
     }
 

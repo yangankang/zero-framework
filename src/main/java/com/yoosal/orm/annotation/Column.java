@@ -21,6 +21,10 @@ public @interface Column {
      */
     int key() default 0;
 
+    boolean index() default false;
+
+    String indexName() default "";
+
     /**
      * 主键生成策略，默认是数据库，比如mysql的自增长
      *
