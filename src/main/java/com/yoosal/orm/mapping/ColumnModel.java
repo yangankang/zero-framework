@@ -1,5 +1,9 @@
 package com.yoosal.orm.mapping;
 
+import com.yoosal.orm.annotation.Column;
+import com.yoosal.orm.core.IDStrategy;
+import com.yoosal.orm.exception.OrmMappingException;
+
 public class ColumnModel extends AbstractModelCheck {
     private String javaName;
     private Class javaType;
@@ -9,7 +13,8 @@ public class ColumnModel extends AbstractModelCheck {
     private String columnType;
     private int columnTypeCode;
     private long length;
-    private Class generateStrategy;
+    private Class<IDStrategy> generateStrategy;
+    private IDStrategy generateStrategyInstance;
 
     private int isPrimaryKey;
     private boolean isLock = false;
@@ -80,8 +85,19 @@ public class ColumnModel extends AbstractModelCheck {
         return generateStrategy;
     }
 
-    public void setGenerateStrategy(Class generateStrategy) {
+    public void setGenerateStrategy(Class<IDStrategy> generateStrategy) {
         this.generateStrategy = generateStrategy;
+        try {
+            generateStrategyInstance = generateStrategy.newInstance();
+        } catch (InstantiationException e) {
+            throw new OrmMappingException("instance generateStrategy class throw", e);
+        } catch (IllegalAccessException e) {
+            throw new OrmMappingException("instance generateStrategy class throw", e);
+        }
+    }
+
+    public IDStrategy getIDStrategy() {
+        return generateStrategyInstance;
     }
 
     public int getColumnTypeCode() {
@@ -116,5 +132,12 @@ public class ColumnModel extends AbstractModelCheck {
     @Override
     protected void setMappingName(String name) {
         this.columnName = name;
+    }
+
+    public boolean isAutoIncrement() {
+        if (this.getIsPrimaryKey() > 0 && generateStrategy.equals(Column.class)) {
+            return true;
+        }
+        return false;
     }
 }

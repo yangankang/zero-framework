@@ -16,4 +16,6 @@ public interface DBMapping {
     void register(SQLDialect dialect);
 
     SQLDialect getSQLDialect(DatabaseMetaData databaseMetaData) throws SQLException;
+
+    TableModel getTableMapping(Class clazz);
 }

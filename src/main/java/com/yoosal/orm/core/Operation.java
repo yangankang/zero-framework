@@ -32,4 +32,6 @@ public interface Operation {
      * 提交事务
      */
     void commit();
+
+    void rollback();
 }

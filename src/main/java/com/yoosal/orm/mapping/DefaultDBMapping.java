@@ -7,8 +7,8 @@ import com.yoosal.orm.annotation.Column;
 import com.yoosal.orm.annotation.Table;
 import com.yoosal.orm.core.DataSourceManager;
 import com.yoosal.orm.core.GroupDataSource;
-import com.yoosal.orm.dialect.MySQLDialect;
 import com.yoosal.orm.dialect.SQLDialect;
+import com.yoosal.orm.dialect.SQLDialectFactory;
 import com.yoosal.orm.exception.OrmMappingException;
 
 import javax.sql.DataSource;
@@ -17,15 +17,9 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class DefaultDBMapping implements DBMapping {
-    private static final Map<String, SQLDialect> registerSQLDialect = new ConcurrentHashMap<String, SQLDialect>();
-
     private DataSourceManager dataSourceManager;
     private Set<Class> classes;
-    private Map<Class, TableModel> mappingModelMap = new HashMap<Class, TableModel>();
-
-    static {
-        registerSQLDialect.put(DataSourceManager.SupportList.MYSQL.toString(), new MySQLDialect());
-    }
+    private Map<Class, TableModel> mappingModelMap = new ConcurrentHashMap<Class, TableModel>();
 
     @Override
     public void doMapping(DataSourceManager dataSourceManager, Set<Class> classes, boolean canAlter) throws SQLException {
@@ -48,19 +42,17 @@ public class DefaultDBMapping implements DBMapping {
 
     @Override
     public void register(SQLDialect dialect) {
-        registerSQLDialect.put(dialect.getDBType(), dialect);
+        SQLDialectFactory.registerSQLDialect(dialect);
     }
 
     @Override
     public SQLDialect getSQLDialect(DatabaseMetaData databaseMetaData) throws SQLException {
-        String dataBaseName = databaseMetaData.getDatabaseProductName();
-        for (Map.Entry<String, SQLDialect> entry : registerSQLDialect.entrySet()) {
-            String key = entry.getKey();
-            if (dataBaseName.toLowerCase().indexOf(key.toLowerCase()) >= 0) {
-                return entry.getValue();
-            }
-        }
-        return null;
+        return SQLDialectFactory.getSQLDialect(databaseMetaData);
+    }
+
+    @Override
+    public TableModel getTableMapping(Class clazz) {
+        return mappingModelMap.get(clazz);
     }
 
     private void compareToTables(boolean canAlter) throws SQLException {

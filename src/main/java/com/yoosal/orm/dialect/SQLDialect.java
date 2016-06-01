@@ -1,5 +1,6 @@
 package com.yoosal.orm.dialect;
 
+import com.yoosal.orm.ModelObject;
 import com.yoosal.orm.mapping.ColumnModel;
 import com.yoosal.orm.mapping.TableModel;
 
@@ -24,4 +25,6 @@ public interface SQLDialect {
      * @return
      */
     String getDBType();
+
+    String insert(TableModel tableMapping, ModelObject object);
 }

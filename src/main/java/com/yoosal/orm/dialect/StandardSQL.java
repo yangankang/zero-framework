@@ -3,6 +3,7 @@ package com.yoosal.orm.dialect;
 import com.yoosal.common.ClassUtils;
 import com.yoosal.common.CollectionUtils;
 import com.yoosal.common.StringUtils;
+import com.yoosal.orm.ModelObject;
 import com.yoosal.orm.annotation.Column;
 import com.yoosal.orm.exception.OrmMappingException;
 import com.yoosal.orm.mapping.ColumnModel;
@@ -123,4 +124,8 @@ public abstract class StandardSQL implements SQLDialect {
         return sqlBuilder.toString();
     }
 
+    @Override
+    public String insert(TableModel tableMapping, ModelObject object) {
+        return null;
+    }
 }
