@@ -599,4 +599,18 @@ public abstract class ClassUtils {
         }
         return is;
     }
+
+    public static boolean isNumberClass(Class clazz) {
+        if (clazz.isAssignableFrom(int.class) ||
+                clazz.isAssignableFrom(long.class) ||
+                clazz.isAssignableFrom(float.class) ||
+                clazz.isAssignableFrom(double.class) ||
+                clazz.isAssignableFrom(Integer.class) ||
+                clazz.isAssignableFrom(Long.class) ||
+                clazz.isAssignableFrom(Float.class) ||
+                clazz.isAssignableFrom(Double.class)) {
+            return true;
+        }
+        return false;
+    }
 }

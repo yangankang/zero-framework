@@ -26,5 +26,12 @@ public interface SQLDialect {
      */
     String getDBType();
 
-    String insert(TableModel tableMapping, ModelObject object);
+    /**
+     * 为PreparedStatement提供数据
+     *
+     * @param tableMapping
+     * @param object
+     * @return
+     */
+    ValuesForPrepared insert(TableModel tableMapping, ModelObject object);
 }

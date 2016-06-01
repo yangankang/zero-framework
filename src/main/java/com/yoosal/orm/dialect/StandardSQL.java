@@ -125,7 +125,7 @@ public abstract class StandardSQL implements SQLDialect {
     }
 
     @Override
-    public String insert(TableModel tableMapping, ModelObject object) {
+    public ValuesForPrepared insert(TableModel tableMapping, ModelObject object) {
         return null;
     }
 }

@@ -1,8 +1,11 @@
 package com.yoosal.orm.core;
 
+import com.yoosal.common.ClassUtils;
+import com.yoosal.common.NumberUtils;
 import com.yoosal.orm.ModelObject;
 import com.yoosal.orm.dialect.SQLDialect;
 import com.yoosal.orm.dialect.SQLDialectFactory;
+import com.yoosal.orm.dialect.ValuesForPrepared;
 import com.yoosal.orm.exception.DatabaseOperationException;
 import com.yoosal.orm.mapping.ColumnModel;
 import com.yoosal.orm.mapping.DBMapping;
@@ -11,6 +14,7 @@ import com.yoosal.orm.query.Query;
 
 import javax.sql.DataSource;
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.List;
 
 public class SingleDatabaseOperation implements Operation {
@@ -61,6 +65,14 @@ public class SingleDatabaseOperation implements Operation {
         }
     }
 
+    private void setPreparedStatementValues(PreparedStatement preparedStatement, ValuesForPrepared valuesForPrepared, ModelObject object) throws SQLException {
+        ColumnModel[] columnModels = valuesForPrepared.getKeys();
+        for (int i = 0; i < columnModels.length; i++) {
+            ColumnModel cm = columnModels[i];
+            preparedStatement.setObject(i, object.getInteger(cm.getJavaName()));
+        }
+    }
+
     @Override
     public void begin() {
         try {
@@ -83,10 +95,11 @@ public class SingleDatabaseOperation implements Operation {
             List<ColumnModel> primaryKeyColumns = tableModel.getMappingPrimaryKeyColumnModels();
             Boolean hasAutoIncrementPrimaryKey = tableModel.hasAutoIncrementPrimaryKey();
             if (hasAutoIncrementPrimaryKey) {
-                String sql = sqlDialect.insert(tableModel, object);
-                PreparedStatement preparedStatement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-                preparedStatement.executeUpdate();
-                ResultSet rs = preparedStatement.getGeneratedKeys();
+                ValuesForPrepared valuesForPrepared = sqlDialect.insert(tableModel, object);
+                statement = connection.prepareStatement(valuesForPrepared.getSql(), Statement.RETURN_GENERATED_KEYS);
+                setPreparedStatementValues(statement, valuesForPrepared, object);
+                statement.executeUpdate();
+                ResultSet rs = statement.getGeneratedKeys();
                 if (rs.next()) {
                     long primaryKeyValue = rs.getLong(1);
                     for (ColumnModel cm : primaryKeyColumns) {
@@ -107,8 +120,9 @@ public class SingleDatabaseOperation implements Operation {
                     }
                 }
                 //通过映射表和对象生成一个insert的SQL
-                String sql = sqlDialect.insert(tableModel, object);
-                statement = connection.prepareStatement(sql);
+                ValuesForPrepared valuesForPrepared = sqlDialect.insert(tableModel, object);
+                statement = connection.prepareStatement(valuesForPrepared.getSql());
+                setPreparedStatementValues(statement, valuesForPrepared, object);
                 boolean isSuccess = statement.execute();
                 if (!isSuccess) {
                     throw new DatabaseOperationException("statement execute return false");
@@ -124,12 +138,32 @@ public class SingleDatabaseOperation implements Operation {
 
     @Override
     public void update(ModelObject object) {
-
+        Connection connection = null;
+        PreparedStatement statement = null;
+        try {
+            SQLDialect sqlDialect = getDialect(connection);
+            TableModel tableModel = dbMapping.getTableMapping(object.getClass());
+            connection = dataSource.getConnection();
+            ValuesForPrepared valuesForPrepared = sqlDialect.insert(tableModel, object);
+            statement = connection.prepareStatement(valuesForPrepared.getSql());
+            setPreparedStatementValues(statement, valuesForPrepared, object);
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            throw new DatabaseOperationException("update throw", e);
+        } finally {
+            close(connection, statement);
+        }
     }
 
     @Override
     public void updates(List<ModelObject> objects) {
+        Connection connection = null;
+        PreparedStatement statement = null;
+        try {
 
+        } finally {
+            close(connection, statement);
+        }
     }
 
     @Override
