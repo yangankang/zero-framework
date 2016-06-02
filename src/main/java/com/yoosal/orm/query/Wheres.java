@@ -176,4 +176,11 @@ public class Wheres {
     public void setType(int type) {
         this.type = type;
     }
+
+    public boolean isNormal() {
+        if (this.type == 0) {
+            return true;
+        }
+        return false;
+    }
 }

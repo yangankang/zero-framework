@@ -9,10 +9,14 @@ import com.yoosal.orm.mapping.ColumnModel;
 import com.yoosal.orm.mapping.DBMapping;
 import com.yoosal.orm.mapping.TableModel;
 import com.yoosal.orm.query.Query;
+import com.yoosal.orm.query.Wheres;
 
 import javax.sql.DataSource;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class SingleDatabaseOperation implements Operation {
     private DataSource dataSource;
@@ -62,10 +66,22 @@ public class SingleDatabaseOperation implements Operation {
         }
     }
 
+    private void setPreparedStatementValues(PreparedStatement preparedStatement, ValuesForPrepared valuesForPrepared, List<Wheres> wheres) throws SQLException {
+        ColumnModel[] columnModels = valuesForPrepared.getKeys();
+        Map<String, Object> objectMap = new HashMap<String, Object>();
+        for (Wheres whs : wheres) {
+            objectMap.put(whs.getKey(), whs.getValue());
+        }
+        for (int i = 1; i <= columnModels.length; i++) {
+            ColumnModel cm = columnModels[i - 1];
+            preparedStatement.setObject(i, objectMap.get(cm.getJavaName()));
+        }
+    }
+
     private void setPreparedStatementValues(PreparedStatement preparedStatement, ValuesForPrepared valuesForPrepared, ModelObject object) throws SQLException {
         ColumnModel[] columnModels = valuesForPrepared.getKeys();
-        for (int i = 0; i < columnModels.length; i++) {
-            ColumnModel cm = columnModels[i];
+        for (int i = 1; i <= columnModels.length; i++) {
+            ColumnModel cm = columnModels[i - 1];
             preparedStatement.setObject(i, object.getInteger(cm.getJavaName()));
         }
     }
@@ -176,22 +192,89 @@ public class SingleDatabaseOperation implements Operation {
 
     @Override
     public void remove(Query query) {
-
+        Connection connection = null;
+        PreparedStatement statement = null;
+        try {
+            List<Wheres> wheres = query.getWheres();
+            SQLDialect sqlDialect = getDialect(connection);
+            TableModel tableModel = dbMapping.getTableMapping(query.getObjectClass());
+            ValuesForPrepared valuesForPrepared = sqlDialect.prepareDelete(tableModel, wheres);
+            connection = dataSource.getConnection();
+            statement = connection.prepareStatement(valuesForPrepared.getSql());
+            setPreparedStatementValues(statement, valuesForPrepared, wheres);
+            statement.execute();
+        } catch (SQLException e) {
+            throw new DatabaseOperationException("remove throw", e);
+        } finally {
+            close(connection, statement);
+        }
     }
 
     @Override
     public List<ModelObject> list(Query query) {
-        return null;
+        Connection connection = null;
+        PreparedStatement statement = null;
+        List<ModelObject> objects = null;
+        try {
+            List<Wheres> wheres = query.getWheres();
+            SQLDialect sqlDialect = getDialect(connection);
+            TableModel tableModel = dbMapping.getTableMapping(query.getObjectClass());
+            List<ColumnModel> columnModels = tableModel.getMappingColumnModels();
+            ValuesForPrepared valuesForPrepared = sqlDialect.prepareSelect(tableModel, wheres);
+            connection = dataSource.getConnection();
+            statement = connection.prepareStatement(valuesForPrepared.getSql());
+            setPreparedStatementValues(statement, valuesForPrepared, wheres);
+            ResultSet resultSet = statement.executeQuery();
+
+            while (resultSet.next()) {
+                if (objects == null) {
+                    objects = new ArrayList<ModelObject>();
+                }
+                ModelObject object = new ModelObject();
+                for (ColumnModel cm : columnModels) {
+                    object.put(cm.getJavaName(), resultSet.getObject(cm.getColumnName()));
+                }
+            }
+        } catch (SQLException e) {
+            throw new DatabaseOperationException("remove throw", e);
+        } finally {
+            close(connection, statement);
+        }
+        return objects;
     }
 
     @Override
     public ModelObject query(Query query) {
+        List<ModelObject> objects = this.list(query);
+        if (objects != null && objects.size() > 0) {
+            return objects.get(0);
+        }
         return null;
     }
 
     @Override
     public long count(Query query) {
-        return 0;
+        Connection connection = null;
+        PreparedStatement statement = null;
+        long count = 0;
+        try {
+            List<Wheres> wheres = query.getWheres();
+            SQLDialect sqlDialect = getDialect(connection);
+            TableModel tableModel = dbMapping.getTableMapping(query.getObjectClass());
+            ValuesForPrepared valuesForPrepared = sqlDialect.prepareSelectCount(tableModel, wheres);
+            connection = dataSource.getConnection();
+            statement = connection.prepareStatement(valuesForPrepared.getSql());
+            setPreparedStatementValues(statement, valuesForPrepared, wheres);
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                count = resultSet.getLong(1);
+            }
+        } catch (SQLException e) {
+            throw new DatabaseOperationException("remove throw", e);
+        } finally {
+            close(connection, statement);
+        }
+        return count;
     }
 
     @Override

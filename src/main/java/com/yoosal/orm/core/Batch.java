@@ -8,6 +8,7 @@ import java.util.List;
 
 public class Batch {
     private Object[] columns;
+    private Object[] whereColumns;
     private List<ModelObject> objects;
     private Class objectClass;
 
@@ -19,12 +20,23 @@ public class Batch {
         this.objects = objects;
     }
 
+    public Batch() {
+    }
+
     public Object[] getColumns() {
         return columns;
     }
 
     public void setColumns(Object... columns) {
         this.columns = columns;
+    }
+
+    public Object[] getWhereColumns() {
+        return whereColumns;
+    }
+
+    public void setWhereColumns(Object... whereColumns) {
+        this.whereColumns = whereColumns;
     }
 
     public List<ModelObject> getObjects() {

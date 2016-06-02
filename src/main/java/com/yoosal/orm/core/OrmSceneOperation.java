@@ -8,7 +8,7 @@ import java.util.List;
 public class OrmSceneOperation implements Operation {
     @Override
     public void begin() {
-
+        
     }
 
     @Override

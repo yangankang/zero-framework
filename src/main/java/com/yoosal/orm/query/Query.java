@@ -115,4 +115,12 @@ public class Query {
     public List<Join> getJoins() {
         return joins;
     }
+
+    public List<Wheres> getWheres() {
+        return wheres;
+    }
+
+    public Class<Enum> getObjectClass() {
+        return clazz;
+    }
 }

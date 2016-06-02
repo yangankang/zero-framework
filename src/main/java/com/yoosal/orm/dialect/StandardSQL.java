@@ -5,14 +5,14 @@ import com.yoosal.common.StringUtils;
 import com.yoosal.orm.ModelObject;
 import com.yoosal.orm.annotation.Column;
 import com.yoosal.orm.core.Batch;
+import com.yoosal.orm.exception.SQLDialectException;
 import com.yoosal.orm.mapping.ColumnModel;
 import com.yoosal.orm.mapping.TableModel;
+import com.yoosal.orm.query.Wheres;
 
 import java.lang.reflect.Field;
 import java.sql.Types;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public abstract class StandardSQL implements SQLDialect {
     protected static final Map<Integer, String> types = new HashMap<Integer, String>();
@@ -123,18 +123,211 @@ public abstract class StandardSQL implements SQLDialect {
         return sqlBuilder.toString();
     }
 
+    private String keyString(List<ColumnModel> columnModels) {
+        List<String> strings = new ArrayList<String>();
+        for (ColumnModel cm : columnModels) {
+            strings.add(cm.getColumnName());
+        }
+        return StringUtils.collectionToDelimitedString(strings, ",");
+    }
+
+    private String valueString(List<ColumnModel> columnModels) {
+        Iterator it = columnModels.iterator();
+        StringBuffer sb = new StringBuffer();
+        while (it.hasNext()) {
+            sb.append("?");
+            if (it.hasNext()) {
+                sb.append(",");
+            }
+        }
+        return sb.toString();
+    }
+
+    private String valueUpdateString(List<ColumnModel> columnModels) {
+        Iterator<ColumnModel> it = columnModels.iterator();
+        StringBuffer sb = new StringBuffer();
+        while (it.hasNext()) {
+            ColumnModel cm = it.next();
+            sb.append(cm.getColumnName() + "=?");
+            if (it.hasNext()) {
+                sb.append(",");
+            }
+        }
+        return sb.toString();
+    }
+
+    private String valueUpdateWhereString(List<ColumnModel> columnModels) {
+        Iterator<ColumnModel> it = columnModels.iterator();
+        StringBuffer sb = new StringBuffer();
+        while (it.hasNext()) {
+            ColumnModel cm = it.next();
+            sb.append(cm.getColumnName() + "=?");
+            if (it.hasNext()) {
+                sb.append(" AND ");
+            }
+        }
+        return sb.toString();
+    }
+
+    private boolean contains(Object[] wcs, ColumnModel cm) {
+        for (Object object : wcs) {
+            if (String.valueOf(object).equals(cm.getJavaName())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private List<ColumnModel> getValidateColumn(TableModel tableMapping, ModelObject object, List<ColumnModel> whereColumns) {
+        List<ColumnModel> columnModels = new ArrayList<ColumnModel>();
+        Object[] ucs = object.getUpdateColumn();    //主键作为修改内容的数组
+        Object[] wcs = object.getWhereColumn();     //作为修改条件的数组
+        for (ColumnModel cm : tableMapping.getMappingColumnModels()) {
+            if (object.containsKey(cm.getJavaName())) {
+                if (whereColumns != null) {
+                    if (contains(wcs, cm)) {
+                        whereColumns.add(cm);
+                    } else {
+                        if (cm.getIsPrimaryKey() <= 0) {
+                            columnModels.add(cm);
+                        } else {
+                            if (contains(ucs, cm)) {
+                                columnModels.add(cm);
+                            } else {
+                                whereColumns.add(cm);
+                            }
+                        }
+                    }
+                } else {
+                    columnModels.add(cm);
+                }
+            }
+        }
+        return columnModels;
+    }
+
     @Override
     public ValuesForPrepared prepareInsert(TableModel tableMapping, ModelObject object) {
-        return null;
+        ValuesForPrepared valuesForPrepared = new ValuesForPrepared();
+        List<ColumnModel> columnModels = getValidateColumn(tableMapping, object, null);
+        valuesForPrepared.setKeys((ColumnModel[]) columnModels.toArray());
+        valuesForPrepared.setSql("INSERT INTO " + tableMapping.getDbTableName() + " (" + keyString(columnModels) + ") VALUES ("
+                + valueString(columnModels) + ")");
+        valuesForPrepared.setCount(columnModels.size());
+        return valuesForPrepared;
     }
 
     @Override
     public ValuesForPrepared prepareUpdate(TableModel tableMapping, ModelObject object) {
-        return null;
+        ValuesForPrepared valuesForPrepared = new ValuesForPrepared();
+        List<ColumnModel> whereColumnModels = new ArrayList<ColumnModel>();
+        if (whereColumnModels.size() <= 0) {
+            throw new SQLDialectException("update sql no where statement");
+        }
+        List<ColumnModel> columnModels = getValidateColumn(tableMapping, object, whereColumnModels);
+
+        ColumnModel[] array1 = (ColumnModel[]) columnModels.toArray();
+        ColumnModel[] array2 = (ColumnModel[]) whereColumnModels.toArray();
+        ColumnModel[] cms = new ColumnModel[array1.length + array2.length];
+        System.arraycopy(array1, 0, cms, 0, array1.length);
+        System.arraycopy(array2, 0, cms, array1.length, array2.length);
+
+        valuesForPrepared.setKeys(cms);
+        valuesForPrepared.setSql("UPDATE " + tableMapping.getDbTableName() +
+                " SET " + valueUpdateString(columnModels) +
+                " WHERE " + valueUpdateWhereString(whereColumnModels));
+        valuesForPrepared.setCount(columnModels.size());
+        return valuesForPrepared;
     }
 
     @Override
     public ValuesForPrepared prepareUpdateBatch(TableModel tableMapping, Batch batch) {
+        Object[] objects = batch.getColumns();
+        Object[] whereColumns = batch.getWhereColumns();
+        List<Object> objectList = Arrays.asList(objects);
+        Iterator<Object> it = objectList.iterator();
+        StringBuffer set = new StringBuffer();
+
+        List<ColumnModel> columnModels = tableMapping.getMappingColumnModels();
+        List<ColumnModel> cms = new ArrayList<ColumnModel>();
+        Map<String, ColumnModel> toMap = new HashMap<String, ColumnModel>();
+        for (ColumnModel cm : columnModels) {
+            toMap.put(cm.getJavaName(), cm);
+        }
+        while (it.hasNext()) {
+            String key = String.valueOf(it.next());
+            set.append(key + "=?");
+            if (it.hasNext()) {
+                set.append(",");
+            }
+            cms.add(toMap.get(key));
+        }
+
+        Iterator<Object> whereIt = Arrays.asList(whereColumns).iterator();
+        StringBuffer where = new StringBuffer();
+        while (whereIt.hasNext()) {
+            String key = String.valueOf(whereIt.next());
+            where.append(key + "=?");
+            if (whereIt.hasNext()) {
+                where.append(" AND ");
+            }
+            cms.add(toMap.get(key));
+        }
+
+        ValuesForPrepared valuesForPrepared = new ValuesForPrepared();
+        valuesForPrepared.setSql("UPDATE " + tableMapping.getDbTableName() + " SET " + set.toString() + " WHERE " + where.toString());
+        valuesForPrepared.setKeys((ColumnModel[]) cms.toArray());
+        valuesForPrepared.setCount(cms.size());
+
+        return valuesForPrepared;
+    }
+
+    private String valueWheresString(List<Wheres> wheres) {
+        Iterator<Wheres> it = wheres.iterator();
+        StringBuffer sb = new StringBuffer();
+        while (it.hasNext()) {
+            Wheres where = it.next();
+            sb.append(where.getKey() + "=?");
+            if (it.hasNext()) {
+                sb.append(" AND ");
+            }
+        }
+        return sb.toString();
+    }
+
+    private String keyWhereString(List<Wheres> wheres) {
+        List<String> strings = new ArrayList<String>();
+        for (Wheres where : wheres) {
+            strings.add(where.getKey());
+        }
+        return StringUtils.collectionToDelimitedString(strings, ",");
+    }
+
+    private String queWhereString(List<Wheres> wheres) {
+        Iterator it = wheres.iterator();
+        StringBuffer sb = new StringBuffer();
+        while (it.hasNext()) {
+            sb.append("?");
+            if (it.hasNext()) {
+                sb.append(",");
+            }
+        }
+        return sb.toString();
+    }
+
+    @Override
+    public ValuesForPrepared prepareDelete(TableModel tableMapping, List<Wheres> wheres) {
+        
+        return null;
+    }
+
+    @Override
+    public ValuesForPrepared prepareSelect(TableModel tableMapping, List<Wheres> wheres) {
+        return null;
+    }
+
+    @Override
+    public ValuesForPrepared prepareSelectCount(TableModel tableMapping, List<Wheres> wheres) {
         return null;
     }
 }
