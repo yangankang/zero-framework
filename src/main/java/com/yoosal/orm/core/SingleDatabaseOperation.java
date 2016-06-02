@@ -14,9 +14,7 @@ import com.yoosal.orm.query.Wheres;
 import javax.sql.DataSource;
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class SingleDatabaseOperation implements Operation {
     private DataSource dataSource;
@@ -66,26 +64,6 @@ public class SingleDatabaseOperation implements Operation {
         }
     }
 
-    private void setPreparedStatementValues(PreparedStatement preparedStatement, ValuesForPrepared valuesForPrepared, List<Wheres> wheres) throws SQLException {
-        ColumnModel[] columnModels = valuesForPrepared.getKeys();
-        Map<String, Object> objectMap = new HashMap<String, Object>();
-        for (Wheres whs : wheres) {
-            objectMap.put(whs.getKey(), whs.getValue());
-        }
-        for (int i = 1; i <= columnModels.length; i++) {
-            ColumnModel cm = columnModels[i - 1];
-            preparedStatement.setObject(i, objectMap.get(cm.getJavaName()));
-        }
-    }
-
-    private void setPreparedStatementValues(PreparedStatement preparedStatement, ValuesForPrepared valuesForPrepared, ModelObject object) throws SQLException {
-        ColumnModel[] columnModels = valuesForPrepared.getKeys();
-        for (int i = 1; i <= columnModels.length; i++) {
-            ColumnModel cm = columnModels[i - 1];
-            preparedStatement.setObject(i, object.getInteger(cm.getJavaName()));
-        }
-    }
-
     @Override
     public void begin() {
         try {
@@ -110,7 +88,7 @@ public class SingleDatabaseOperation implements Operation {
             if (hasAutoIncrementPrimaryKey) {
                 ValuesForPrepared valuesForPrepared = sqlDialect.prepareInsert(tableModel, object);
                 statement = connection.prepareStatement(valuesForPrepared.getSql(), Statement.RETURN_GENERATED_KEYS);
-                setPreparedStatementValues(statement, valuesForPrepared, object);
+                valuesForPrepared.setPrepared(statement);
                 statement.executeUpdate();
                 ResultSet rs = statement.getGeneratedKeys();
                 if (rs.next()) {
@@ -128,14 +106,14 @@ public class SingleDatabaseOperation implements Operation {
                  * 添加前会执行获得一个ID
                  */
                 for (ColumnModel cm : primaryKeyColumns) {
-                    if (cm.getIsPrimaryKey() > 0 && cm.getIDStrategy() != null) {
+                    if (cm.isPrimaryKey() && cm.getIDStrategy() != null) {
                         object.put(cm.getJavaName(), cm.getIDStrategy().getOne(cm));
                     }
                 }
                 //通过映射表和对象生成一个insert的SQL
                 ValuesForPrepared valuesForPrepared = sqlDialect.prepareInsert(tableModel, object);
                 statement = connection.prepareStatement(valuesForPrepared.getSql());
-                setPreparedStatementValues(statement, valuesForPrepared, object);
+                valuesForPrepared.setPrepared(statement);
                 boolean isSuccess = statement.execute();
                 if (!isSuccess) {
                     throw new DatabaseOperationException("statement execute return false");
@@ -159,7 +137,7 @@ public class SingleDatabaseOperation implements Operation {
             connection = dataSource.getConnection();
             ValuesForPrepared valuesForPrepared = sqlDialect.prepareUpdate(tableModel, object);
             statement = connection.prepareStatement(valuesForPrepared.getSql());
-            setPreparedStatementValues(statement, valuesForPrepared, object);
+            valuesForPrepared.setPrepared(statement);
             statement.executeUpdate();
         } catch (SQLException e) {
             throw new DatabaseOperationException("update throw", e);
@@ -179,7 +157,7 @@ public class SingleDatabaseOperation implements Operation {
             ValuesForPrepared valuesForPrepared = sqlDialect.prepareUpdateBatch(tableModel, batch);
             statement = connection.prepareStatement(valuesForPrepared.getSql());
             for (ModelObject object : batch.getObjects()) {
-                setPreparedStatementValues(statement, valuesForPrepared, object);
+                valuesForPrepared.setPrepared(statement, object);
                 statement.addBatch();
             }
             statement.executeBatch();
@@ -201,7 +179,7 @@ public class SingleDatabaseOperation implements Operation {
             ValuesForPrepared valuesForPrepared = sqlDialect.prepareDelete(tableModel, wheres);
             connection = dataSource.getConnection();
             statement = connection.prepareStatement(valuesForPrepared.getSql());
-            setPreparedStatementValues(statement, valuesForPrepared, wheres);
+            valuesForPrepared.setPrepared(statement);
             statement.execute();
         } catch (SQLException e) {
             throw new DatabaseOperationException("remove throw", e);
@@ -223,7 +201,7 @@ public class SingleDatabaseOperation implements Operation {
             ValuesForPrepared valuesForPrepared = sqlDialect.prepareSelect(tableModel, wheres);
             connection = dataSource.getConnection();
             statement = connection.prepareStatement(valuesForPrepared.getSql());
-            setPreparedStatementValues(statement, valuesForPrepared, wheres);
+            valuesForPrepared.setPrepared(statement);
             ResultSet resultSet = statement.executeQuery();
 
             while (resultSet.next()) {
@@ -264,7 +242,7 @@ public class SingleDatabaseOperation implements Operation {
             ValuesForPrepared valuesForPrepared = sqlDialect.prepareSelectCount(tableModel, wheres);
             connection = dataSource.getConnection();
             statement = connection.prepareStatement(valuesForPrepared.getSql());
-            setPreparedStatementValues(statement, valuesForPrepared, wheres);
+            valuesForPrepared.setPrepared(statement);
             ResultSet resultSet = statement.executeQuery();
             if (resultSet.next()) {
                 count = resultSet.getLong(1);

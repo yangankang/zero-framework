@@ -49,17 +49,17 @@ import com.yoosal.json.util.TypeUtils;
  * @author wenshao[szujobs@hotmail.com]
  */
 @SuppressWarnings("serial")
-public class JSONObject extends JSON implements Map<String, Object>, Cloneable, Serializable, InvocationHandler {
+public class JSONObject extends JSON implements Map<Object, Object>, Cloneable, Serializable, InvocationHandler {
 
     private static final int DEFAULT_INITIAL_CAPACITY = 16;
 
-    private final Map<String, Object> map;
+    private final Map<Object, Object> map;
 
     public JSONObject() {
         this(DEFAULT_INITIAL_CAPACITY, false);
     }
 
-    public JSONObject(Map<String, Object> map) {
+    public JSONObject(Map<Object, Object> map) {
         this.map = map;
     }
 
@@ -73,9 +73,9 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
 
     public JSONObject(int initialCapacity, boolean ordered) {
         if (ordered) {
-            map = new LinkedHashMap<String, Object>(initialCapacity);
+            map = new LinkedHashMap<Object, Object>(initialCapacity);
         } else {
-            map = new HashMap<String, Object>(initialCapacity);
+            map = new HashMap<Object, Object>(initialCapacity);
         }
     }
 
@@ -99,7 +99,7 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
         return map.get(key);
     }
 
-    public JSONObject getJSONObject(String key) {
+    public JSONObject getJSONObject(Object key) {
         Object value = map.get(key);
 
         if (value instanceof JSONObject) {
@@ -109,7 +109,7 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
         return (JSONObject) toJSON(value);
     }
 
-    public JSONArray getJSONArray(String key) {
+    public JSONArray getJSONArray(Object key) {
         Object value = map.get(key);
 
         if (value instanceof JSONArray) {
@@ -119,7 +119,7 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
         return (JSONArray) toJSON(value);
     }
 
-    public <T> T getObject(String key, Class<T> clazz) {
+    public <T> T getObject(Object key, Class<T> clazz) {
         Object obj = map.get(key);
         return TypeUtils.castToJavaBean(obj, clazz);
     }
@@ -134,7 +134,7 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
         return castToBoolean(value);
     }
 
-    public byte[] getBytes(String key) {
+    public byte[] getBytes(Object key) {
         Object value = get(key);
 
         if (value == null) {
@@ -144,7 +144,7 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
         return castToBytes(value);
     }
 
-    public boolean getBooleanValue(String key) {
+    public boolean getBooleanValue(Object key) {
         Object value = get(key);
 
         if (value == null) {
@@ -154,13 +154,13 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
         return castToBoolean(value).booleanValue();
     }
 
-    public Byte getByte(String key) {
+    public Byte getByte(Object key) {
         Object value = get(key);
 
         return castToByte(value);
     }
 
-    public byte getByteValue(String key) {
+    public byte getByteValue(Object key) {
         Object value = get(key);
 
         if (value == null) {
@@ -170,13 +170,13 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
         return castToByte(value).byteValue(); // TODO 如果 value 是""、"null"或"NULL"，可能会存在报空指针的情况，是否需要加以处理？ 其他转换也存在类似情况
     }
 
-    public Short getShort(String key) {
+    public Short getShort(Object key) {
         Object value = get(key);
 
         return castToShort(value);
     }
 
-    public short getShortValue(String key) {
+    public short getShortValue(Object key) {
         Object value = get(key);
 
         if (value == null) {
@@ -186,13 +186,13 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
         return castToShort(value).shortValue();
     }
 
-    public Integer getInteger(String key) {
+    public Integer getInteger(Object key) {
         Object value = get(key);
 
         return castToInt(value);
     }
 
-    public int getIntValue(String key) {
+    public int getIntValue(Object key) {
         Object value = get(key);
 
         if (value == null) {
@@ -202,13 +202,13 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
         return castToInt(value).intValue();
     }
 
-    public Long getLong(String key) {
+    public Long getLong(Object key) {
         Object value = get(key);
 
         return castToLong(value);
     }
 
-    public long getLongValue(String key) {
+    public long getLongValue(Object key) {
         Object value = get(key);
 
         if (value == null) {
@@ -218,13 +218,13 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
         return castToLong(value).longValue();
     }
 
-    public Float getFloat(String key) {
+    public Float getFloat(Object key) {
         Object value = get(key);
 
         return castToFloat(value);
     }
 
-    public float getFloatValue(String key) {
+    public float getFloatValue(Object key) {
         Object value = get(key);
 
         if (value == null) {
@@ -234,13 +234,13 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
         return castToFloat(value).floatValue();
     }
 
-    public Double getDouble(String key) {
+    public Double getDouble(Object key) {
         Object value = get(key);
 
         return castToDouble(value);
     }
 
-    public double getDoubleValue(String key) {
+    public double getDoubleValue(Object key) {
         Object value = get(key);
 
         if (value == null) {
@@ -250,19 +250,19 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
         return castToDouble(value);
     }
 
-    public BigDecimal getBigDecimal(String key) {
+    public BigDecimal getBigDecimal(Object key) {
         Object value = get(key);
 
         return castToBigDecimal(value);
     }
 
-    public BigInteger getBigInteger(String key) {
+    public BigInteger getBigInteger(Object key) {
         Object value = get(key);
 
         return castToBigInteger(value);
     }
 
-    public String getString(String key) {
+    public String getString(Object key) {
         Object value = get(key);
 
         if (value == null) {
@@ -272,38 +272,38 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
         return value.toString();
     }
 
-    public Date getDate(String key) {
+    public Date getDate(Object key) {
         Object value = get(key);
 
         return castToDate(value);
     }
 
-    public java.sql.Date getSqlDate(String key) {
+    public java.sql.Date getSqlDate(Object key) {
         Object value = get(key);
 
         return castToSqlDate(value);
     }
 
-    public java.sql.Timestamp getTimestamp(String key) {
+    public java.sql.Timestamp getTimestamp(Object key) {
         Object value = get(key);
 
         return castToTimestamp(value);
     }
 
-    public Object put(String key, Object value) {
+    public Object put(Object key, Object value) {
         return map.put(key, value);
     }
 
-    public JSONObject fluentPut(String key, Object value) {
+    public JSONObject fluentPut(Object key, Object value) {
         map.put(key, value);
         return this;
     }
 
-    public void putAll(Map<? extends String, ? extends Object> m) {
+    public void putAll(Map<? extends Object, ? extends Object> m) {
         map.putAll(m);
     }
 
-    public JSONObject fluentPutAll(Map<? extends String, ? extends Object> m) {
+    public JSONObject fluentPutAll(Map<? extends Object, ? extends Object> m) {
         map.putAll(m);
         return this;
     }
@@ -326,7 +326,7 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
         return this;
     }
 
-    public Set<String> keySet() {
+    public Set<Object> keySet() {
         return map.keySet();
     }
 
@@ -334,15 +334,15 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
         return map.values();
     }
 
-    public Set<Entry<String, Object>> entrySet() {
+    public Set<Entry<Object, Object>> entrySet() {
         return map.entrySet();
     }
 
     @Override
     public Object clone() {
         return new JSONObject(map instanceof LinkedHashMap //
-                ? new LinkedHashMap<String, Object>(map) //
-                : new HashMap<String, Object>(map)
+                ? new LinkedHashMap<Object, Object>(map) //
+                : new HashMap<Object, Object>(map)
         );
     }
 

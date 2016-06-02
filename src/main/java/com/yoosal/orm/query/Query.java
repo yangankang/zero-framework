@@ -55,7 +55,7 @@ public class Query {
      * @param value
      * @return
      */
-    public Query id(Object... value) {
+    public Query id(Object value) {
         this.wheres.add(new Wheres(null, value, Wheres.TYPE_ID));
         return this;
     }

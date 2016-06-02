@@ -12,14 +12,7 @@ public @interface Column {
 
     long length() default 0;
 
-    /**
-     * 是否是主键，0表示不是，大于0则是主键，如果有
-     * 多个主键则根据数字排序，作用于Query的ID操作时
-     * 传入的值得顺序
-     *
-     * @return
-     */
-    int key() default 0;
+    boolean key() default false;
 
     boolean index() default false;
 

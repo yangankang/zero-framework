@@ -50,19 +50,19 @@ public abstract class StandardSQL implements SQLDialect {
             String columnName = cm.getColumnName();
             Class clazz = cm.getJavaType();
             String columnType = typesMapping.get(clazz);
-            int isPrimaryKey = cm.getIsPrimaryKey();
+            boolean isPrimaryKey = cm.isPrimaryKey();
             Class strategy = cm.getGenerateStrategy();
 
-            if (isPrimaryKey > 0) {
+            if (isPrimaryKey) {
                 columnType = typesMapping.get(Integer.class);
             }
 
-            if (len <= 0 && clazz.isAssignableFrom(String.class) && isPrimaryKey <= 0) {
+            if (len <= 0 && clazz.isAssignableFrom(String.class) && !isPrimaryKey) {
                 len = DEFAULT_LENGTH;
             }
 
-            String pkString = isPrimaryKey > 0 ? " PRIMARY KEY" : "";
-            if (isPrimaryKey > 0) {
+            String pkString = isPrimaryKey ? " PRIMARY KEY" : "";
+            if (isPrimaryKey) {
                 if (strategy == null || strategy == Column.class) {
                     pkString += " AUTO_INCREMENT";
                 }
@@ -90,20 +90,20 @@ public abstract class StandardSQL implements SQLDialect {
             String dbTypeName = typesMapping.get(clazz);
             long length = cm.getLength();
             Class strategy = cm.getGenerateStrategy();
-            int isPrimaryKey = cm.getIsPrimaryKey();
+            boolean isPrimaryKey = cm.isPrimaryKey();
 
             sqlBuilder.append(columnName + " ");
-            if (isPrimaryKey > 0) {
+            if (isPrimaryKey) {
                 dbTypeName = typesMapping.get(Integer.class);
             }
 
-            if (length <= 0 && clazz.isAssignableFrom(String.class) && isPrimaryKey <= 0) {
+            if (length <= 0 && clazz.isAssignableFrom(String.class) && !isPrimaryKey) {
                 length = DEFAULT_LENGTH;
             }
 
             sqlBuilder.append(dbTypeName);
             sqlBuilder.append(length > 0 ? "(" + length + ")" : "");
-            if (isPrimaryKey > 0) {
+            if (isPrimaryKey) {
                 sqlBuilder.append(" PRIMARY KEY");
                 if (strategy == null || strategy == Column.class) {
                     sqlBuilder.append(" AUTO_INCREMENT");
@@ -121,52 +121,6 @@ public abstract class StandardSQL implements SQLDialect {
         }
         sqlBuilder.append(")");
         return sqlBuilder.toString();
-    }
-
-    private String keyString(List<ColumnModel> columnModels) {
-        List<String> strings = new ArrayList<String>();
-        for (ColumnModel cm : columnModels) {
-            strings.add(cm.getColumnName());
-        }
-        return StringUtils.collectionToDelimitedString(strings, ",");
-    }
-
-    private String valueString(List<ColumnModel> columnModels) {
-        Iterator it = columnModels.iterator();
-        StringBuffer sb = new StringBuffer();
-        while (it.hasNext()) {
-            sb.append("?");
-            if (it.hasNext()) {
-                sb.append(",");
-            }
-        }
-        return sb.toString();
-    }
-
-    private String valueUpdateString(List<ColumnModel> columnModels) {
-        Iterator<ColumnModel> it = columnModels.iterator();
-        StringBuffer sb = new StringBuffer();
-        while (it.hasNext()) {
-            ColumnModel cm = it.next();
-            sb.append(cm.getColumnName() + "=?");
-            if (it.hasNext()) {
-                sb.append(",");
-            }
-        }
-        return sb.toString();
-    }
-
-    private String valueUpdateWhereString(List<ColumnModel> columnModels) {
-        Iterator<ColumnModel> it = columnModels.iterator();
-        StringBuffer sb = new StringBuffer();
-        while (it.hasNext()) {
-            ColumnModel cm = it.next();
-            sb.append(cm.getColumnName() + "=?");
-            if (it.hasNext()) {
-                sb.append(" AND ");
-            }
-        }
-        return sb.toString();
     }
 
     private boolean contains(Object[] wcs, ColumnModel cm) {
@@ -188,7 +142,7 @@ public abstract class StandardSQL implements SQLDialect {
                     if (contains(wcs, cm)) {
                         whereColumns.add(cm);
                     } else {
-                        if (cm.getIsPrimaryKey() <= 0) {
+                        if (!cm.isPrimaryKey()) {
                             columnModels.add(cm);
                         } else {
                             if (contains(ucs, cm)) {
@@ -206,14 +160,27 @@ public abstract class StandardSQL implements SQLDialect {
         return columnModels;
     }
 
+
     @Override
     public ValuesForPrepared prepareInsert(TableModel tableMapping, ModelObject object) {
         ValuesForPrepared valuesForPrepared = new ValuesForPrepared();
         List<ColumnModel> columnModels = getValidateColumn(tableMapping, object, null);
-        valuesForPrepared.setKeys((ColumnModel[]) columnModels.toArray());
-        valuesForPrepared.setSql("INSERT INTO " + tableMapping.getDbTableName() + " (" + keyString(columnModels) + ") VALUES ("
-                + valueString(columnModels) + ")");
-        valuesForPrepared.setCount(columnModels.size());
+        StringBuilder key = new StringBuilder();
+        StringBuilder value = new StringBuilder();
+
+        Iterator<ColumnModel> it = columnModels.iterator();
+        while (it.hasNext()) {
+            ColumnModel cm = it.next();
+            key.append(cm.getColumnName());
+            value.append(":" + cm.getJavaName());
+            if (it.hasNext()) {
+                key.append(",");
+                value.append(",");
+            }
+            valuesForPrepared.addValue(":" + cm.getJavaName(), object.get(cm.getJavaName()));
+        }
+
+        valuesForPrepared.setSql("INSERT INTO " + tableMapping.getDbTableName() + " (" + key + ") VALUES (" + value + ")");
         return valuesForPrepared;
     }
 
@@ -226,108 +193,151 @@ public abstract class StandardSQL implements SQLDialect {
         }
         List<ColumnModel> columnModels = getValidateColumn(tableMapping, object, whereColumnModels);
 
-        ColumnModel[] array1 = (ColumnModel[]) columnModels.toArray();
-        ColumnModel[] array2 = (ColumnModel[]) whereColumnModels.toArray();
-        ColumnModel[] cms = new ColumnModel[array1.length + array2.length];
-        System.arraycopy(array1, 0, cms, 0, array1.length);
-        System.arraycopy(array2, 0, cms, array1.length, array2.length);
+        Iterator<ColumnModel> cmIt = columnModels.iterator();
+        StringBuilder set = new StringBuilder();
+        Iterator<ColumnModel> wcIt = whereColumnModels.iterator();
+        StringBuilder where = new StringBuilder();
+        while (cmIt.hasNext()) {
+            ColumnModel cm = cmIt.next();
+            valuesForPrepared.addValue(":" + cm.getJavaName(), object.get(cm.getJavaName()));
+            set.append(cm.getColumnName() + "=:" + cm.getJavaName());
+            if (cmIt.hasNext()) {
+                set.append(" AND ");
+            }
+        }
 
-        valuesForPrepared.setKeys(cms);
+        while (wcIt.hasNext()) {
+            ColumnModel cm = wcIt.next();
+            valuesForPrepared.addValue(":" + cm.getJavaName(), object.get(cm.getJavaName()));
+            where.append(cm.getColumnName() + "=:" + cm.getJavaName());
+            if (wcIt.hasNext()) {
+                where.append(" AND ");
+            }
+        }
+
         valuesForPrepared.setSql("UPDATE " + tableMapping.getDbTableName() +
-                " SET " + valueUpdateString(columnModels) +
-                " WHERE " + valueUpdateWhereString(whereColumnModels));
-        valuesForPrepared.setCount(columnModels.size());
+                " SET " + set +
+                " WHERE " + where);
         return valuesForPrepared;
     }
 
     @Override
     public ValuesForPrepared prepareUpdateBatch(TableModel tableMapping, Batch batch) {
-        Object[] objects = batch.getColumns();
-        Object[] whereColumns = batch.getWhereColumns();
-        List<Object> objectList = Arrays.asList(objects);
-        Iterator<Object> it = objectList.iterator();
-        StringBuffer set = new StringBuffer();
+        ValuesForPrepared valuesForPrepared = new ValuesForPrepared();
+        List<ColumnModel> whereColumnModels = new ArrayList<ColumnModel>();
+        List<ColumnModel> columnModels = new ArrayList<ColumnModel>();
 
-        List<ColumnModel> columnModels = tableMapping.getMappingColumnModels();
-        List<ColumnModel> cms = new ArrayList<ColumnModel>();
-        Map<String, ColumnModel> toMap = new HashMap<String, ColumnModel>();
-        for (ColumnModel cm : columnModels) {
-            toMap.put(cm.getJavaName(), cm);
+        for (Object object : batch.getColumns()) {
+            columnModels.add(tableMapping.getColumnByJavaName(String.valueOf(object)));
         }
-        while (it.hasNext()) {
-            String key = String.valueOf(it.next());
-            set.append(key + "=?");
-            if (it.hasNext()) {
-                set.append(",");
+        for (Object object : batch.getWhereColumns()) {
+            whereColumnModels.add(tableMapping.getColumnByJavaName(String.valueOf(object)));
+        }
+
+        Iterator<ColumnModel> cmIt = columnModels.iterator();
+        StringBuilder set = new StringBuilder();
+        Iterator<ColumnModel> wcIt = whereColumnModels.iterator();
+        StringBuilder where = new StringBuilder();
+        while (cmIt.hasNext()) {
+            ColumnModel cm = cmIt.next();
+            set.append(cm.getColumnName() + "=:" + cm.getJavaName());
+            if (cmIt.hasNext()) {
+                set.append(" AND ");
             }
-            cms.add(toMap.get(key));
         }
 
-        Iterator<Object> whereIt = Arrays.asList(whereColumns).iterator();
-        StringBuffer where = new StringBuffer();
-        while (whereIt.hasNext()) {
-            String key = String.valueOf(whereIt.next());
-            where.append(key + "=?");
-            if (whereIt.hasNext()) {
+        while (wcIt.hasNext()) {
+            ColumnModel cm = wcIt.next();
+            where.append(cm.getColumnName() + "=:" + cm.getJavaName());
+            if (wcIt.hasNext()) {
                 where.append(" AND ");
             }
-            cms.add(toMap.get(key));
         }
-
-        ValuesForPrepared valuesForPrepared = new ValuesForPrepared();
-        valuesForPrepared.setSql("UPDATE " + tableMapping.getDbTableName() + " SET " + set.toString() + " WHERE " + where.toString());
-        valuesForPrepared.setKeys((ColumnModel[]) cms.toArray());
-        valuesForPrepared.setCount(cms.size());
+        valuesForPrepared.setSql("UPDATE " + tableMapping.getDbTableName() + " SET " + set + " WHERE " + where);
 
         return valuesForPrepared;
     }
 
-    private String valueWheresString(List<Wheres> wheres) {
-        Iterator<Wheres> it = wheres.iterator();
-        StringBuffer sb = new StringBuffer();
-        while (it.hasNext()) {
-            Wheres where = it.next();
-            sb.append(where.getKey() + "=?");
-            if (it.hasNext()) {
+    private ValuesForPrepared common(TableModel tableMapping, List<Wheres> wheres) {
+        ValuesForPrepared valuesForPrepared = new ValuesForPrepared();
+        StringBuilder sb = new StringBuilder();
+        StringBuilder notWhereSql = new StringBuilder();
+        List<ColumnModel> columnModels = tableMapping.getMappingPrimaryKeyColumnModels();
+        Iterator<Wheres> wheresIterator = wheres.iterator();
+        while (wheresIterator.hasNext()) {
+            Wheres whs = wheresIterator.next();
+            ColumnModel columnModel = tableMapping.getColumnByJavaName(whs.getKey());
+
+            if (whs.isNormal()) {
+                Wheres.Operation operation = whs.getOperation();
+                if (operation.equals(Wheres.Operation.IN)) {
+                    List<Object> valueList = (List<Object>) whs.getValue();
+
+                    Iterator<Object> inIterator = valueList.iterator();
+                    StringBuilder insb = new StringBuilder();
+                    int i = 0;
+                    while (inIterator.hasNext()) {
+                        Object object = inIterator.next();
+                        insb.append(":" + columnModel.getJavaName() + i);
+                        valuesForPrepared.addValue(":" + columnModel.getJavaName() + i, object);
+                        if (inIterator.hasNext()) {
+                            insb.append(",");
+                        }
+                        i++;
+                    }
+                    sb.append(columnModel.getColumnName() + " IN(" + insb + ")");
+                } else if (operation.equals(Wheres.Operation.LIKE)) {
+                    sb.append(columnModel.getColumnName() + " LIKE(:" + columnModel.getJavaName() + ")");
+                    valuesForPrepared.addValue(":" + columnModel.getJavaName(), whs.getValue());
+                } else {
+                    sb.append(columnModel.getColumnName() + whs.getOperation() + ":" + columnModel.getJavaName());
+                    valuesForPrepared.addValue(":" + columnModel.getJavaName(), whs.getValue());
+                }
                 sb.append(" AND ");
+            } else {
+                if (whs.getType() == 1) {
+                    if (columnModels.size() > 0) {
+                        ColumnModel cm = columnModels.get(0);
+                        sb.append(cm.getColumnName() + "=:" + cm.getJavaName());
+                        valuesForPrepared.addValue(":" + cm.getJavaName(), whs.getValue());
+                    }
+                    sb.append(" AND ");
+                } else if (whs.getType() == 2) {
+                    notWhereSql.append(" LIMIT " + whs.getValue() + ",");
+                } else if (whs.getType() == 3) {
+                    notWhereSql.append(whs.getValue());
+                } else if (whs.getType() == 4) {
+                    int v = (Integer) whs.getValue();
+                    notWhereSql.append(" ORDER BY " + columnModel.getColumnName() + " " + (v == Wheres.ORDER_ASC ? "ASC" : "DESC"));
+                }
             }
         }
-        return sb.toString();
-    }
-
-    private String keyWhereString(List<Wheres> wheres) {
-        List<String> strings = new ArrayList<String>();
-        for (Wheres where : wheres) {
-            strings.add(where.getKey());
+        if (sb.toString().endsWith(" AND ")) {
+            valuesForPrepared.setSql(sb.toString().substring(0, sb.toString().length() - " AND ".length()) + notWhereSql.toString());
+        } else {
+            valuesForPrepared.setSql(sb.toString() + " " + notWhereSql.toString());
         }
-        return StringUtils.collectionToDelimitedString(strings, ",");
-    }
-
-    private String queWhereString(List<Wheres> wheres) {
-        Iterator it = wheres.iterator();
-        StringBuffer sb = new StringBuffer();
-        while (it.hasNext()) {
-            sb.append("?");
-            if (it.hasNext()) {
-                sb.append(",");
-            }
-        }
-        return sb.toString();
+        return valuesForPrepared;
     }
 
     @Override
     public ValuesForPrepared prepareDelete(TableModel tableMapping, List<Wheres> wheres) {
-        
-        return null;
+        ValuesForPrepared valuesForPrepared = common(tableMapping, wheres);
+        valuesForPrepared.setSql("DELETE FROM " + tableMapping.getDbTableName() + " WHERE " + valuesForPrepared.getSql());
+        return valuesForPrepared;
     }
 
     @Override
     public ValuesForPrepared prepareSelect(TableModel tableMapping, List<Wheres> wheres) {
-        return null;
+        ValuesForPrepared valuesForPrepared = common(tableMapping, wheres);
+        valuesForPrepared.setSql("SELECT * FROM " + tableMapping.getDbTableName() + " WHERE " + valuesForPrepared.getSql());
+        return valuesForPrepared;
     }
 
     @Override
     public ValuesForPrepared prepareSelectCount(TableModel tableMapping, List<Wheres> wheres) {
-        return null;
+        ValuesForPrepared valuesForPrepared = common(tableMapping, wheres);
+        valuesForPrepared.setSql("SELECT COUNT(*) FROM " + tableMapping.getDbTableName() + " WHERE " + valuesForPrepared.getSql());
+        return valuesForPrepared;
     }
 }

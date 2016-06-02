@@ -234,12 +234,12 @@ public class DefaultDBMapping implements DBMapping {
                     if (length == 255 && type == Long.class) length = 13;
                     if (length == 255 && type == Double.class) length = 16;
                     if (length == 255 && type == Text.class) length = 0;
-                    int isPrimaryKey = (column == null ? 0 : column.key());
+                    boolean isPrimaryKey = (column == null ? false : column.key());
                     Class generateStrategy = (column == null ? null : column.strategy());
                     if (generateStrategy != null && generateStrategy.isAssignableFrom(Column.class))
                         generateStrategy = null;
                     boolean isLock = (column == null ? false : column.lock());
-                    columnModel.setIsPrimaryKey(isPrimaryKey);
+                    columnModel.setPrimaryKey(isPrimaryKey);
                     columnModel.setJavaType(type);
                     columnModel.setLength(length);
                     columnModel.setGenerateStrategy(generateStrategy);

@@ -16,7 +16,7 @@ public class ColumnModel extends AbstractModelCheck {
     private Class<IDStrategy> generateStrategy;
     private IDStrategy generateStrategyInstance;
 
-    private int isPrimaryKey;
+    private boolean isPrimaryKey;
     private boolean isLock = false;
     private boolean isIndex = false;
     private String indexName;
@@ -108,12 +108,12 @@ public class ColumnModel extends AbstractModelCheck {
         this.columnTypeCode = columnTypeCode;
     }
 
-    public int getIsPrimaryKey() {
+    public boolean isPrimaryKey() {
         return isPrimaryKey;
     }
 
-    public void setIsPrimaryKey(int isPrimaryKey) {
-        this.isPrimaryKey = isPrimaryKey;
+    public void setPrimaryKey(boolean primaryKey) {
+        isPrimaryKey = primaryKey;
     }
 
     public boolean isLock() {
@@ -135,7 +135,7 @@ public class ColumnModel extends AbstractModelCheck {
     }
 
     public boolean isAutoIncrement() {
-        if (this.getIsPrimaryKey() > 0 && generateStrategy.equals(Column.class)) {
+        if (this.isPrimaryKey() && generateStrategy.equals(Column.class)) {
             return true;
         }
         return false;

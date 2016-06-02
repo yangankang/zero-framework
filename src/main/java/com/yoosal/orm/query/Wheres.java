@@ -12,7 +12,7 @@ package com.yoosal.orm.query;
  * static final String operationLtEqual = "<=";
  */
 public class Wheres {
-    enum Operation {
+    public enum Operation {
         EQUAL, IN, LIKE, NOT_EQUAL, GT, GT_EQUAL, LT, LT_EQUAL
     }
 
@@ -143,6 +143,7 @@ public class Wheres {
         this.key = key;
         this.value = value;
         this.type = type;
+        this.operation = Operation.EQUAL;
     }
 
     public String getKey() {

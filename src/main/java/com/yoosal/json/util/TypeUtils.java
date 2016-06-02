@@ -621,7 +621,7 @@ public class TypeUtils {
                 return (T) obj;
             }
 
-            return castToJavaBean((Map<String, Object>) obj, clazz, config);
+            return castToJavaBean((Map<Object, Object>) obj, clazz, config);
         }
 
         if (clazz.isArray()) {
@@ -862,7 +862,7 @@ public class TypeUtils {
     }
 
     @SuppressWarnings({ "unchecked" })
-    public static <T> T castToJavaBean(Map<String, Object> map, Class<T> clazz, ParserConfig config) {
+    public static <T> T castToJavaBean(Map<Object, Object> map, Class<T> clazz, ParserConfig config) {
         try {
             if (clazz == StackTraceElement.class) {
                 String declaringClass = (String) map.get("className");

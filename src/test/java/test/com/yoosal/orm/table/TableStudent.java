@@ -5,7 +5,7 @@ import com.yoosal.orm.annotation.Table;
 
 @Table
 public enum TableStudent {
-    @Column(key = 1, index = true)
+    @Column(key = true, index = true)
     idColumn,
     @Column(index = true)
     nameForAccount,
