@@ -1,7 +1,5 @@
 package com.yoosal.orm.core;
 
-import com.yoosal.common.ClassUtils;
-import com.yoosal.common.NumberUtils;
 import com.yoosal.orm.ModelObject;
 import com.yoosal.orm.dialect.SQLDialect;
 import com.yoosal.orm.dialect.SQLDialectFactory;
@@ -14,7 +12,6 @@ import com.yoosal.orm.query.Query;
 
 import javax.sql.DataSource;
 import java.sql.*;
-import java.util.ArrayList;
 import java.util.List;
 
 public class SingleDatabaseOperation implements Operation {
@@ -95,7 +92,7 @@ public class SingleDatabaseOperation implements Operation {
             List<ColumnModel> primaryKeyColumns = tableModel.getMappingPrimaryKeyColumnModels();
             Boolean hasAutoIncrementPrimaryKey = tableModel.hasAutoIncrementPrimaryKey();
             if (hasAutoIncrementPrimaryKey) {
-                ValuesForPrepared valuesForPrepared = sqlDialect.insert(tableModel, object);
+                ValuesForPrepared valuesForPrepared = sqlDialect.prepareInsert(tableModel, object);
                 statement = connection.prepareStatement(valuesForPrepared.getSql(), Statement.RETURN_GENERATED_KEYS);
                 setPreparedStatementValues(statement, valuesForPrepared, object);
                 statement.executeUpdate();
@@ -120,7 +117,7 @@ public class SingleDatabaseOperation implements Operation {
                     }
                 }
                 //通过映射表和对象生成一个insert的SQL
-                ValuesForPrepared valuesForPrepared = sqlDialect.insert(tableModel, object);
+                ValuesForPrepared valuesForPrepared = sqlDialect.prepareInsert(tableModel, object);
                 statement = connection.prepareStatement(valuesForPrepared.getSql());
                 setPreparedStatementValues(statement, valuesForPrepared, object);
                 boolean isSuccess = statement.execute();
@@ -142,9 +139,9 @@ public class SingleDatabaseOperation implements Operation {
         PreparedStatement statement = null;
         try {
             SQLDialect sqlDialect = getDialect(connection);
-            TableModel tableModel = dbMapping.getTableMapping(object.getClass());
+            TableModel tableModel = dbMapping.getTableMapping(object.getObjectClass());
             connection = dataSource.getConnection();
-            ValuesForPrepared valuesForPrepared = sqlDialect.insert(tableModel, object);
+            ValuesForPrepared valuesForPrepared = sqlDialect.prepareUpdate(tableModel, object);
             statement = connection.prepareStatement(valuesForPrepared.getSql());
             setPreparedStatementValues(statement, valuesForPrepared, object);
             statement.executeUpdate();
@@ -156,11 +153,22 @@ public class SingleDatabaseOperation implements Operation {
     }
 
     @Override
-    public void updates(List<ModelObject> objects) {
+    public void updates(Batch batch) {
         Connection connection = null;
         PreparedStatement statement = null;
         try {
-
+            SQLDialect sqlDialect = getDialect(connection);
+            connection = dataSource.getConnection();
+            TableModel tableModel = dbMapping.getTableMapping(batch.getObjectClass());
+            ValuesForPrepared valuesForPrepared = sqlDialect.prepareUpdateBatch(tableModel, batch);
+            statement = connection.prepareStatement(valuesForPrepared.getSql());
+            for (ModelObject object : batch.getObjects()) {
+                setPreparedStatementValues(statement, valuesForPrepared, object);
+                statement.addBatch();
+            }
+            statement.executeBatch();
+        } catch (SQLException e) {
+            throw new DatabaseOperationException("updates throw", e);
         } finally {
             close(connection, statement);
         }

@@ -22,7 +22,7 @@ public class OrmSceneOperation implements Operation {
     }
 
     @Override
-    public void updates(List<ModelObject> objects) {
+    public void updates(Batch batch) {
 
     }
 
@@ -48,6 +48,11 @@ public class OrmSceneOperation implements Operation {
 
     @Override
     public void commit() {
+
+    }
+
+    @Override
+    public void rollback() {
 
     }
 }

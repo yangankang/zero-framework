@@ -1,6 +1,7 @@
 package com.yoosal.orm.dialect;
 
 import com.yoosal.orm.ModelObject;
+import com.yoosal.orm.core.Batch;
 import com.yoosal.orm.mapping.ColumnModel;
 import com.yoosal.orm.mapping.TableModel;
 
@@ -33,5 +34,9 @@ public interface SQLDialect {
      * @param object
      * @return
      */
-    ValuesForPrepared insert(TableModel tableMapping, ModelObject object);
+    ValuesForPrepared prepareInsert(TableModel tableMapping, ModelObject object);
+
+    ValuesForPrepared prepareUpdate(TableModel tableMapping, ModelObject object);
+
+    ValuesForPrepared prepareUpdateBatch(TableModel tableMapping, Batch batch);
 }

@@ -8,7 +8,7 @@ import com.yoosal.orm.query.Query;
  * 用来做添删改查的对象，继承自JSONObject，包含各种和数据库相关的信息
  */
 public class ModelObject extends JSONObject {
-    private Class<Enum> clazz;
+    private Class<Enum> objectClass;
     private String dataSourceName;
 
     public static ModelObject instance(Class<Enum> clazz) {
@@ -19,31 +19,35 @@ public class ModelObject extends JSONObject {
         return new ModelObject(clazz, dataSourceName);
     }
 
-    public ModelObject(Class<Enum> clazz) {
-        this.clazz = clazz;
+    public ModelObject(Class<Enum> objectClass) {
+        this.objectClass = objectClass;
     }
 
-    public ModelObject(Class<Enum> clazz, String dataSourceName) {
-        this.clazz = clazz;
+    public ModelObject(Class<Enum> objectClass, String dataSourceName) {
+        this.objectClass = objectClass;
         this.dataSourceName = dataSourceName;
     }
 
     public ModelObject() {
     }
 
-    public void setClazz(Class<Enum> clazz) {
-        this.clazz = clazz;
+    public void setObjectClass(Class<Enum> objectClass) {
+        this.objectClass = objectClass;
+    }
+
+    public Class<Enum> getObjectClass() {
+        return objectClass;
     }
 
     public ModelObject clone() {
-        return new ModelObject(clazz, dataSourceName);
+        return new ModelObject(objectClass, dataSourceName);
     }
 
     public Query getQuery() {
-        return new Query(clazz, dataSourceName);
+        return new Query(objectClass, dataSourceName);
     }
 
     public Join getJoin() {
-        return new Join(clazz, dataSourceName);
+        return new Join(objectClass, dataSourceName);
     }
 }

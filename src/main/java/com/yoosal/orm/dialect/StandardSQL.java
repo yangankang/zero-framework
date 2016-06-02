@@ -1,11 +1,10 @@
 package com.yoosal.orm.dialect;
 
-import com.yoosal.common.ClassUtils;
 import com.yoosal.common.CollectionUtils;
 import com.yoosal.common.StringUtils;
 import com.yoosal.orm.ModelObject;
 import com.yoosal.orm.annotation.Column;
-import com.yoosal.orm.exception.OrmMappingException;
+import com.yoosal.orm.core.Batch;
 import com.yoosal.orm.mapping.ColumnModel;
 import com.yoosal.orm.mapping.TableModel;
 
@@ -125,7 +124,17 @@ public abstract class StandardSQL implements SQLDialect {
     }
 
     @Override
-    public ValuesForPrepared insert(TableModel tableMapping, ModelObject object) {
+    public ValuesForPrepared prepareInsert(TableModel tableMapping, ModelObject object) {
+        return null;
+    }
+
+    @Override
+    public ValuesForPrepared prepareUpdate(TableModel tableMapping, ModelObject object) {
+        return null;
+    }
+
+    @Override
+    public ValuesForPrepared prepareUpdateBatch(TableModel tableMapping, Batch batch) {
         return null;
     }
 }
