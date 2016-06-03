@@ -1,5 +1,7 @@
 package com.yoosal.orm.query;
 
+import com.yoosal.common.StringUtils;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,12 +11,12 @@ import java.util.List;
  */
 public class Join {
 
-    private Class<Enum> clazz;
+    private Class<Enum> objectClass;
     private String dataSourceName;
     /**
      * 这里的wheres的用法和Query中的用法有差异，这个只使用条件判断值比如
      * 等于 大于 小于 等等，每一个Wheres的key代表左表的字段，value代表的
-     * 是右表的字段，如果在同一个数据库中则可以表现为：
+     * 是右表的字段，比如：
      * left join t_b b on a.bid = b.bid left join t_c c on a.cid = c.cid
      */
     private List<Wheres> wheres = new ArrayList<Wheres>();
@@ -35,12 +37,12 @@ public class Join {
         return join;
     }
 
-    public Join(Class<Enum> clazz) {
-        this.clazz = clazz;
+    public Join(Class<Enum> objectClass) {
+        this.objectClass = objectClass;
     }
 
-    public Join(Class<Enum> clazz, String dataSourceName) {
-        this.clazz = clazz;
+    public Join(Class<Enum> objectClass, String dataSourceName) {
+        this.objectClass = objectClass;
         this.dataSourceName = dataSourceName;
     }
 
@@ -55,6 +57,9 @@ public class Join {
     }
 
     public String getJoinName() {
+        if (StringUtils.isBlank(joinName)) {
+            joinName = objectClass.getSimpleName();
+        }
         return joinName;
     }
 
@@ -63,14 +68,22 @@ public class Join {
         return this;
     }
 
-    public Join setClazz(Class<Enum> clazz) {
-        this.clazz = clazz;
+    public Join setObjectClass(Class<Enum> objectClass) {
+        this.objectClass = objectClass;
         return this;
+    }
+
+    public Class<Enum> getObjectClass() {
+        return objectClass;
     }
 
     public Join setDataSourceName(String dataSourceName) {
         this.dataSourceName = dataSourceName;
         return this;
+    }
+
+    public String getDataSourceName() {
+        return dataSourceName;
     }
 
     public List<Wheres> getWheres() {

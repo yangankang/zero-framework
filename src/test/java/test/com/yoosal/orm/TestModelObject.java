@@ -12,6 +12,7 @@ public class TestModelObject {
         object.put(A.B, "hello");
         System.out.println(JSON.toJSONString(object));
         System.out.println(object.get(A.B));
+        System.out.println(A.B.equals("B"));
     }
 }
 

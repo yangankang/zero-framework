@@ -88,7 +88,7 @@ public class JSONObject extends JSON implements Map<Object, Object>, Cloneable, 
     }
 
     public boolean containsKey(Object key) {
-        return map.containsKey(key);
+        return map.containsKey(String.valueOf(key));
     }
 
     public boolean containsValue(Object value) {
@@ -96,11 +96,11 @@ public class JSONObject extends JSON implements Map<Object, Object>, Cloneable, 
     }
 
     public Object get(Object key) {
-        return map.get(key);
+        return map.get(String.valueOf(key));
     }
 
     public JSONObject getJSONObject(Object key) {
-        Object value = map.get(key);
+        Object value = map.get(String.valueOf(key));
 
         if (value instanceof JSONObject) {
             return (JSONObject) value;
@@ -110,7 +110,7 @@ public class JSONObject extends JSON implements Map<Object, Object>, Cloneable, 
     }
 
     public JSONArray getJSONArray(Object key) {
-        Object value = map.get(key);
+        Object value = map.get(String.valueOf(key));
 
         if (value instanceof JSONArray) {
             return (JSONArray) value;
@@ -120,7 +120,7 @@ public class JSONObject extends JSON implements Map<Object, Object>, Cloneable, 
     }
 
     public <T> T getObject(Object key, Class<T> clazz) {
-        Object obj = map.get(key);
+        Object obj = map.get(String.valueOf(key));
         return TypeUtils.castToJavaBean(obj, clazz);
     }
 
@@ -135,7 +135,7 @@ public class JSONObject extends JSON implements Map<Object, Object>, Cloneable, 
     }
 
     public byte[] getBytes(Object key) {
-        Object value = get(key);
+        Object value = get(String.valueOf(key));
 
         if (value == null) {
             return null;
@@ -145,7 +145,7 @@ public class JSONObject extends JSON implements Map<Object, Object>, Cloneable, 
     }
 
     public boolean getBooleanValue(Object key) {
-        Object value = get(key);
+        Object value = get(String.valueOf(key));
 
         if (value == null) {
             return false;
@@ -155,13 +155,13 @@ public class JSONObject extends JSON implements Map<Object, Object>, Cloneable, 
     }
 
     public Byte getByte(Object key) {
-        Object value = get(key);
+        Object value = get(String.valueOf(key));
 
         return castToByte(value);
     }
 
     public byte getByteValue(Object key) {
-        Object value = get(key);
+        Object value = get(String.valueOf(key));
 
         if (value == null) {
             return 0;
@@ -171,13 +171,13 @@ public class JSONObject extends JSON implements Map<Object, Object>, Cloneable, 
     }
 
     public Short getShort(Object key) {
-        Object value = get(key);
+        Object value = get(String.valueOf(key));
 
         return castToShort(value);
     }
 
     public short getShortValue(Object key) {
-        Object value = get(key);
+        Object value = get(String.valueOf(key));
 
         if (value == null) {
             return 0;
@@ -187,13 +187,13 @@ public class JSONObject extends JSON implements Map<Object, Object>, Cloneable, 
     }
 
     public Integer getInteger(Object key) {
-        Object value = get(key);
+        Object value = get(String.valueOf(key));
 
         return castToInt(value);
     }
 
     public int getIntValue(Object key) {
-        Object value = get(key);
+        Object value = get(String.valueOf(key));
 
         if (value == null) {
             return 0;
@@ -203,13 +203,13 @@ public class JSONObject extends JSON implements Map<Object, Object>, Cloneable, 
     }
 
     public Long getLong(Object key) {
-        Object value = get(key);
+        Object value = get(String.valueOf(key));
 
         return castToLong(value);
     }
 
     public long getLongValue(Object key) {
-        Object value = get(key);
+        Object value = get(String.valueOf(key));
 
         if (value == null) {
             return 0L;
@@ -219,13 +219,13 @@ public class JSONObject extends JSON implements Map<Object, Object>, Cloneable, 
     }
 
     public Float getFloat(Object key) {
-        Object value = get(key);
+        Object value = get(String.valueOf(key));
 
         return castToFloat(value);
     }
 
     public float getFloatValue(Object key) {
-        Object value = get(key);
+        Object value = get(String.valueOf(key));
 
         if (value == null) {
             return 0F;
@@ -235,13 +235,13 @@ public class JSONObject extends JSON implements Map<Object, Object>, Cloneable, 
     }
 
     public Double getDouble(Object key) {
-        Object value = get(key);
+        Object value = get(String.valueOf(key));
 
         return castToDouble(value);
     }
 
     public double getDoubleValue(Object key) {
-        Object value = get(key);
+        Object value = get(String.valueOf(key));
 
         if (value == null) {
             return 0D;
@@ -251,19 +251,19 @@ public class JSONObject extends JSON implements Map<Object, Object>, Cloneable, 
     }
 
     public BigDecimal getBigDecimal(Object key) {
-        Object value = get(key);
+        Object value = get(String.valueOf(key));
 
         return castToBigDecimal(value);
     }
 
     public BigInteger getBigInteger(Object key) {
-        Object value = get(key);
+        Object value = get(String.valueOf(key));
 
         return castToBigInteger(value);
     }
 
     public String getString(Object key) {
-        Object value = get(key);
+        Object value = get(String.valueOf(key));
 
         if (value == null) {
             return null;
@@ -273,29 +273,29 @@ public class JSONObject extends JSON implements Map<Object, Object>, Cloneable, 
     }
 
     public Date getDate(Object key) {
-        Object value = get(key);
+        Object value = get(String.valueOf(key));
 
         return castToDate(value);
     }
 
     public java.sql.Date getSqlDate(Object key) {
-        Object value = get(key);
+        Object value = get(String.valueOf(key));
 
         return castToSqlDate(value);
     }
 
     public java.sql.Timestamp getTimestamp(Object key) {
-        Object value = get(key);
+        Object value = get(String.valueOf(key));
 
         return castToTimestamp(value);
     }
 
     public Object put(Object key, Object value) {
-        return map.put(key, value);
+        return map.put(String.valueOf(key), value);
     }
 
     public JSONObject fluentPut(Object key, Object value) {
-        map.put(key, value);
+        map.put(String.valueOf(key), value);
         return this;
     }
 
@@ -318,11 +318,11 @@ public class JSONObject extends JSON implements Map<Object, Object>, Cloneable, 
     }
 
     public Object remove(Object key) {
-        return map.remove(key);
+        return map.remove(String.valueOf(key));
     }
 
     public JSONObject fluentRemove(Object key) {
-        map.remove(key);
+        map.remove(String.valueOf(key));
         return this;
     }
 
