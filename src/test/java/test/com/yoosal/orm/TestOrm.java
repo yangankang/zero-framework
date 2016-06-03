@@ -64,5 +64,41 @@ public class TestOrm {
         System.out.println(JSON.toJSONString(objects));
     }
 
+    @Test
+    public void testRemove() throws IllegalAccessException, IOException, InstantiationException, SQLException, InvocationTargetException, ClassNotFoundException {
+        OrmFactory.properties(TestDBMapping.class.getResourceAsStream("/orm_mapping.properties"));
+        ModelObject object = new ModelObject();
+        object.setObjectClass(TableStudent.class);
+        object.put(TableStudent.nameForAccount, "yak");
+        object.put(TableStudent.age, 20);
 
+        OrmSceneOperation sceneOperation = new OrmSceneOperation();
+        sceneOperation.save(object);
+
+        sceneOperation.remove(Query.query(TableStudent.class).id(object.getInteger(TableStudent.idColumn)));
+
+        System.out.println("delete id : " + object.getInteger(TableStudent.idColumn));
+    }
+
+    @Test
+    public void testCount() throws IllegalAccessException, IOException, InstantiationException, SQLException, InvocationTargetException, ClassNotFoundException {
+        OrmFactory.properties(TestDBMapping.class.getResourceAsStream("/orm_mapping.properties"));
+        OrmSceneOperation sceneOperation = new OrmSceneOperation();
+        try {
+            sceneOperation.begin();
+            for (int i = 0; i < 100; i++) {
+                ModelObject object = new ModelObject();
+                object.setObjectClass(TableStudent.class);
+                object.put(TableStudent.nameForAccount, "yak");
+                object.put(TableStudent.age, 20);
+                sceneOperation.save(object);
+                sceneOperation.remove(Query.query(TableStudent.class).id(object.getInteger(TableStudent.idColumn)));
+                long count = sceneOperation.count(Query.query(TableStudent.class));
+                System.out.println(count);
+            }
+            sceneOperation.commit();
+        } catch (Exception e) {
+            sceneOperation.rollback();
+        }
+    }
 }

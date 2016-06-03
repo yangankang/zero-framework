@@ -3,6 +3,7 @@ package com.yoosal.orm.core;
 import com.yoosal.common.StringUtils;
 import com.yoosal.orm.ModelObject;
 import com.yoosal.orm.OperationManager;
+import com.yoosal.orm.exception.DatabaseOperationException;
 import com.yoosal.orm.mapping.DBMapping;
 import com.yoosal.orm.query.Join;
 import com.yoosal.orm.query.Query;
@@ -22,6 +23,7 @@ public class FrameworkOperation implements Operation {
     Map<String, Operation> singleOperations = new HashMap<String, Operation>();
     DBMapping mapping = OperationManager.getMapping();
     DataSourceManager dataSourceManager = null;
+    private boolean isBegin = false;
 
     public FrameworkOperation(DataSourceManager dataSourceManager) {
         this.dataSourceManager = dataSourceManager;
@@ -32,6 +34,7 @@ public class FrameworkOperation implements Operation {
         for (Map.Entry<String, Operation> entry : singleOperations.entrySet()) {
             entry.getValue().begin();
         }
+        isBegin = true;
     }
 
     public DataSourceManager getDataSourceManager() {
@@ -49,6 +52,13 @@ public class FrameworkOperation implements Operation {
         }
         Operation operation = new SingleDatabaseOperation(getDataSource(dataSourceName), mapping);
         singleOperations.put(dataSourceName, operation);
+        if (isBegin) {
+            try {
+                operation.begin();
+            } catch (SQLException e) {
+                throw new DatabaseOperationException("FrameworkOperation begin throw", e);
+            }
+        }
         return operation;
     }
 

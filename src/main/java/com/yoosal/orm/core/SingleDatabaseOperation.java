@@ -58,6 +58,9 @@ public class SingleDatabaseOperation implements Operation {
             if (connection == null || !connection.getAutoCommit()) {
                 return;
             }
+            if (connection != null && connection.isClosed()) {
+                connection = null;
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -276,8 +279,8 @@ public class SingleDatabaseOperation implements Operation {
     public void rollback() {
         try {
             Connection connection = getConnection();
-            connection.rollback();
             connection.setAutoCommit(true);
+            connection.rollback();
         } catch (SQLException e) {
             throw new DatabaseOperationException("rollback throw", e);
         }
