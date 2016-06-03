@@ -48,6 +48,10 @@ public class Query {
         return this;
     }
 
+    public String getDataSourceName() {
+        return dataSourceName;
+    }
+
     /**
      * 通过主键查询，如果有复合主键则传入多个主键的值，
      * 主键的顺序是根据Column注解中配置的key的值决定的

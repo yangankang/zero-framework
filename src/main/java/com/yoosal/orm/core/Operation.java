@@ -3,6 +3,7 @@ package com.yoosal.orm.core;
 import com.yoosal.orm.ModelObject;
 import com.yoosal.orm.query.Query;
 
+import java.sql.SQLException;
 import java.util.List;
 
 /**
@@ -12,7 +13,7 @@ public interface Operation {
     /**
      * Transaction 的开始，
      */
-    void begin();
+    void begin() throws SQLException;
 
     Object save(ModelObject object);
 
@@ -31,7 +32,7 @@ public interface Operation {
     /**
      * 提交事务
      */
-    void commit();
+    void commit() throws SQLException;
 
     void rollback();
 }

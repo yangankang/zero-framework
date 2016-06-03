@@ -4,14 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 只有 left join 和 inner join，join时分为左表和右表，左表一般是主查询
+ * 只有 left join ,join时分为左表和右表，左表一般是主查询
  * 右表一般是Join查询
  */
 public class Join {
-
-    public enum Type {
-        LEFT, INNER
-    }
 
     private Class<Enum> clazz;
     private String dataSourceName;
@@ -29,8 +25,6 @@ public class Join {
      */
     private String joinName;
 
-    private Type type = Type.LEFT;
-
     public static Join join(Class clazz) {
         return new Join(clazz);
     }
@@ -38,12 +32,6 @@ public class Join {
     public static Join where(Class clazz, Object key, Object value) {
         Join join = new Join(clazz);
         join.where(key, value);
-        return join;
-    }
-
-    public static Join where(Class clazz, Object key, Object value, Wheres.Operation operation) {
-        Join join = new Join(clazz);
-        join.where(key, value, operation);
         return join;
     }
 
@@ -63,11 +51,6 @@ public class Join {
 
     public Join where(Object key, Object value) {
         this.wheres.add(new Wheres(String.valueOf(key), value));
-        return this;
-    }
-
-    public Join where(Object key, Object value, Wheres.Operation operation) {
-        this.wheres.add(new Wheres(String.valueOf(key), value, operation));
         return this;
     }
 
@@ -96,15 +79,6 @@ public class Join {
 
     public Join setWheres(List<Wheres> wheres) {
         this.wheres = wheres;
-        return this;
-    }
-
-    public Type getType() {
-        return type;
-    }
-
-    public Join setType(Type type) {
-        this.type = type;
         return this;
     }
 }

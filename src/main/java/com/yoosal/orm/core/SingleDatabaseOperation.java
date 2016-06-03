@@ -16,26 +16,32 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 线程非安全的，局部变量使用
+ */
 public class SingleDatabaseOperation implements Operation {
-    private DataSource dataSource;
-    private ThreadLocal<Connection> connectionThreadLocal = new ThreadLocal();
+    private Connection connection = null;
+    private DataSource dataSource = null;
     private SQLDialect dialect = null;
     private DBMapping dbMapping;
+
+    public SingleDatabaseOperation(DBMapping dbMapping) {
+        this.dbMapping = dbMapping;
+    }
 
     public SingleDatabaseOperation(DataSource dataSource, DBMapping dbMapping) {
         this.dataSource = dataSource;
         this.dbMapping = dbMapping;
-        if (dataSource == null || dbMapping == null) {
-            throw new DatabaseOperationException("the dataSource and dbMapping must be");
-        }
+    }
+
+    public SingleDatabaseOperation() {
     }
 
     private Connection getConnection() throws SQLException {
-        Connection cnn = connectionThreadLocal.get();
-        if (cnn == null) {
-            cnn = dataSource.getConnection();
+        if (connection == null) {
+            connection = dataSource.getConnection();
         }
-        return cnn;
+        return connection;
     }
 
     private SQLDialect getDialect(Connection connection) throws SQLException {
@@ -48,6 +54,13 @@ public class SingleDatabaseOperation implements Operation {
     }
 
     private void close(Connection connection, Statement statement) {
+        try {
+            if (!connection.getAutoCommit()) {
+                return;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         if (statement != null) {
             try {
                 statement.close();
@@ -65,14 +78,9 @@ public class SingleDatabaseOperation implements Operation {
     }
 
     @Override
-    public void begin() {
-        try {
-            Connection connection = getConnection();
-            connectionThreadLocal.set(connection);
-            connection.setAutoCommit(false);
-        } catch (SQLException e) {
-            throw new DatabaseOperationException("get connection throw", e);
-        }
+    public void begin() throws SQLException {
+        Connection connection = getConnection();
+        connection.setAutoCommit(false);
     }
 
     @Override
@@ -82,7 +90,7 @@ public class SingleDatabaseOperation implements Operation {
         try {
             SQLDialect sqlDialect = getDialect(connection);
             TableModel tableModel = dbMapping.getTableMapping(object.getClass());
-            connection = dataSource.getConnection();
+            connection = getConnection();
             List<ColumnModel> primaryKeyColumns = tableModel.getMappingPrimaryKeyColumnModels();
             Boolean hasAutoIncrementPrimaryKey = tableModel.hasAutoIncrementPrimaryKey();
             if (hasAutoIncrementPrimaryKey) {
@@ -134,7 +142,7 @@ public class SingleDatabaseOperation implements Operation {
         try {
             SQLDialect sqlDialect = getDialect(connection);
             TableModel tableModel = dbMapping.getTableMapping(object.getObjectClass());
-            connection = dataSource.getConnection();
+            connection = getConnection();
             ValuesForPrepared valuesForPrepared = sqlDialect.prepareUpdate(tableModel, object);
             statement = connection.prepareStatement(valuesForPrepared.getSql());
             valuesForPrepared.setPrepared(statement);
@@ -152,7 +160,7 @@ public class SingleDatabaseOperation implements Operation {
         PreparedStatement statement = null;
         try {
             SQLDialect sqlDialect = getDialect(connection);
-            connection = dataSource.getConnection();
+            connection = getConnection();
             TableModel tableModel = dbMapping.getTableMapping(batch.getObjectClass());
             ValuesForPrepared valuesForPrepared = sqlDialect.prepareUpdateBatch(tableModel, batch);
             statement = connection.prepareStatement(valuesForPrepared.getSql());
@@ -177,7 +185,7 @@ public class SingleDatabaseOperation implements Operation {
             SQLDialect sqlDialect = getDialect(connection);
             TableModel tableModel = dbMapping.getTableMapping(query.getObjectClass());
             ValuesForPrepared valuesForPrepared = sqlDialect.prepareDelete(tableModel, wheres);
-            connection = dataSource.getConnection();
+            connection = getConnection();
             statement = connection.prepareStatement(valuesForPrepared.getSql());
             valuesForPrepared.setPrepared(statement);
             statement.execute();
@@ -199,7 +207,7 @@ public class SingleDatabaseOperation implements Operation {
             TableModel tableModel = dbMapping.getTableMapping(query.getObjectClass());
             List<ColumnModel> columnModels = tableModel.getMappingColumnModels();
             ValuesForPrepared valuesForPrepared = sqlDialect.prepareSelect(tableModel, wheres);
-            connection = dataSource.getConnection();
+            connection = getConnection();
             statement = connection.prepareStatement(valuesForPrepared.getSql());
             valuesForPrepared.setPrepared(statement);
             ResultSet resultSet = statement.executeQuery();
@@ -240,7 +248,7 @@ public class SingleDatabaseOperation implements Operation {
             SQLDialect sqlDialect = getDialect(connection);
             TableModel tableModel = dbMapping.getTableMapping(query.getObjectClass());
             ValuesForPrepared valuesForPrepared = sqlDialect.prepareSelectCount(tableModel, wheres);
-            connection = dataSource.getConnection();
+            connection = getConnection();
             statement = connection.prepareStatement(valuesForPrepared.getSql());
             valuesForPrepared.setPrepared(statement);
             ResultSet resultSet = statement.executeQuery();
@@ -256,28 +264,23 @@ public class SingleDatabaseOperation implements Operation {
     }
 
     @Override
-    public void commit() {
-        Connection connection = connectionThreadLocal.get();
-        if (connection != null) {
-            try {
-                connection.commit();
-                connection.setAutoCommit(true);
-            } catch (SQLException e) {
-                throw new DatabaseOperationException("commit throw", e);
-            }
-        }
+    public void commit() throws SQLException {
+        Connection connection = getConnection();
+        connection.commit();
+        connection.setAutoCommit(true);
+
+        //提交事务之后则关闭
+        close(connection, null);
     }
 
     @Override
     public void rollback() {
-        Connection connection = connectionThreadLocal.get();
-        if (connection != null) {
-            try {
-                connection.rollback();
-                connection.setAutoCommit(true);
-            } catch (SQLException e) {
-                throw new DatabaseOperationException("rollback throw", e);
-            }
+        try {
+            Connection connection = getConnection();
+            connection.rollback();
+            connection.setAutoCommit(true);
+        } catch (SQLException e) {
+            throw new DatabaseOperationException("rollback throw", e);
         }
     }
 }
