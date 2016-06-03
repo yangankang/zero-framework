@@ -3,6 +3,7 @@ package com.yoosal.orm.dialect;
 import com.yoosal.common.CollectionUtils;
 import com.yoosal.common.StringUtils;
 import com.yoosal.orm.ModelObject;
+import com.yoosal.orm.annotation.AutoIncrementStrategy;
 import com.yoosal.orm.annotation.Column;
 import com.yoosal.orm.core.Batch;
 import com.yoosal.orm.exception.SQLDialectException;
@@ -51,7 +52,6 @@ public abstract class StandardSQL implements SQLDialect {
             Class clazz = cm.getJavaType();
             String columnType = typesMapping.get(clazz);
             boolean isPrimaryKey = cm.isPrimaryKey();
-            Class strategy = cm.getGenerateStrategy();
 
             if (isPrimaryKey) {
                 columnType = typesMapping.get(Integer.class);
@@ -63,7 +63,7 @@ public abstract class StandardSQL implements SQLDialect {
 
             String pkString = isPrimaryKey ? " PRIMARY KEY" : "";
             if (isPrimaryKey) {
-                if (strategy == null || strategy == Column.class) {
+                if (cm.isAutoIncrement()) {
                     pkString += " AUTO_INCREMENT";
                 }
             }
@@ -89,7 +89,6 @@ public abstract class StandardSQL implements SQLDialect {
             Class clazz = cm.getJavaType();
             String dbTypeName = typesMapping.get(clazz);
             long length = cm.getLength();
-            Class strategy = cm.getGenerateStrategy();
             boolean isPrimaryKey = cm.isPrimaryKey();
 
             sqlBuilder.append(columnName + " ");
@@ -105,7 +104,7 @@ public abstract class StandardSQL implements SQLDialect {
             sqlBuilder.append(length > 0 ? "(" + length + ")" : "");
             if (isPrimaryKey) {
                 sqlBuilder.append(" PRIMARY KEY");
-                if (strategy == null || strategy == Column.class) {
+                if (cm.isAutoIncrement()) {
                     sqlBuilder.append(" AUTO_INCREMENT");
                 }
             }

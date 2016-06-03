@@ -1,6 +1,6 @@
 package com.yoosal.orm.mapping;
 
-import com.yoosal.orm.annotation.Column;
+import com.yoosal.orm.annotation.AutoIncrementStrategy;
 
 import java.util.*;
 
@@ -92,7 +92,7 @@ public class TableModel extends AbstractModelCheck {
             return hasAutoIncrementPrimaryKey;
         }
         for (ColumnModel cm : columnModels) {
-            if (cm.getGenerateStrategy().equals(Column.class)) {
+            if (cm.getGenerateStrategy().equals(AutoIncrementStrategy.class)) {
                 hasAutoIncrementPrimaryKey = new Boolean(true);
                 return hasAutoIncrementPrimaryKey;
             }

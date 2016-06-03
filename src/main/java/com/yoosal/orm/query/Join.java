@@ -8,10 +8,10 @@ import java.util.List;
  * 右表一般是Join查询
  */
 public class Join {
-    //left join的标示
-    public static final byte LEFT = 1;
-    //inner join的标示
-    public static final byte INNER = 2;
+
+    public enum Type {
+        LEFT, INNER
+    }
 
     private Class<Enum> clazz;
     private String dataSourceName;
@@ -29,8 +29,7 @@ public class Join {
      */
     private String joinName;
 
-    private byte type = LEFT;
-
+    private Type type = Type.LEFT;
 
     public static Join join(Class clazz) {
         return new Join(clazz);
@@ -100,11 +99,11 @@ public class Join {
         return this;
     }
 
-    public byte getType() {
+    public Type getType() {
         return type;
     }
 
-    public Join setType(byte type) {
+    public Join setType(Type type) {
         this.type = type;
         return this;
     }
