@@ -15,7 +15,7 @@ public interface Operation {
      */
     void begin() throws SQLException;
 
-    Object save(ModelObject object);
+    ModelObject save(ModelObject object);
 
     void update(ModelObject object);
 

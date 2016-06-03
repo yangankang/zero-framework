@@ -19,7 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class DefaultDBMapping implements DBMapping {
     private DataSourceManager dataSourceManager;
     private Set<Class> classes;
-    private Map<Class, TableModel> mappingModelMap = new ConcurrentHashMap<Class, TableModel>();
+    private Map<Class, TableModel> mappingModelMap = new HashMap<Class, TableModel>();
 
     @Override
     public void doMapping(DataSourceManager dataSourceManager, Set<Class> classes, boolean canAlter) throws SQLException {
@@ -52,6 +52,9 @@ public class DefaultDBMapping implements DBMapping {
 
     @Override
     public TableModel getTableMapping(Class clazz) {
+        if (clazz == null) {
+            throw new OrmMappingException("can't find class [table]");
+        }
         return mappingModelMap.get(clazz);
     }
 
@@ -195,7 +198,7 @@ public class DefaultDBMapping implements DBMapping {
         }
     }
 
-    private void classToModel(String convert) {
+    private synchronized void classToModel(String convert) {
         if (classes != null) {
             for (Class clazz : classes) {
                 Table table = AnnotationUtils.findAnnotation(clazz, Table.class);

@@ -322,6 +322,10 @@ public abstract class StandardSQL implements SQLDialect {
     @Override
     public ValuesForPrepared prepareDelete(TableModel tableMapping, List<Wheres> wheres) {
         ValuesForPrepared valuesForPrepared = common(tableMapping, wheres);
+        String lastSQLString = valuesForPrepared.getSql();
+        if (StringUtils.isBlank(lastSQLString)) {
+            throw new SQLDialectException("delete sql must has where");
+        }
         valuesForPrepared.setSql("DELETE FROM " + tableMapping.getDbTableName() + " WHERE " + valuesForPrepared.getSql());
         return valuesForPrepared;
     }
@@ -329,14 +333,16 @@ public abstract class StandardSQL implements SQLDialect {
     @Override
     public ValuesForPrepared prepareSelect(TableModel tableMapping, List<Wheres> wheres) {
         ValuesForPrepared valuesForPrepared = common(tableMapping, wheres);
-        valuesForPrepared.setSql("SELECT * FROM " + tableMapping.getDbTableName() + " WHERE " + valuesForPrepared.getSql());
+        String lastSQLString = valuesForPrepared.getSql();
+        valuesForPrepared.setSql("SELECT * FROM " + tableMapping.getDbTableName() + (StringUtils.isBlank(lastSQLString) ? "" : " WHERE " + valuesForPrepared.getSql()));
         return valuesForPrepared;
     }
 
     @Override
     public ValuesForPrepared prepareSelectCount(TableModel tableMapping, List<Wheres> wheres) {
         ValuesForPrepared valuesForPrepared = common(tableMapping, wheres);
-        valuesForPrepared.setSql("SELECT COUNT(*) FROM " + tableMapping.getDbTableName() + " WHERE " + valuesForPrepared.getSql());
+        String lastSQLString = valuesForPrepared.getSql();
+        valuesForPrepared.setSql("SELECT COUNT(*) FROM " + tableMapping.getDbTableName() + (StringUtils.isBlank(lastSQLString) ? "" : " WHERE " + valuesForPrepared.getSql()));
         return valuesForPrepared;
     }
 }

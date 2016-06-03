@@ -8,7 +8,7 @@ import com.yoosal.orm.query.Query;
  * 用来做添删改查的对象，继承自JSONObject，包含各种和数据库相关的信息
  */
 public class ModelObject extends JSONObject {
-    private Class<Enum> objectClass;
+    private Class objectClass;
     private String dataSourceName;
     /**
      * 单条更新时，这个数组表示当前列不作为where条件而是update的set需要的列，一般更新一个对象会以主键作为
@@ -20,19 +20,19 @@ public class ModelObject extends JSONObject {
      */
     private Object[] whereColumn;
 
-    public static ModelObject instance(Class<Enum> clazz) {
+    public static ModelObject instance(Class clazz) {
         return new ModelObject(clazz);
     }
 
-    public static ModelObject instance(Class<Enum> clazz, String dataSourceName) {
+    public static ModelObject instance(Class clazz, String dataSourceName) {
         return new ModelObject(clazz, dataSourceName);
     }
 
-    public ModelObject(Class<Enum> objectClass) {
+    public ModelObject(Class objectClass) {
         this.objectClass = objectClass;
     }
 
-    public ModelObject(Class<Enum> objectClass, String dataSourceName) {
+    public ModelObject(Class objectClass, String dataSourceName) {
         this.objectClass = objectClass;
         this.dataSourceName = dataSourceName;
     }
@@ -40,11 +40,11 @@ public class ModelObject extends JSONObject {
     public ModelObject() {
     }
 
-    public void setObjectClass(Class<Enum> objectClass) {
+    public void setObjectClass(Class objectClass) {
         this.objectClass = objectClass;
     }
 
-    public Class<Enum> getObjectClass() {
+    public Class getObjectClass() {
         return objectClass;
     }
 

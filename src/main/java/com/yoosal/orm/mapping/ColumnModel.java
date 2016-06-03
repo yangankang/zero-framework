@@ -1,5 +1,6 @@
 package com.yoosal.orm.mapping;
 
+import com.yoosal.orm.annotation.AutoIncrementStrategy;
 import com.yoosal.orm.annotation.Column;
 import com.yoosal.orm.core.IDStrategy;
 import com.yoosal.orm.exception.OrmMappingException;
@@ -88,7 +89,9 @@ public class ColumnModel extends AbstractModelCheck {
     public void setGenerateStrategy(Class<IDStrategy> generateStrategy) {
         this.generateStrategy = generateStrategy;
         try {
-            generateStrategyInstance = generateStrategy.newInstance();
+            if (generateStrategy != null && !generateStrategy.isAnnotation()) {
+                generateStrategyInstance = generateStrategy.newInstance();
+            }
         } catch (InstantiationException e) {
             throw new OrmMappingException("instance generateStrategy class throw", e);
         } catch (IllegalAccessException e) {
@@ -135,7 +138,7 @@ public class ColumnModel extends AbstractModelCheck {
     }
 
     public boolean isAutoIncrement() {
-        if (this.isPrimaryKey() && generateStrategy.equals(Column.class)) {
+        if (this.isPrimaryKey() && generateStrategy != null && generateStrategy.equals(AutoIncrementStrategy.class)) {
             return true;
         }
         return false;

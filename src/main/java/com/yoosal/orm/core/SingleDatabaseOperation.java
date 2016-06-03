@@ -55,7 +55,7 @@ public class SingleDatabaseOperation implements Operation {
 
     private void close(Connection connection, Statement statement) {
         try {
-            if (!connection.getAutoCommit()) {
+            if (connection == null || !connection.getAutoCommit()) {
                 return;
             }
         } catch (SQLException e) {
@@ -75,6 +75,7 @@ public class SingleDatabaseOperation implements Operation {
                 e.printStackTrace();
             }
         }
+        this.connection = null;
     }
 
     @Override
@@ -84,13 +85,13 @@ public class SingleDatabaseOperation implements Operation {
     }
 
     @Override
-    public Object save(ModelObject object) {
+    public ModelObject save(ModelObject object) {
         Connection connection = null;
         PreparedStatement statement = null;
         try {
-            SQLDialect sqlDialect = getDialect(connection);
-            TableModel tableModel = dbMapping.getTableMapping(object.getClass());
             connection = getConnection();
+            SQLDialect sqlDialect = getDialect(connection);
+            TableModel tableModel = dbMapping.getTableMapping(object.getObjectClass());
             List<ColumnModel> primaryKeyColumns = tableModel.getMappingPrimaryKeyColumnModels();
             Boolean hasAutoIncrementPrimaryKey = tableModel.hasAutoIncrementPrimaryKey();
             if (hasAutoIncrementPrimaryKey) {
@@ -122,10 +123,7 @@ public class SingleDatabaseOperation implements Operation {
                 ValuesForPrepared valuesForPrepared = sqlDialect.prepareInsert(tableModel, object);
                 statement = connection.prepareStatement(valuesForPrepared.getSql());
                 valuesForPrepared.setPrepared(statement);
-                boolean isSuccess = statement.execute();
-                if (!isSuccess) {
-                    throw new DatabaseOperationException("statement execute return false");
-                }
+                statement.execute();
                 return object;
             }
         } catch (SQLException e) {
@@ -140,9 +138,9 @@ public class SingleDatabaseOperation implements Operation {
         Connection connection = null;
         PreparedStatement statement = null;
         try {
+            connection = getConnection();
             SQLDialect sqlDialect = getDialect(connection);
             TableModel tableModel = dbMapping.getTableMapping(object.getObjectClass());
-            connection = getConnection();
             ValuesForPrepared valuesForPrepared = sqlDialect.prepareUpdate(tableModel, object);
             statement = connection.prepareStatement(valuesForPrepared.getSql());
             valuesForPrepared.setPrepared(statement);
@@ -159,8 +157,8 @@ public class SingleDatabaseOperation implements Operation {
         Connection connection = null;
         PreparedStatement statement = null;
         try {
-            SQLDialect sqlDialect = getDialect(connection);
             connection = getConnection();
+            SQLDialect sqlDialect = getDialect(connection);
             TableModel tableModel = dbMapping.getTableMapping(batch.getObjectClass());
             ValuesForPrepared valuesForPrepared = sqlDialect.prepareUpdateBatch(tableModel, batch);
             statement = connection.prepareStatement(valuesForPrepared.getSql());
@@ -181,11 +179,11 @@ public class SingleDatabaseOperation implements Operation {
         Connection connection = null;
         PreparedStatement statement = null;
         try {
+            connection = getConnection();
             List<Wheres> wheres = query.getWheres();
             SQLDialect sqlDialect = getDialect(connection);
             TableModel tableModel = dbMapping.getTableMapping(query.getObjectClass());
             ValuesForPrepared valuesForPrepared = sqlDialect.prepareDelete(tableModel, wheres);
-            connection = getConnection();
             statement = connection.prepareStatement(valuesForPrepared.getSql());
             valuesForPrepared.setPrepared(statement);
             statement.execute();
@@ -202,12 +200,12 @@ public class SingleDatabaseOperation implements Operation {
         PreparedStatement statement = null;
         List<ModelObject> objects = null;
         try {
+            connection = getConnection();
             List<Wheres> wheres = query.getWheres();
             SQLDialect sqlDialect = getDialect(connection);
             TableModel tableModel = dbMapping.getTableMapping(query.getObjectClass());
             List<ColumnModel> columnModels = tableModel.getMappingColumnModels();
             ValuesForPrepared valuesForPrepared = sqlDialect.prepareSelect(tableModel, wheres);
-            connection = getConnection();
             statement = connection.prepareStatement(valuesForPrepared.getSql());
             valuesForPrepared.setPrepared(statement);
             ResultSet resultSet = statement.executeQuery();
@@ -220,9 +218,10 @@ public class SingleDatabaseOperation implements Operation {
                 for (ColumnModel cm : columnModels) {
                     object.put(cm.getJavaName(), resultSet.getObject(cm.getColumnName()));
                 }
+                objects.add(object);
             }
         } catch (SQLException e) {
-            throw new DatabaseOperationException("remove throw", e);
+            throw new DatabaseOperationException("query throw", e);
         } finally {
             close(connection, statement);
         }
@@ -244,11 +243,11 @@ public class SingleDatabaseOperation implements Operation {
         PreparedStatement statement = null;
         long count = 0;
         try {
+            connection = getConnection();
             List<Wheres> wheres = query.getWheres();
             SQLDialect sqlDialect = getDialect(connection);
             TableModel tableModel = dbMapping.getTableMapping(query.getObjectClass());
             ValuesForPrepared valuesForPrepared = sqlDialect.prepareSelectCount(tableModel, wheres);
-            connection = getConnection();
             statement = connection.prepareStatement(valuesForPrepared.getSql());
             valuesForPrepared.setPrepared(statement);
             ResultSet resultSet = statement.executeQuery();

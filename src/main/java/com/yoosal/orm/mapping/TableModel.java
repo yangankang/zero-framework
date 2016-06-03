@@ -92,7 +92,7 @@ public class TableModel extends AbstractModelCheck {
             return hasAutoIncrementPrimaryKey;
         }
         for (ColumnModel cm : columnModels) {
-            if (cm.getGenerateStrategy().equals(AutoIncrementStrategy.class)) {
+            if (cm.getGenerateStrategy() != null && cm.getGenerateStrategy().equals(AutoIncrementStrategy.class)) {
                 hasAutoIncrementPrimaryKey = new Boolean(true);
                 return hasAutoIncrementPrimaryKey;
             }

@@ -18,7 +18,7 @@ public class ValuesForPrepared {
         String[] strings = getKeys();
         for (int i = 0; i < strings.length; i++) {
             String s = strings[i];
-            sql.replace(s, "?");
+            sql = sql.replace(":" + s, "?");
         }
         return sql;
     }
@@ -27,7 +27,7 @@ public class ValuesForPrepared {
         String[] strings = getKeys();
         for (int i = 0; i < strings.length; i++) {
             String s = strings[i];
-            statement.setObject(i + 1, values.get(s));
+            statement.setObject(i + 1, values.get(":" + s));
         }
     }
 
@@ -62,14 +62,20 @@ public class ValuesForPrepared {
         String[] s1 = sql.split(":");
         List<String> strings = new ArrayList<String>();
         for (String s : s1) {
+            if (s1[0] == s) {
+                continue;
+            }
             String[] s2 = s.split(":");
             for (String s3 : s2) {
                 char[] chars = s3.toCharArray();
                 int i = 0;
                 StringBuilder sb = new StringBuilder();
                 while (true) {
-                    if ((chars[i] > 'a' && chars[i] < 'z') ||
-                            (chars[i] > 'A' && chars[i] < 'Z') || chars[i] == '_') {
+                    if (i >= chars.length) {
+                        break;
+                    }
+                    if ((chars[i] >= 'a' && chars[i] <= 'z') ||
+                            (chars[i] >= 'A' && chars[i] <= 'Z') || chars[i] == '_') {
                         sb.append(chars[i]);
                     } else {
                         break;
@@ -79,6 +85,8 @@ public class ValuesForPrepared {
                 strings.add(sb.toString());
             }
         }
-        return (String[]) strings.toArray();
+        String[] s = new String[strings.size()];
+        strings.toArray(s);
+        return s;
     }
 }
