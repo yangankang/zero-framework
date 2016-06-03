@@ -19,19 +19,19 @@ import java.util.Map;
 /**
  * 非线程安全的,每一个线程一个
  */
-public class FrameworkOperation implements Operation {
-    Map<String, Operation> singleOperations = new HashMap<String, Operation>();
+public class OrmSessionOperation implements SessionOperation {
+    Map<String, SessionOperation> singleOperations = new HashMap<String, SessionOperation>();
     DBMapping mapping = OperationManager.getMapping();
     DataSourceManager dataSourceManager = null;
     private boolean isBegin = false;
 
-    public FrameworkOperation(DataSourceManager dataSourceManager) {
+    public OrmSessionOperation(DataSourceManager dataSourceManager) {
         this.dataSourceManager = dataSourceManager;
     }
 
     @Override
     public void begin() throws SQLException {
-        for (Map.Entry<String, Operation> entry : singleOperations.entrySet()) {
+        for (Map.Entry<String, SessionOperation> entry : singleOperations.entrySet()) {
             entry.getValue().begin();
         }
         isBegin = true;
@@ -50,7 +50,7 @@ public class FrameworkOperation implements Operation {
         if (singleOperations.get(dataSourceName) != null) {
             return singleOperations.get(dataSourceName);
         }
-        Operation operation = new SingleDatabaseOperation(getDataSource(dataSourceName), mapping);
+        SessionOperation operation = new SingleDatabaseOperation(getDataSource(dataSourceName), mapping);
         singleOperations.put(dataSourceName, operation);
         if (isBegin) {
             try {
@@ -76,7 +76,7 @@ public class FrameworkOperation implements Operation {
         if (singleOperations.get(dataSourceName) != null) {
             return singleOperations.get(dataSourceName);
         }
-        Operation operation = new SingleDatabaseOperation(getDataSource(dataSourceName), mapping);
+        SessionOperation operation = new SingleDatabaseOperation(getDataSource(dataSourceName), mapping);
         singleOperations.put(dataSourceName, operation);
         return operation;
     }
@@ -198,15 +198,22 @@ public class FrameworkOperation implements Operation {
 
     @Override
     public void commit() throws SQLException {
-        for (Map.Entry<String, Operation> entry : singleOperations.entrySet()) {
+        for (Map.Entry<String, SessionOperation> entry : singleOperations.entrySet()) {
             entry.getValue().commit();
         }
     }
 
     @Override
     public void rollback() {
-        for (Map.Entry<String, Operation> entry : singleOperations.entrySet()) {
+        for (Map.Entry<String, SessionOperation> entry : singleOperations.entrySet()) {
             entry.getValue().rollback();
+        }
+    }
+
+    @Override
+    public void close() {
+        for (Map.Entry<String, SessionOperation> entry : singleOperations.entrySet()) {
+            entry.getValue().close();
         }
     }
 }

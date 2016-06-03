@@ -19,7 +19,7 @@ import java.util.List;
 /**
  * 线程非安全的，局部变量使用
  */
-public class SingleDatabaseOperation implements Operation {
+public class SingleDatabaseOperation implements SessionOperation {
     private Connection connection = null;
     private DataSource dataSource = null;
     private SQLDialect dialect = null;
@@ -53,17 +53,7 @@ public class SingleDatabaseOperation implements Operation {
         return dialect;
     }
 
-    private void close(Connection connection, Statement statement) {
-        try {
-            if (connection == null || !connection.getAutoCommit()) {
-                return;
-            }
-            if (connection != null && connection.isClosed()) {
-                connection = null;
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+    private void close(Statement statement) {
         if (statement != null) {
             try {
                 statement.close();
@@ -71,14 +61,6 @@ public class SingleDatabaseOperation implements Operation {
                 e.printStackTrace();
             }
         }
-        if (connection != null) {
-            try {
-                connection.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
-        this.connection = null;
     }
 
     @Override
@@ -132,7 +114,7 @@ public class SingleDatabaseOperation implements Operation {
         } catch (SQLException e) {
             throw new DatabaseOperationException("save throw", e);
         } finally {
-            close(connection, statement);
+            close(statement);
         }
     }
 
@@ -151,7 +133,7 @@ public class SingleDatabaseOperation implements Operation {
         } catch (SQLException e) {
             throw new DatabaseOperationException("update throw", e);
         } finally {
-            close(connection, statement);
+            close(statement);
         }
     }
 
@@ -173,7 +155,7 @@ public class SingleDatabaseOperation implements Operation {
         } catch (SQLException e) {
             throw new DatabaseOperationException("updates throw", e);
         } finally {
-            close(connection, statement);
+            close(statement);
         }
     }
 
@@ -193,7 +175,7 @@ public class SingleDatabaseOperation implements Operation {
         } catch (SQLException e) {
             throw new DatabaseOperationException("remove throw", e);
         } finally {
-            close(connection, statement);
+            close(statement);
         }
     }
 
@@ -226,7 +208,7 @@ public class SingleDatabaseOperation implements Operation {
         } catch (SQLException e) {
             throw new DatabaseOperationException("query throw", e);
         } finally {
-            close(connection, statement);
+            close(statement);
         }
         return objects;
     }
@@ -260,7 +242,7 @@ public class SingleDatabaseOperation implements Operation {
         } catch (SQLException e) {
             throw new DatabaseOperationException("remove throw", e);
         } finally {
-            close(connection, statement);
+            close(statement);
         }
         return count;
     }
@@ -270,9 +252,6 @@ public class SingleDatabaseOperation implements Operation {
         Connection connection = getConnection();
         connection.commit();
         connection.setAutoCommit(true);
-
-        //提交事务之后则关闭
-        close(connection, null);
     }
 
     @Override
@@ -284,5 +263,27 @@ public class SingleDatabaseOperation implements Operation {
         } catch (SQLException e) {
             throw new DatabaseOperationException("rollback throw", e);
         }
+    }
+
+    @Override
+    public void close() {
+        try {
+            if (connection == null || !connection.getAutoCommit()) {
+                return;
+            }
+            if (connection != null && connection.isClosed()) {
+                connection = null;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        if (connection != null) {
+            try {
+                connection.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        this.connection = null;
     }
 }
