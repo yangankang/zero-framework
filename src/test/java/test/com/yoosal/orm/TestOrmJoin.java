@@ -72,4 +72,13 @@ public class TestOrmJoin {
         ModelObject object = sceneOperation.query(Query.query(TableStudent.class).like(TableStudent.nameForAccount, "mt"));
         System.out.println(object);
     }
+
+    @Test
+    public void testJoin2TableSelectPage() throws IllegalAccessException, IOException, InstantiationException, SQLException, InvocationTargetException, ClassNotFoundException {
+        OrmFactory.properties(TestDBMapping.class.getResourceAsStream("/orm_mapping.properties"));
+
+        SessionOperationManager sceneOperation = new SessionOperationManager();
+        List<ModelObject> object = sceneOperation.list(Query.query(TableStudent.class).limit(0, 32));
+        System.out.println(object.size());
+    }
 }

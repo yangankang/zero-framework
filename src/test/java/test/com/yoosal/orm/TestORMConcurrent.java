@@ -51,11 +51,13 @@ public class TestORMConcurrent {
                 @Override
                 public String call() throws Exception {
                     String getName = "" + Math.random();
+                    sceneOperation.begin();
                     ModelObject object = new ModelObject();
                     object.setObjectClass(TableStudent.class);
                     object.put(TableStudent.nameForAccount, getName);
                     object.put(TableStudent.age, 20);
                     sceneOperation.save(object);
+                    sceneOperation.commit();
 
                     ModelObject getObj = sceneOperation.query(Query.query(TableStudent.class).id(object.get(TableStudent.idColumn)));
                     if (getName.equals(getObj.getString(TableStudent.nameForAccount))) {

@@ -273,6 +273,8 @@ public abstract class StandardSQL implements SQLDialect {
 
     private ValuesForPrepared common(TableModel tableMapping, List<Wheres> wheres) {
         ValuesForPrepared valuesForPrepared = new ValuesForPrepared();
+        String where = " WHERE ";
+        boolean hasNormal = false;
         StringBuilder sb = new StringBuilder();
         StringBuilder notWhereSql = new StringBuilder();
         List<ColumnModel> columnModels = tableMapping.getMappingPrimaryKeyColumnModels();
@@ -307,6 +309,8 @@ public abstract class StandardSQL implements SQLDialect {
                     valuesForPrepared.addValue(":" + columnModel.getJavaName(), whs.getValue());
                 }
                 sb.append(" AND ");
+
+                hasNormal = true;
             } else {
                 if (whs.getType() == 1) {
                     if (columnModels.size() > 0) {
@@ -315,6 +319,7 @@ public abstract class StandardSQL implements SQLDialect {
                         valuesForPrepared.addValue(":" + cm.getJavaName(), whs.getValue());
                     }
                     sb.append(" AND ");
+                    hasNormal = true;
                 } else if (whs.getType() == 2) {
                     notWhereSql.append(" LIMIT " + whs.getValue() + ",");
                 } else if (whs.getType() == 3) {
@@ -325,11 +330,13 @@ public abstract class StandardSQL implements SQLDialect {
                 }
             }
         }
+
         if (sb.toString().endsWith(" AND ")) {
-            valuesForPrepared.setSql(sb.toString().substring(0, sb.toString().length() - " AND ".length()) + notWhereSql.toString());
+            valuesForPrepared.setSql((hasNormal ? where : "") + sb.toString().substring(0, sb.toString().length() - " AND ".length()) + notWhereSql.toString());
         } else {
-            valuesForPrepared.setSql(sb.toString() + " " + notWhereSql.toString());
+            valuesForPrepared.setSql((hasNormal ? where : "") + sb.toString() + " " + notWhereSql.toString());
         }
+
         return valuesForPrepared;
     }
 
@@ -340,7 +347,7 @@ public abstract class StandardSQL implements SQLDialect {
         if (StringUtils.isBlank(lastSQLString)) {
             throw new SQLDialectException("delete sql must has where");
         }
-        valuesForPrepared.setSql("DELETE FROM " + tableMapping.getDbTableName() + " WHERE " + valuesForPrepared.getSql());
+        valuesForPrepared.setSql("DELETE FROM " + tableMapping.getDbTableName() + valuesForPrepared.getSql());
 
         showSQL(valuesForPrepared.getSql());
 
@@ -351,7 +358,7 @@ public abstract class StandardSQL implements SQLDialect {
     public ValuesForPrepared prepareSelect(TableModel tableMapping, List<Wheres> wheres) {
         ValuesForPrepared valuesForPrepared = common(tableMapping, wheres);
         String lastSQLString = valuesForPrepared.getSql();
-        valuesForPrepared.setSql("SELECT * FROM " + tableMapping.getDbTableName() + (StringUtils.isBlank(lastSQLString) ? "" : " WHERE " + valuesForPrepared.getSql()));
+        valuesForPrepared.setSql("SELECT * FROM " + tableMapping.getDbTableName() + lastSQLString);
 
         showSQL(valuesForPrepared.getSql());
 
@@ -361,8 +368,7 @@ public abstract class StandardSQL implements SQLDialect {
     @Override
     public ValuesForPrepared prepareSelectCount(TableModel tableMapping, List<Wheres> wheres) {
         ValuesForPrepared valuesForPrepared = common(tableMapping, wheres);
-        String lastSQLString = valuesForPrepared.getSql();
-        valuesForPrepared.setSql("SELECT COUNT(*) FROM " + tableMapping.getDbTableName() + (StringUtils.isBlank(lastSQLString) ? "" : " WHERE " + valuesForPrepared.getSql()));
+        valuesForPrepared.setSql("SELECT COUNT(*) FROM " + tableMapping.getDbTableName() + valuesForPrepared.getSql());
 
         showSQL(valuesForPrepared.getSql());
 
