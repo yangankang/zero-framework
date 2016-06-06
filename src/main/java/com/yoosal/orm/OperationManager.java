@@ -61,6 +61,7 @@ public class OperationManager {
     }
 
     private void initDataSource() throws InvocationTargetException, ClassNotFoundException, InstantiationException, IllegalAccessException {
+        logger.info("begin initialize dataSource");
         Map<String, Object> dsmap = new HashMap<String, Object>();
         for (Map.Entry<String, Object> entry : properties.entrySet()) {
             if (entry.getKey().startsWith(KEY_DATASOURCE_INFO)) {
@@ -135,6 +136,7 @@ public class OperationManager {
     }
 
     void doMapping() throws SQLException {
+        logger.info("begin do mapping");
         boolean isCanAlter = canAlter();
         mapping.doMapping(dataSourceManager, classesFromScan, getMappingConvert(), isCanAlter);
     }

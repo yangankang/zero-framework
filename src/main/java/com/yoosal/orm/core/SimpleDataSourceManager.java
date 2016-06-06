@@ -1,5 +1,6 @@
 package com.yoosal.orm.core;
 
+import com.yoosal.common.Logger;
 import com.yoosal.common.StringUtils;
 
 import javax.sql.DataSource;
@@ -8,6 +9,7 @@ import java.lang.reflect.Method;
 import java.util.*;
 
 public class SimpleDataSourceManager implements DataSourceManager {
+    private static final Logger logger = Logger.getLogger(DataSourceManager.class);
     private static final Map<String, DataSource> dataSourceMap = new HashMap<String, DataSource>();
     private static final List<GroupDataSource> groupDataSources = new ArrayList<GroupDataSource>();
     private static final Map<String, DataSourceResolve> dataSourceResolve = new HashMap<String, DataSourceResolve>();
@@ -26,6 +28,7 @@ public class SimpleDataSourceManager implements DataSourceManager {
         groupDataSources.add(groupDataSource);
         for (GroupDataSource.SourceObject gds : groupDataSource.getSourceObjects()) {
             dataSourceMap.put(gds.getDataSourceName(), gds.getDataSource());
+            logger.info("got a dataSource from add:" + gds.getDataSourceName());
         }
     }
 
@@ -137,7 +140,10 @@ public class SimpleDataSourceManager implements DataSourceManager {
             }
             groupDataSources.add(groupDataSource);
             dataSourceMap.put(dataSourceName, (DataSource) object);
-            return (DataSource) object;
+            DataSource dataSource = (DataSource) object;
+            logger.info("got a dataSource from properties:" + dataSourceName);
+
+            return dataSource;
         }
         return null;
     }
