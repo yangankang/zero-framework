@@ -78,7 +78,7 @@ public class TestOrmJoin {
         OrmFactory.properties(TestDBMapping.class.getResourceAsStream("/orm_mapping.properties"));
 
         SessionOperationManager sceneOperation = new SessionOperationManager();
-        List<ModelObject> object = sceneOperation.list(Query.query(TableStudent.class).limit(0, 32));
+        List<ModelObject> object = sceneOperation.list(Query.query(TableStudent.class).limit(0, 32).orderByDesc(TableStudent.idColumn));
         System.out.println(object.size());
     }
 }

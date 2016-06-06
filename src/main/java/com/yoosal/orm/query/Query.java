@@ -11,6 +11,8 @@ public class Query {
     private Class<Enum> clazz;
     private String dataSourceName;
     private List<Wheres> wheres = new ArrayList<Wheres>();
+    private List<Wheres> limitWheres = new ArrayList<Wheres>();
+    private List<Wheres> orderByWheres = new ArrayList<Wheres>();
     private List<Join> joins = new ArrayList<Join>();
 
     public static Query query(Class clazz) {
@@ -86,18 +88,18 @@ public class Query {
     }
 
     public Query limit(long start, long limit) {
-        this.wheres.add(new Wheres(null, start, Wheres.TYPE_START));
-        this.wheres.add(new Wheres(null, limit, Wheres.TYPE_LIMIT));
+        this.limitWheres.add(new Wheres(null, start, Wheres.TYPE_START));
+        this.limitWheres.add(new Wheres(null, limit, Wheres.TYPE_LIMIT));
         return this;
     }
 
     public Query orderByAsc(Object key) {
-        this.wheres.add(new Wheres(String.valueOf(key), Wheres.ORDER_ASC, Wheres.TYPE_ORDER));
+        this.orderByWheres.add(new Wheres(String.valueOf(key), Wheres.Order.asc, Wheres.TYPE_ORDER));
         return this;
     }
 
     public Query orderByDesc(Object key) {
-        this.wheres.add(new Wheres(String.valueOf(key), Wheres.ORDER_DESC, Wheres.TYPE_ORDER));
+        this.orderByWheres.add(new Wheres(String.valueOf(key), Wheres.Order.desc, Wheres.TYPE_ORDER));
         return this;
     }
 
@@ -121,7 +123,11 @@ public class Query {
     }
 
     public List<Wheres> getWheres() {
-        return wheres;
+        List<Wheres> whs = new ArrayList<Wheres>();
+        whs.addAll(wheres);
+        whs.addAll(orderByWheres);
+        whs.addAll(limitWheres);
+        return whs;
     }
 
     public Class<Enum> getObjectClass() {

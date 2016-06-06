@@ -325,8 +325,8 @@ public abstract class StandardSQL implements SQLDialect {
                 } else if (whs.getType() == 3) {
                     notWhereSql.append(whs.getValue());
                 } else if (whs.getType() == 4) {
-                    int v = (Integer) whs.getValue();
-                    notWhereSql.append(" ORDER BY " + columnModel.getColumnName() + " " + (v == Wheres.ORDER_ASC ? "ASC" : "DESC"));
+                    Wheres.Order v = (Wheres.Order) whs.getValue();
+                    notWhereSql.append(" ORDER BY " + columnModel.getColumnName() + " " + (v == Wheres.Order.asc ? "ASC" : "DESC"));
                 }
             }
         }

@@ -16,14 +16,16 @@ public class Wheres {
         EQUAL, IN, LIKE, NOT_EQUAL, GT, GT_EQUAL, LT, LT_EQUAL
     }
 
-    /**
-     * 排序的升序标记
-     */
-    public static final byte ORDER_ASC = 41;
-    /**
-     * 排序的降序标记
-     */
-    public static final byte ORDER_DESC = 42;
+    public enum Order {
+        /**
+         * 排序的升序标记
+         */
+        asc,
+        /**
+         * 排序的降序标记
+         */
+        desc
+    }
 
     public static final byte TYPE_ID = 1;
     public static final byte TYPE_START = 2;
