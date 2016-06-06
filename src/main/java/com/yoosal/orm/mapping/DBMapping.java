@@ -9,6 +9,7 @@ import java.sql.SQLException;
 import java.util.Set;
 
 public interface DBMapping {
+
     void doMapping(DataSourceManager dataSourceManager, Set<Class> classes, boolean canAlter) throws SQLException;
 
     void doMapping(DataSourceManager dataSourceManager, Set<Class> classes, String convert, boolean canAlter) throws SQLException;

@@ -29,6 +29,7 @@ public class OperationManager {
     //映射的时候如果没有发现字段，是否允许添加字段,Boolean类型
     static final String KEY_MAPPING_ALTER = "orm.db.alter";
     static final String KEY_MAPPING_CONVERT = "orm.db.convert";
+    static final String KEY_MAPPING_SHOW_SQL = "orm.db.showSql";
     /**
      * 配置数据库连接，所有的数据都是对应的连接池中的DataSource的属性，比如：
      * orm.ds.proxool.dbType=mysql
@@ -123,6 +124,14 @@ public class OperationManager {
 
     public static String getMappingConvert() {
         return String.valueOf(getProperty(KEY_MAPPING_CONVERT));
+    }
+
+    public static boolean isShowSQL() {
+        String isShowSQL = String.valueOf(getProperty(KEY_MAPPING_SHOW_SQL));
+        if (isShowSQL.equalsIgnoreCase("true")) {
+            return true;
+        }
+        return false;
     }
 
     void doMapping() throws SQLException {

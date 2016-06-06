@@ -99,4 +99,12 @@ public class TableModel extends AbstractModelCheck {
         }
         return false;
     }
+
+    public boolean haPrimaryKey() {
+        List<ColumnModel> columnModels = getMappingPrimaryKeyColumnModels();
+        if (columnModels != null && columnModels.size() > 0) {
+            return true;
+        }
+        return false;
+    }
 }

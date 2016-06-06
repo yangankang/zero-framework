@@ -46,4 +46,6 @@ public interface SQLDialect {
     ValuesForPrepared prepareSelect(TableModel tableMapping, List<Wheres> wheres);
 
     ValuesForPrepared prepareSelectCount(TableModel tableMapping, List<Wheres> wheres);
+
+    void setShowSQL(boolean isShowSQL);
 }

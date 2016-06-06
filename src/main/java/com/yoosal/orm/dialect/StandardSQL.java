@@ -1,10 +1,9 @@
 package com.yoosal.orm.dialect;
 
 import com.yoosal.common.CollectionUtils;
+import com.yoosal.common.Logger;
 import com.yoosal.common.StringUtils;
 import com.yoosal.orm.ModelObject;
-import com.yoosal.orm.annotation.AutoIncrementStrategy;
-import com.yoosal.orm.annotation.Column;
 import com.yoosal.orm.core.Batch;
 import com.yoosal.orm.exception.SQLDialectException;
 import com.yoosal.orm.mapping.ColumnModel;
@@ -16,6 +15,7 @@ import java.sql.Types;
 import java.util.*;
 
 public abstract class StandardSQL implements SQLDialect {
+    private static final Logger logger = Logger.getLogger(StandardSQL.class);
     protected static final Map<Integer, String> types = new HashMap<Integer, String>();
     protected static final Map<Class, String> typesMapping = new HashMap<Class, String>();
     protected static final int DEFAULT_LENGTH = 255;
@@ -35,6 +35,8 @@ public abstract class StandardSQL implements SQLDialect {
             }
         }
     }
+
+    protected boolean isShowSQL = false;
 
     @Override
     public String getType(int columnTypeInt) {
@@ -76,6 +78,7 @@ public abstract class StandardSQL implements SQLDialect {
                 sqlBuilder.append(sql + ",");
             }
         }
+        showSQL(sqlBuilder.toString());
         return sqlBuilder.toString();
     }
 
@@ -84,6 +87,7 @@ public abstract class StandardSQL implements SQLDialect {
         sqlBuilder.append("CREATE TABLE IF NOT EXISTS " + tableModel.getDbTableName() + "(");
         List<ColumnModel> columnModelList = tableModel.getMappingColumnModels();
         StringBuilder indexSQLBuilder = new StringBuilder();
+        StringBuilder primaryKeySQLBuilder = new StringBuilder(",PRIMARY KEY (");
         for (ColumnModel cm : columnModelList) {
             String columnName = cm.getColumnName();
             Class clazz = cm.getJavaType();
@@ -103,7 +107,7 @@ public abstract class StandardSQL implements SQLDialect {
             sqlBuilder.append(dbTypeName);
             sqlBuilder.append(length > 0 ? "(" + length + ")" : "");
             if (isPrimaryKey) {
-                sqlBuilder.append(" PRIMARY KEY");
+                primaryKeySQLBuilder.append(columnName + ",");
                 if (cm.isAutoIncrement()) {
                     sqlBuilder.append(" AUTO_INCREMENT");
                 }
@@ -115,10 +119,14 @@ public abstract class StandardSQL implements SQLDialect {
                 indexSQLBuilder.append(columnName + ",");
             }
         }
+        if (tableModel.haPrimaryKey()) {
+            sqlBuilder.append(primaryKeySQLBuilder.substring(0, primaryKeySQLBuilder.length() - 1) + ")");
+        }
         if (StringUtils.isNotBlank(indexSQLBuilder.toString())) {
             sqlBuilder.append(",INDEX(" + indexSQLBuilder.toString() + ")");
         }
         sqlBuilder.append(")");
+        showSQL(sqlBuilder.toString());
         return sqlBuilder.toString();
     }
 
@@ -180,6 +188,7 @@ public abstract class StandardSQL implements SQLDialect {
         }
 
         valuesForPrepared.setSql("INSERT INTO " + tableMapping.getDbTableName() + " (" + key + ") VALUES (" + value + ")");
+        showSQL(valuesForPrepared.getSql());
         return valuesForPrepared;
     }
 
@@ -217,6 +226,9 @@ public abstract class StandardSQL implements SQLDialect {
         valuesForPrepared.setSql("UPDATE " + tableMapping.getDbTableName() +
                 " SET " + set +
                 " WHERE " + where);
+
+        showSQL(valuesForPrepared.getSql());
+
         return valuesForPrepared;
     }
 
@@ -253,6 +265,8 @@ public abstract class StandardSQL implements SQLDialect {
             }
         }
         valuesForPrepared.setSql("UPDATE " + tableMapping.getDbTableName() + " SET " + set + " WHERE " + where);
+
+        showSQL(valuesForPrepared.getSql());
 
         return valuesForPrepared;
     }
@@ -327,6 +341,9 @@ public abstract class StandardSQL implements SQLDialect {
             throw new SQLDialectException("delete sql must has where");
         }
         valuesForPrepared.setSql("DELETE FROM " + tableMapping.getDbTableName() + " WHERE " + valuesForPrepared.getSql());
+
+        showSQL(valuesForPrepared.getSql());
+
         return valuesForPrepared;
     }
 
@@ -335,6 +352,9 @@ public abstract class StandardSQL implements SQLDialect {
         ValuesForPrepared valuesForPrepared = common(tableMapping, wheres);
         String lastSQLString = valuesForPrepared.getSql();
         valuesForPrepared.setSql("SELECT * FROM " + tableMapping.getDbTableName() + (StringUtils.isBlank(lastSQLString) ? "" : " WHERE " + valuesForPrepared.getSql()));
+
+        showSQL(valuesForPrepared.getSql());
+
         return valuesForPrepared;
     }
 
@@ -343,6 +363,20 @@ public abstract class StandardSQL implements SQLDialect {
         ValuesForPrepared valuesForPrepared = common(tableMapping, wheres);
         String lastSQLString = valuesForPrepared.getSql();
         valuesForPrepared.setSql("SELECT COUNT(*) FROM " + tableMapping.getDbTableName() + (StringUtils.isBlank(lastSQLString) ? "" : " WHERE " + valuesForPrepared.getSql()));
+
+        showSQL(valuesForPrepared.getSql());
+
         return valuesForPrepared;
+    }
+
+    protected void showSQL(String sql) {
+        if (this.isShowSQL) {
+            logger.info(sql);
+        }
+    }
+
+    @Override
+    public void setShowSQL(boolean isShowSQL) {
+        this.isShowSQL = isShowSQL;
     }
 }

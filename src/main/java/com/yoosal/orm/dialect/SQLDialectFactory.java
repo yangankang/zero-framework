@@ -1,5 +1,6 @@
 package com.yoosal.orm.dialect;
 
+import com.yoosal.orm.OperationManager;
 import com.yoosal.orm.core.DataSourceManager;
 
 import java.sql.DatabaseMetaData;
@@ -16,10 +17,13 @@ public abstract class SQLDialectFactory {
 
     public static SQLDialect getSQLDialect(DatabaseMetaData databaseMetaData) throws SQLException {
         String dataBaseName = databaseMetaData.getDatabaseProductName();
+        boolean isShowSQL = OperationManager.isShowSQL();
         for (Map.Entry<String, SQLDialect> entry : registerSQLDialect.entrySet()) {
             String key = entry.getKey();
             if (dataBaseName.toLowerCase().indexOf(key.toLowerCase()) >= 0) {
-                return entry.getValue();
+                SQLDialect sqlDialect = entry.getValue();
+                sqlDialect.setShowSQL(isShowSQL);
+                return sqlDialect;
             }
         }
         return null;
