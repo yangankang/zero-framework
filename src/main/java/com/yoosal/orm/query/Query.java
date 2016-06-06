@@ -122,6 +122,11 @@ public class Query {
         return joins;
     }
 
+    /**
+     * 获得条件会产生一个新的List因为条件会有顺序问题，如果顺序不正确则产生的SQL也不正确
+     *
+     * @return
+     */
     public List<Wheres> getWheres() {
         List<Wheres> whs = new ArrayList<Wheres>();
         whs.addAll(wheres);
