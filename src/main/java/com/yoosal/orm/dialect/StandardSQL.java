@@ -301,7 +301,7 @@ public abstract class StandardSQL implements SQLDialect {
                     sb.append(columnModel.getColumnName() + " IN(" + insb + ")");
                 } else if (operation.equals(Wheres.Operation.LIKE)) {
                     sb.append(columnModel.getColumnName() + " LIKE(:" + columnModel.getJavaName() + ")");
-                    valuesForPrepared.addValue(":" + columnModel.getJavaName(), whs.getValue());
+                    valuesForPrepared.addValue(":" + columnModel.getJavaName(), "%" + whs.getValue() + "%");
                 } else {
                     sb.append(columnModel.getColumnName() + whs.getOperation() + ":" + columnModel.getJavaName());
                     valuesForPrepared.addValue(":" + columnModel.getJavaName(), whs.getValue());

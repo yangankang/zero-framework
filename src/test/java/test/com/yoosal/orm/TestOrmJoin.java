@@ -52,4 +52,24 @@ public class TestOrmJoin {
         ModelObject object = sceneOperation.query(Query.query(TableStudent.class).join(Join.join(TableScore.class).where(TableStudent.idColumn, TableScore.studentId)));
         System.out.println(object);
     }
+
+    @Test
+    public void testJoin2TableSelectByCenterTable() throws IllegalAccessException, IOException, InstantiationException, SQLException, InvocationTargetException, ClassNotFoundException {
+        OrmFactory.properties(TestDBMapping.class.getResourceAsStream("/orm_mapping.properties"));
+
+        SessionOperationManager sceneOperation = new SessionOperationManager();
+        List<ModelObject> object = sceneOperation.list(Query.query(TableStudentClass.class)
+                .join(Join.where(TableClass.class, TableStudentClass.classId, TableClass.id))
+                .join(Join.where(TableStudent.class, TableStudentClass.studentId, TableStudent.idColumn)));
+        System.out.println(object.toString());
+    }
+
+    @Test
+    public void testJoin2TableSelectLike() throws IllegalAccessException, IOException, InstantiationException, SQLException, InvocationTargetException, ClassNotFoundException {
+        OrmFactory.properties(TestDBMapping.class.getResourceAsStream("/orm_mapping.properties"));
+
+        SessionOperationManager sceneOperation = new SessionOperationManager();
+        ModelObject object = sceneOperation.query(Query.query(TableStudent.class).like(TableStudent.nameForAccount, "mt"));
+        System.out.println(object);
+    }
 }
