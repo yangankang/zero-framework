@@ -18,7 +18,7 @@ public class ValuesForPrepared {
         String[] strings = getKeys();
         for (int i = 0; i < strings.length; i++) {
             String s = strings[i];
-            sql = sql.replace(":" + s, "?");
+            sql = sql.replaceFirst(":" + s, "?");
         }
         return sql;
     }
@@ -75,7 +75,8 @@ public class ValuesForPrepared {
                         break;
                     }
                     if ((chars[i] >= 'a' && chars[i] <= 'z') ||
-                            (chars[i] >= 'A' && chars[i] <= 'Z') || chars[i] == '_') {
+                            (chars[i] >= 'A' && chars[i] <= 'Z')
+                            || chars[i] == '_' || Character.isDigit(chars[i])) {
                         sb.append(chars[i]);
                     } else {
                         break;

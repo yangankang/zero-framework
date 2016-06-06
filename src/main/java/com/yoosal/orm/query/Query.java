@@ -102,12 +102,12 @@ public class Query {
     }
 
     public Query in(Object key, List<Object> values) {
-        this.wheres.add(new Wheres(String.valueOf(key), values));
+        this.wheres.add(new Wheres(String.valueOf(key), values, Wheres.Operation.IN));
         return this;
     }
 
     public Query like(Object key, Object value) {
-        this.wheres.add(new Wheres(String.valueOf(key), value));
+        this.wheres.add(new Wheres(String.valueOf(key), value, Wheres.Operation.LIKE));
         return this;
     }
 

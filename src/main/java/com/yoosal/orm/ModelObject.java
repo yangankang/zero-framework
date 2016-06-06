@@ -4,6 +4,8 @@ import com.yoosal.json.JSONObject;
 import com.yoosal.orm.query.Join;
 import com.yoosal.orm.query.Query;
 
+import java.util.Map;
+
 /**
  * 用来做添删改查的对象，继承自JSONObject，包含各种和数据库相关的信息
  */
@@ -74,5 +76,17 @@ public class ModelObject extends JSONObject {
 
     public void setWhereColumn(Object... whereColumn) {
         this.whereColumn = whereColumn;
+    }
+
+    @Override
+    public ModelObject fluentPut(Object key, Object value) {
+        super.fluentPut(key, value);
+        return this;
+    }
+
+    @Override
+    public ModelObject fluentPutAll(Map<? extends Object, ? extends Object> m) {
+        super.fluentPutAll(m);
+        return this;
     }
 }

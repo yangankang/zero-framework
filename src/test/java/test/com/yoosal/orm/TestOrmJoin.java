@@ -4,9 +4,13 @@ import com.yoosal.json.JSON;
 import com.yoosal.orm.ModelObject;
 import com.yoosal.orm.OrmFactory;
 import com.yoosal.orm.core.SessionOperationManager;
+import com.yoosal.orm.query.Join;
 import com.yoosal.orm.query.Query;
 import org.junit.Test;
+import test.com.yoosal.orm.table.TableClass;
+import test.com.yoosal.orm.table.TableScore;
 import test.com.yoosal.orm.table.TableStudent;
+import test.com.yoosal.orm.table.TableStudentClass;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -23,16 +27,29 @@ public class TestOrmJoin {
         OrmFactory.properties(TestDBMapping.class.getResourceAsStream("/orm_mapping.properties"));
     }
 
+    private ModelObject classModelObject = ModelObject.instance(TableClass.class);
+    private ModelObject scoreModelObject = ModelObject.instance(TableScore.class);
+    private ModelObject studentModelObject = ModelObject.instance(TableStudent.class);
+    private ModelObject studentClassModelObject = ModelObject.instance(TableStudentClass.class);
+
     @Test
     public void testJoin2Table() throws IllegalAccessException, IOException, InstantiationException, SQLException, InvocationTargetException, ClassNotFoundException {
         OrmFactory.properties(TestDBMapping.class.getResourceAsStream("/orm_mapping.properties"));
+        String[] classNames = new String[]{"语文", "数学", "英语"};
+        for (String className : classNames) {
+            ModelObject object = classModelObject.clone()
+                    .fluentPut(TableClass.className, className);
+            SessionOperationManager sceneOperation = new SessionOperationManager();
+            sceneOperation.save(object);
+        }
+    }
 
-        ModelObject object = new ModelObject();
-        object.setObjectClass(TableStudent.class);
-        object.put(TableStudent.nameForAccount, "yak");
-        object.put(TableStudent.age, 20);
+    @Test
+    public void testJoin2TableSelect() throws IllegalAccessException, IOException, InstantiationException, SQLException, InvocationTargetException, ClassNotFoundException {
+        OrmFactory.properties(TestDBMapping.class.getResourceAsStream("/orm_mapping.properties"));
 
         SessionOperationManager sceneOperation = new SessionOperationManager();
-        sceneOperation.save(object);
+        ModelObject object = sceneOperation.query(Query.query(TableStudent.class).join(Join.join(TableScore.class).where(TableStudent.idColumn, TableScore.studentId)));
+        System.out.println(object);
     }
 }
