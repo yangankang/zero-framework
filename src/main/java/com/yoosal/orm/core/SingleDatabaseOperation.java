@@ -20,7 +20,7 @@ import java.util.List;
  * 线程非安全的，局部变量使用
  */
 public class SingleDatabaseOperation implements SessionOperation {
-    private Connection connection = null;
+    private Connection conn = null;
     private DataSource dataSource = null;
     private SQLDialect dialect = null;
     private DBMapping dbMapping;
@@ -38,10 +38,10 @@ public class SingleDatabaseOperation implements SessionOperation {
     }
 
     private Connection getConnection() throws SQLException {
-        if (connection == null) {
-            connection = dataSource.getConnection();
+        if (conn == null) {
+            conn = dataSource.getConnection();
         }
-        return connection;
+        return conn;
     }
 
     private SQLDialect getDialect(Connection connection) throws SQLException {
@@ -268,22 +268,22 @@ public class SingleDatabaseOperation implements SessionOperation {
     @Override
     public void close() {
         try {
-            if (connection == null || !connection.getAutoCommit()) {
+            if (conn == null || !conn.getAutoCommit()) {
                 return;
             }
-            if (connection != null && connection.isClosed()) {
-                connection = null;
+            if (conn != null && conn.isClosed()) {
+                conn = null;
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        if (connection != null) {
+        if (conn != null) {
             try {
-                connection.close();
+                conn.close();
             } catch (SQLException e) {
                 e.printStackTrace();
             }
         }
-        this.connection = null;
+        this.conn = null;
     }
 }
