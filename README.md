@@ -123,6 +123,7 @@ Spring的bean配置：
 #ZeroFramework#ORM的配置
 
 映射表类：
+
 `@Table
  public enum TableScore {
  
@@ -173,7 +174,8 @@ orm的配置文件orm_mapping.properties：
 
 **第二种Spring配置方式**
 
-`<bean class="com.yoosal.orm.SpringOperationManager">`
-    `<property name="scanPackage" value="test.com.yoosal.orm.table"/>`
-    `<property name="dataSource" ref="dataSource"/>`
-`</bean>`
+`
+<bean class="com.yoosal.orm.SpringOperationManager">
+    <property name="scanPackage" value="test.com.yoosal.orm.table"/>
+    <property name="dataSource" ref="dataSource"/>
+</bean>`
