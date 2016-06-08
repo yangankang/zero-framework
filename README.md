@@ -79,18 +79,16 @@ mvc.scan.package=test.com.yoosal.mvc.apicontroller
 
 启动方式：
 
-  Server server = new Server(9999);
+  `Server server = new Server(9999);
   ServletContextHandler context = new ServletContextHandler();
-  
   context.setContextPath("/");
   server.setHandler(context);
   ServletHolder servletHolder = new ServletHolder(new EntryPointServlet());
-  
   servletHolder.setInitParameter("frameworkConfigLocation", "classpath:mvc.properties");
   context.addServlet(servletHolder, "/invoke.do");
-  
   server.start();
-  server.join();
+  server.join();`
+  
   
 **第二种Spring配置方式**
 
