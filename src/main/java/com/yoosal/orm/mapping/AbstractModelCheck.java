@@ -3,7 +3,7 @@ package com.yoosal.orm.mapping;
 public abstract class AbstractModelCheck implements ModelCheck {
     private WordConvert wordConvert;
 
-    enum SuppertConvert {
+    enum SupportConvert {
         H2U
     }
 
@@ -14,7 +14,7 @@ public abstract class AbstractModelCheck implements ModelCheck {
 
     @Override
     public void setWordConvert(String key) {
-        if (key.equalsIgnoreCase(SuppertConvert.H2U.toString())) {
+        if (key.equalsIgnoreCase(SupportConvert.H2U.toString())) {
             this.wordConvert = new H2UConvert();
         }
     }
