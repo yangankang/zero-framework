@@ -17,13 +17,15 @@ demo可以在test.com.yoosal包中查看运行
 **第一种程序启动方式：**
 
 配置文件 mvc.properties :
-`mvc.request.uri=/invoke.do`
-`mvc.scan.package=test.com.yoosal.mvc.apicontroller`
+mvc.request.uri=/invoke.do
+mvc.scan.package=test.com.yoosal.mvc.apicontroller
  
  mvc.request.uri:请求的地址
  mvc.scan.package:扫描包名，只要包含@APIController的都会是映射成一个JS函数
  
- `@APIController
+ 被扫描的类：
+ 
+  @APIController
   public class TestApiControllerA {
 
       /**
@@ -74,10 +76,10 @@ demo可以在test.com.yoosal包中查看运行
           return "redirect:http://www.google.com.hk";
       }
   }
-`
+
 启动方式：
 
-` Server server = new Server(9999);
+  Server server = new Server(9999);
   ServletContextHandler context = new ServletContextHandler();
   
   context.setContextPath("/");
@@ -88,25 +90,23 @@ demo可以在test.com.yoosal包中查看运行
   context.addServlet(servletHolder, "/invoke.do");
   
   server.start();
-  server.join();`
+  server.join();
   
 **第二种Spring配置方式**
 
 Spring的bean配置：
-
-`
-xml的配置：
 
     <bean class="com.yoosal.mvc.SpringEntryPointManager">
          <property name="requestUri" value="/invoke.do"/>
          <property name="scanPackage" value="test.com.yoosal.mvc.apicontroller"/>
          <property name="writePath" value="/js/api.js"/>
          <property name="authoritySupport" ref="authoritySupport"/>
-     </bean>`
+     </bean>
 
   
   Controller的程序：
-  `@Controller
+  
+   @Controller
    public class SpringControllerTest {
    
        @RequestMapping("/invoke.do")
@@ -119,4 +119,4 @@ xml的配置：
                e.printStackTrace();
            }
        }
-   }`
+   }
