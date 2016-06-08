@@ -79,16 +79,15 @@ mvc.scan.package=test.com.yoosal.mvc.apicontroller
 
 启动方式：
 
-  `Server server = new Server(9999);
-  
-  ServletContextHandler context = new ServletContextHandler();
-  context.setContextPath("/");
-  server.setHandler(context);
-  ServletHolder servletHolder = new ServletHolder(new EntryPointServlet());
-  servletHolder.setInitParameter("frameworkConfigLocation", "classpath:mvc.properties");
-  context.addServlet(servletHolder, "/invoke.do");
-  server.start();
-  server.join();`
+  `Server server = new Server(9999);`
+  `ServletContextHandler context = new ServletContextHandler();`
+  `context.setContextPath("/");`
+  `server.setHandler(context);`
+  `ServletHolder servletHolder = new ServletHolder(new EntryPointServlet());`
+  `servletHolder.setInitParameter("frameworkConfigLocation", "classpath:mvc.properties");`
+  `context.addServlet(servletHolder, "/invoke.do");`
+  `server.start();`
+  `server.join();`
   
   
 **第二种Spring配置方式**
@@ -119,3 +118,62 @@ Spring的bean配置：
            }
        }
    }
+   
+   
+#ZeroFramework#ORM的配置
+
+映射表类：
+`@Table
+ public enum TableScore {
+ 
+     @Column(key = true, strategy = AutoIncrementStrategy.class)
+     id,
+     @Column(type = String.class, length = 128)
+     className,
+     @Column(type = Integer.class)
+     score,
+     @Column(type = Integer.class)
+     studentId,
+     @Column(type = Integer.class)
+     classId
+ }
+`
+
+**第一种程序启动方式**
+
+orm的配置文件orm_mapping.properties：
+
+`orm.scan.package=test.com.yoosal.orm.table`
+`orm.db.alter=true`
+`orm.db.convert=H2U`
+`orm.db.showSql=true`
+`orm.ds.proxool.class=org.logicalcobwebs.proxool.ProxoolDataSource`
+`orm.ds.proxool.driver=com.mysql.jdbc.Driver`
+`orm.ds.proxool.driverUrl=jdbc:mysql://localhost:3306/yoosal?useUnicode=true&characterEncoding=utf8`
+`orm.ds.proxool.user=root`
+`orm.ds.proxool.password=123456`
+`orm.ds.proxool.houseKeepingTestSql=show tables`
+`orm.ds.proxool.prototypeCount=5`
+`orm.ds.proxool.hourseKeepingSleepTime=90000`
+`orm.ds.proxool.minimumConnectionCount=1500`
+`orm.ds.proxool.maximumConnectionCount=1500`
+`orm.ds.proxool.alias=db1`
+`orm.ds.proxool.simultaneousBuildThrottle=1000`
+
+启动代码：
+`OrmFactory.properties(TestDBMapping.class.getResourceAsStream("/orm_mapping.properties"));`
+
+一个添加实例，其他实例可以在test.com.yoosal.orm.TestOrm这个类中找到：
+`ModelObject object = new ModelObject();`
+`object.setObjectClass(TableStudent.class);`
+`object.put(TableStudent.nameForAccount, "yak");`
+`object.put(TableStudent.age, 20);`
+`SessionOperationManager sceneOperation = new SessionOperationManager();`
+`sceneOperation.save(object);`
+
+**第二种Spring配置方式**
+
+`<bean class="com.yoosal.orm.SpringOperationManager">`
+    `<property name="scanPackage" value="test.com.yoosal.orm.table"/>`
+    `<property name="dataSource" ref="dataSource"/>`
+`</bean>`
