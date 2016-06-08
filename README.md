@@ -172,6 +172,13 @@ orm的配置文件orm_mapping.properties：
 `SessionOperationManager sceneOperation = new SessionOperationManager();`
 `sceneOperation.save(object);`
 
+一个查询实例：
+SessionOperationManager sceneOperation = new SessionOperationManager();
+        List<ModelObject> object = sceneOperation.list(Query.query(TableStudentClass.class)
+                .join(Join.where(TableClass.class, TableStudentClass.classId, TableClass.id))
+                .join(Join.where(TableStudent.class, TableStudentClass.studentId, TableStudent.idColumn)));
+System.out.println(object.toString());
+
 **第二种Spring配置方式**
 
 `
