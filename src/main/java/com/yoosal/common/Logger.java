@@ -38,6 +38,10 @@ public class Logger {
         logger.info(message);
     }
 
+    public void warn(Object message) {
+        logger.warn(message);
+    }
+
     public void debug(Object message) {
         logger.debug(message);
     }

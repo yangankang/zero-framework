@@ -1,5 +1,6 @@
 package com.yoosal.mvc.support;
 
+import com.yoosal.common.Logger;
 import com.yoosal.common.StringUtils;
 import com.yoosal.json.JSON;
 import com.yoosal.json.JSONObject;
@@ -19,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 public class DefaultJavaScriptMapping implements JavaScriptMapping {
+    private static final Logger logger = Logger.getLogger(DefaultJavaScriptMapping.class);
     private List<ControllerMethodParse> methodParses;
     private String DEFAULT_TEMPLATE = "JavaScriptTemplate.js";
 
@@ -90,12 +92,32 @@ public class DefaultJavaScriptMapping implements JavaScriptMapping {
         } else {
             FileUtils.writeStringToFile(new File(path), js);
         }
+        develop(js, path);
     }
 
     @Override
     public void generateToFile(String path) throws ParseTemplateException, IOException {
         String js = this.parseTemplate();
         FileUtils.writeStringToFile(new File(path), js);
+        develop(js, path);
+    }
+
+    private void develop(String js, String path) throws IOException {
+        String developPath = System.getenv("DevelopWritePath");
+        if (StringUtils.isNotBlank(path)) {
+            String[] ps = path.split("/");
+            String[] pss = ps[ps.length - 1].split("\\\\");
+
+            File file = new File(developPath);
+            if (!file.exists()) {
+                logger.warn("is develop env but DevelopWritePath not exist");
+            } else {
+                if (StringUtils.isNotBlank(developPath)) {
+                    FileUtils.writeStringToFile(new File(developPath + File.separator + pss[pss.length - 1]), js);
+                }
+                logger.info("is develop env js write path:" + developPath);
+            }
+        }
     }
 
     class CInfo {

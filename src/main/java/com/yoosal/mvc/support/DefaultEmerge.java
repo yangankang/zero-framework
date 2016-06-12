@@ -24,6 +24,13 @@ public class DefaultEmerge implements Emerge {
     private ConversionService conversionService = new DefaultConversionService();
 
     public Object getStringToObject(Class s, Object[] object, Map<Class, Object> penetrate) throws ClassNotFoundException {
+
+        for (Class key : penetrate.keySet()) {
+            if (s.isAssignableFrom(key)) {
+                return penetrate.get(key);
+            }
+        }
+
         if (object == null) return null;
         if (s.isArray()) {
             String shortName = s.getName().substring("[L".length(), s.getName().length() - 1);
@@ -57,11 +64,7 @@ public class DefaultEmerge implements Emerge {
                     throw new ClassCastException("request parameter case to " + s.getName() + " error.");
                 }
             } else {
-                for (Class key : penetrate.keySet()) {
-                    if (key.isAssignableFrom(s)) {
-                        return penetrate.get(key);
-                    }
-                }
+
                 try {
                     return JSON.toJavaObject(JSON.parseObject((String) object[0]), s);
                 } catch (JSONException e) {
