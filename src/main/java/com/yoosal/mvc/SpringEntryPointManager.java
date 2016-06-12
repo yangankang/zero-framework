@@ -98,13 +98,14 @@ public class SpringEntryPointManager extends EntryPointManager implements Initia
 
     public void setScanSpringContext(boolean scanSpringContext) {
         this.scanSpringContext = scanSpringContext;
-        scanBeanToApiController();
     }
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         this.applicationContext = applicationContext;
-        scanBeanToApiController();
+        if (this.scanSpringContext) {
+            scanBeanToApiController();
+        }
     }
 
     private void scanBeanToApiController() {

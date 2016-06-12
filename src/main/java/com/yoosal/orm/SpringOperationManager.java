@@ -13,6 +13,18 @@ public class SpringOperationManager extends OperationManager implements Initiali
     private boolean isAlter;
     private DataSource dataSource;
     private Map<String, DataSource> dataSourceMap;
+    private String convert;
+    private boolean isShowSql;
+
+    public void setConvert(String convert) {
+        this.convert = convert;
+        this.setProperty(KEY_MAPPING_CONVERT, convert);
+    }
+
+    public void setShowSql(boolean showSql) {
+        isShowSql = showSql;
+        this.setProperty(KEY_MAPPING_SHOW_SQL, showSql);
+    }
 
     public void setScanPackage(String scanPackage) {
         this.scanPackage = scanPackage;
