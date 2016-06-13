@@ -1,7 +1,6 @@
 package com.yoosal.mvc;
 
 import com.yoosal.common.CollectionUtils;
-import com.yoosal.common.ResourceUtils;
 import com.yoosal.common.StringUtils;
 import com.yoosal.common.scan.DefaultFrameworkScanClass;
 import com.yoosal.common.scan.FrameworkScanClass;
@@ -11,8 +10,6 @@ import com.yoosal.mvc.exception.ParseTemplateException;
 import com.yoosal.mvc.support.*;
 
 import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
-import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
