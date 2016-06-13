@@ -104,7 +104,7 @@ public class DefaultJavaScriptMapping implements JavaScriptMapping {
 
     private void develop(String js, String path) throws IOException {
         String developPath = System.getenv("DevelopWritePath");
-        if (StringUtils.isNotBlank(path)) {
+        if (StringUtils.isNotBlank(path) && StringUtils.isNotBlank(developPath)) {
             String[] ps = path.split("/");
             String[] pss = ps[ps.length - 1].split("\\\\");
 
