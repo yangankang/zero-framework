@@ -5,6 +5,6 @@ import java.lang.annotation.*;
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-public @interface APIController {
+public @interface APIController1 {
     String value() default "";
 }
