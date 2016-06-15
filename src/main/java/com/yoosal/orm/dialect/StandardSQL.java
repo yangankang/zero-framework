@@ -12,8 +12,9 @@ import com.yoosal.orm.mapping.TableModel;
 import com.yoosal.orm.query.Wheres;
 
 import java.lang.reflect.Field;
-import java.sql.Types;
+import java.sql.*;
 import java.util.*;
+import java.util.Date;
 
 public abstract class StandardSQL implements SQLDialect {
     private static final Logger logger = Logger.getLogger(StandardSQL.class);
@@ -25,6 +26,8 @@ public abstract class StandardSQL implements SQLDialect {
         typesMapping.put(String.class, "VARCHAR");
         typesMapping.put(char.class, "CHAR");
         typesMapping.put(Integer.class, "INT");
+        typesMapping.put(Date.class, "TIMESTAMP");
+        typesMapping.put(java.sql.Date.class, "TIMESTAMP");
 
         Field[] fields = Types.class.getDeclaredFields();
         for (Field field : fields) {
