@@ -89,4 +89,8 @@ public class ModelObject extends JSONObject {
         super.fluentPutAll(m);
         return this;
     }
+
+    public void copy(Object key, ModelObject object) {
+        this.put(key, object.get(key));
+    }
 }

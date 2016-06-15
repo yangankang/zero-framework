@@ -164,8 +164,36 @@ public class Wheres {
         this.value = value;
     }
 
-    public Operation getOperation() {
-        return operation;
+    public String getOperation() {
+        /**
+         * static final String operationEqual = "=";
+         * static final String operationIn = "in";
+         * static final String operationLike = "like";
+         * static final String operationNotEqual = "!=";
+         * static final String operationGt = ">";
+         * static final String operationGtEqual = ">=";
+         * static final String operationLt = "<";
+         * static final String operationLtEqual = "<=";
+         */
+        if (operation.equals(Operation.EQUAL)) {
+            return "=";
+        } else if (operation.equals(Operation.IN)) {
+            return "in";
+        } else if (operation.equals(Operation.LIKE)) {
+            return "like";
+        } else if (operation.equals(Operation.NOT_EQUAL)) {
+            return "!=";
+        } else if (operation.equals(Operation.GT)) {
+            return ">";
+        } else if (operation.equals(Operation.GT_EQUAL)) {
+            return ">=";
+        } else if (operation.equals(Operation.LT)) {
+            return "<";
+        } else if (operation.equals(Operation.LT_EQUAL)) {
+            return "<=";
+        }
+
+        return "=";
     }
 
     public void setOperation(Operation operation) {
