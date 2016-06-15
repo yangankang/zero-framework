@@ -1,16 +1,11 @@
 package com.yoosal.orm.dialect;
 
-import com.yoosal.common.StringUtils;
 import com.yoosal.orm.ModelObject;
-import com.yoosal.orm.OperationManager;
 
 import java.sql.*;
-import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.Date;
 
 public class ValuesForPrepared {
-    private static final String DEFAULT_DATE_FORMAT = "yyyy-mm-dd hh:mm:ss";
     private String sql;
     private String[] keys;
     private Map<String, Object> values = new HashMap<String, Object>();
@@ -29,22 +24,8 @@ public class ValuesForPrepared {
         for (int i = 0; i < strings.length; i++) {
             String s = strings[i];
             Object o = values.get(":" + s);
-            o = isDate(o);
             statement.setObject(i + 1, o);
         }
-    }
-
-    private Object isDate(Object o) {
-        if (o.getClass().isAssignableFrom(Date.class)) {
-
-            String dateFormatString = DEFAULT_DATE_FORMAT;
-            if (StringUtils.isNotBlank(OperationManager.getDateFormat())) {
-                dateFormatString = OperationManager.getDateFormat();
-            }
-            SimpleDateFormat dateFormat = new SimpleDateFormat(dateFormatString);
-            return dateFormat.format(o);
-        }
-        return o;
     }
 
     public void setPrepared(PreparedStatement statement, ModelObject object) throws SQLException {

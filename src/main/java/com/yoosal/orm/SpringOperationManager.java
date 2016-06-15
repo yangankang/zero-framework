@@ -15,7 +15,6 @@ public class SpringOperationManager extends OperationManager implements Initiali
     private Map<String, DataSource> dataSourceMap;
     private String convert;
     private boolean isShowSql;
-    private String dateFormat;
 
     public void setConvert(String convert) {
         this.convert = convert;
@@ -40,11 +39,6 @@ public class SpringOperationManager extends OperationManager implements Initiali
     public void setAlter(boolean alter) {
         isAlter = alter;
         this.setProperty(KEY_MAPPING_ALTER, String.valueOf(alter));
-    }
-
-    public void setDateFormat(String dateFormat) {
-        this.dateFormat = dateFormat;
-        this.setProperty(KEY_DATE_FORMAT, dateFormat);
     }
 
     public void setDataSource(DataSource dataSource) {
