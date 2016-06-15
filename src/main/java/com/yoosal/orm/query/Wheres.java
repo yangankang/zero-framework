@@ -164,6 +164,7 @@ public class Wheres {
         this.value = value;
     }
 
+
     public String getOperation() {
         /**
          * static final String operationEqual = "=";
@@ -194,6 +195,10 @@ public class Wheres {
         }
 
         return "=";
+    }
+
+    public Operation getEnumOperation() {
+        return this.operation;
     }
 
     public void setOperation(Operation operation) {

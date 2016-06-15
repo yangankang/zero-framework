@@ -37,6 +37,8 @@ public class OperationManager {
      */
     static final String KEY_DATASOURCE_INFO = "orm.ds.";
 
+    static final String KEY_DATE_FORMAT = "orm.date.format";
+
     private static FrameworkScanClass frameworkScanClass = new DefaultFrameworkScanClass();
     private static DataSourceManager dataSourceManager = new SimpleDataSourceManager();
     private static DBMapping mapping = new DefaultDBMapping();
@@ -125,6 +127,10 @@ public class OperationManager {
 
     public static String getMappingConvert() {
         return String.valueOf(getProperty(KEY_MAPPING_CONVERT));
+    }
+
+    public static String getDateFormat() {
+        return (String) getProperty(KEY_DATE_FORMAT);
     }
 
     public static boolean isShowSQL() {

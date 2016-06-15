@@ -169,9 +169,11 @@ public abstract class StandardSQL implements SQLDialect {
     }
 
     private boolean contains(Object[] wcs, ColumnModel cm) {
-        for (Object object : wcs) {
-            if (String.valueOf(object).equals(cm.getJavaName())) {
-                return true;
+        if (wcs != null && cm != null) {
+            for (Object object : wcs) {
+                if (String.valueOf(object).equals(cm.getJavaName())) {
+                    return true;
+                }
             }
         }
         return false;
@@ -234,10 +236,11 @@ public abstract class StandardSQL implements SQLDialect {
     public ValuesForPrepared prepareUpdate(TableModel tableMapping, ModelObject object) {
         ValuesForPrepared valuesForPrepared = new ValuesForPrepared();
         List<ColumnModel> whereColumnModels = new ArrayList<ColumnModel>();
+        List<ColumnModel> columnModels = getValidateColumn(tableMapping, object, whereColumnModels);
+
         if (whereColumnModels.size() <= 0) {
             throw new SQLDialectException("update sql no where statement");
         }
-        List<ColumnModel> columnModels = getValidateColumn(tableMapping, object, whereColumnModels);
 
         Iterator<ColumnModel> cmIt = columnModels.iterator();
         StringBuilder set = new StringBuilder();
@@ -248,7 +251,7 @@ public abstract class StandardSQL implements SQLDialect {
             valuesForPrepared.addValue(":" + cm.getJavaName(), object.get(cm.getJavaName()));
             set.append(cm.getColumnName() + "=:" + cm.getJavaName());
             if (cmIt.hasNext()) {
-                set.append(" AND ");
+                set.append(" , ");
             }
         }
 
@@ -291,7 +294,7 @@ public abstract class StandardSQL implements SQLDialect {
             ColumnModel cm = cmIt.next();
             set.append(cm.getColumnName() + "=:" + cm.getJavaName());
             if (cmIt.hasNext()) {
-                set.append(" AND ");
+                set.append(" , ");
             }
         }
 
@@ -322,7 +325,7 @@ public abstract class StandardSQL implements SQLDialect {
             ColumnModel columnModel = tableMapping.getColumnByJavaName(whs.getKey());
 
             if (whs.isNormal()) {
-                Wheres.Operation operation = whs.getOperation();
+                Wheres.Operation operation = whs.getEnumOperation();
                 if (operation.equals(Wheres.Operation.IN)) {
                     List<Object> valueList = (List<Object>) whs.getValue();
 
