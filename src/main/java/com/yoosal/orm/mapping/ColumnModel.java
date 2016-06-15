@@ -2,6 +2,7 @@ package com.yoosal.orm.mapping;
 
 import com.yoosal.orm.annotation.AutoIncrementStrategy;
 import com.yoosal.orm.annotation.Column;
+import com.yoosal.orm.annotation.DefaultValue;
 import com.yoosal.orm.core.IDStrategy;
 import com.yoosal.orm.exception.OrmMappingException;
 
@@ -20,6 +21,8 @@ public class ColumnModel extends AbstractModelCheck {
     private boolean isPrimaryKey;
     private boolean isLock = false;
     private boolean isIndex = false;
+    private boolean isAllowNull = true;
+    private DefaultValue defaultValue;
     private String indexName;
 
     public boolean isIndex() {
@@ -125,6 +128,22 @@ public class ColumnModel extends AbstractModelCheck {
 
     public void setLock(boolean lock) {
         isLock = lock;
+    }
+
+    public boolean isAllowNull() {
+        return isAllowNull;
+    }
+
+    public void setAllowNull(boolean allowNull) {
+        isAllowNull = allowNull;
+    }
+
+    public DefaultValue getDefaultValue() {
+        return defaultValue;
+    }
+
+    public void setDefaultValue(DefaultValue defaultValue) {
+        this.defaultValue = defaultValue;
     }
 
     @Override

@@ -4,6 +4,7 @@ import com.yoosal.common.AnnotationUtils;
 import com.yoosal.common.CollectionUtils;
 import com.yoosal.common.StringUtils;
 import com.yoosal.orm.annotation.Column;
+import com.yoosal.orm.annotation.DefaultValue;
 import com.yoosal.orm.annotation.Table;
 import com.yoosal.orm.core.DataSourceManager;
 import com.yoosal.orm.core.GroupDataSource;
@@ -242,11 +243,18 @@ public class DefaultDBMapping implements DBMapping {
                     if (generateStrategy != null && generateStrategy.isAssignableFrom(Column.class))
                         generateStrategy = null;
                     boolean isLock = (column == null ? false : column.lock());
+
+                    boolean allowNull = column.allowNull();
+                    DefaultValue defaultValue = column.defaultValue();
+
                     columnModel.setPrimaryKey(isPrimaryKey);
                     columnModel.setJavaType(type);
                     columnModel.setLength(length);
                     columnModel.setGenerateStrategy(generateStrategy);
                     columnModel.setLock(isLock);
+                    columnModel.setAllowNull(allowNull);
+                    columnModel.setDefaultValue(defaultValue);
+
                     columnModel.convert();
                     model.addMappingColumnModel(columnModel);
                     i++;

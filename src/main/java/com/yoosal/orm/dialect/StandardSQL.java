@@ -4,6 +4,7 @@ import com.yoosal.common.CollectionUtils;
 import com.yoosal.common.Logger;
 import com.yoosal.common.StringUtils;
 import com.yoosal.orm.ModelObject;
+import com.yoosal.orm.annotation.DefaultValue;
 import com.yoosal.orm.core.Batch;
 import com.yoosal.orm.exception.SQLDialectException;
 import com.yoosal.orm.mapping.ColumnModel;
@@ -70,6 +71,22 @@ public abstract class StandardSQL implements SQLDialect {
                 }
             }
 
+            boolean isAllowNull = cm.isAllowNull();
+            if (!isAllowNull) {
+                pkString += " NOT NULL ";
+                DefaultValue defaultValue = cm.getDefaultValue();
+                if (defaultValue != null) {
+                    if (defaultValue.enable()) {
+                        if (defaultValue.intValue() != 0) {
+                            pkString += "DEFAULT " + defaultValue.intValue();
+                        }
+                        if (StringUtils.isNotBlank(defaultValue.stringValue())) {
+                            pkString += "DEFAULT '" + defaultValue.stringValue() + "'";
+                        }
+                    }
+                }
+            }
+
             sqlBuilder.append(" ADD ");
             String sql = columnName + " " + columnType + " " + (len > 0 ? "(" + len + ")" : "") + pkString;
             if (CollectionUtils.isLast(existColumns, cm)) {
@@ -112,6 +129,24 @@ public abstract class StandardSQL implements SQLDialect {
                     sqlBuilder.append(" AUTO_INCREMENT");
                 }
             }
+
+            boolean isAllowNull = cm.isAllowNull();
+            if (!isAllowNull) {
+                sqlBuilder.append(" NOT NULL ");
+
+                DefaultValue defaultValue = cm.getDefaultValue();
+                if (defaultValue != null) {
+                    if (defaultValue.enable()) {
+                        if (defaultValue.intValue() != 0) {
+                            sqlBuilder.append("DEFAULT " + defaultValue.intValue());
+                        }
+                        if (StringUtils.isNotBlank(defaultValue.stringValue())) {
+                            sqlBuilder.append("DEFAULT '" + defaultValue.stringValue() + "'");
+                        }
+                    }
+                }
+            }
+
             if (CollectionUtils.isLast(columnModelList, cm)) {
                 indexSQLBuilder.append(columnName);
             } else {

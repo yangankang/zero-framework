@@ -14,6 +14,10 @@ public @interface Column {
 
     boolean key() default false;
 
+    boolean allowNull() default true;
+
+    DefaultValue defaultValue() default @DefaultValue(enable = false);
+
     boolean index() default false;
 
     String indexName() default "";

@@ -17,7 +17,7 @@ public class TestOrm {
 
     @Test
     public void testSave() throws IllegalAccessException, IOException, InstantiationException, SQLException, InvocationTargetException, ClassNotFoundException {
-        OrmFactory.properties(TestDBMapping.class.getResourceAsStream("/orm_mapping.properties"));
+        OrmFactory.properties(TestDBMapping.class.getResourceAsStream("/orm_mapping_normal.properties"));
 
         ModelObject object = new ModelObject();
         object.setObjectClass(TableStudent.class);
@@ -30,7 +30,7 @@ public class TestOrm {
 
     @Test
     public void testList() throws IllegalAccessException, IOException, InstantiationException, SQLException, InvocationTargetException, ClassNotFoundException {
-        OrmFactory.properties(TestDBMapping.class.getResourceAsStream("/orm_mapping.properties"));
+        OrmFactory.properties(TestDBMapping.class.getResourceAsStream("/orm_mapping_normal.properties"));
 
         SessionOperationManager sceneOperation = new SessionOperationManager();
         List<ModelObject> objects = sceneOperation.list(Query.query(TableStudent.class));
@@ -39,7 +39,7 @@ public class TestOrm {
 
     @Test
     public void testQuery() throws IllegalAccessException, IOException, InstantiationException, SQLException, InvocationTargetException, ClassNotFoundException {
-        OrmFactory.properties(TestDBMapping.class.getResourceAsStream("/orm_mapping.properties"));
+        OrmFactory.properties(TestDBMapping.class.getResourceAsStream("/orm_mapping_normal.properties"));
 
         SessionOperationManager sceneOperation = new SessionOperationManager();
         ModelObject objects = sceneOperation.query(Query.query(TableStudent.class));
@@ -48,7 +48,7 @@ public class TestOrm {
 
     @Test
     public void testUpdate() throws IllegalAccessException, IOException, InstantiationException, SQLException, InvocationTargetException, ClassNotFoundException {
-        OrmFactory.properties(TestDBMapping.class.getResourceAsStream("/orm_mapping.properties"));
+        OrmFactory.properties(TestDBMapping.class.getResourceAsStream("/orm_mapping_normal.properties"));
 
         ModelObject object = new ModelObject();
         object.setObjectClass(TableStudent.class);
@@ -66,7 +66,7 @@ public class TestOrm {
 
     @Test
     public void testRemove() throws IllegalAccessException, IOException, InstantiationException, SQLException, InvocationTargetException, ClassNotFoundException {
-        OrmFactory.properties(TestDBMapping.class.getResourceAsStream("/orm_mapping.properties"));
+        OrmFactory.properties(TestDBMapping.class.getResourceAsStream("/orm_mapping_normal.properties"));
         ModelObject object = new ModelObject();
         object.setObjectClass(TableStudent.class);
         object.put(TableStudent.nameForAccount, "yak");
@@ -82,7 +82,7 @@ public class TestOrm {
 
     @Test
     public void testCount() throws IllegalAccessException, IOException, InstantiationException, SQLException, InvocationTargetException, ClassNotFoundException {
-        OrmFactory.properties(TestDBMapping.class.getResourceAsStream("/orm_mapping.properties"));
+        OrmFactory.properties(TestDBMapping.class.getResourceAsStream("/orm_mapping_normal.properties"));
         SessionOperationManager sceneOperation = new SessionOperationManager();
         try {
 //            sceneOperation.begin();
