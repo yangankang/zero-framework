@@ -136,7 +136,7 @@ public class OperationManager {
     }
 
     void doMapping() throws SQLException {
-        logger.info("begin do mapping");
+        logger.info("begin do mapping count " + classesFromScan.size());
         boolean isCanAlter = canAlter();
         mapping.doMapping(dataSourceManager, classesFromScan, getMappingConvert(), isCanAlter);
     }
