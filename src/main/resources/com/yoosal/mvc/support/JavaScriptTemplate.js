@@ -81,7 +81,11 @@ function __mvc_ajax_object(type, url, data, success, failed) {
             var text = self.XMLHttpReq.responseText;
             if (self.XMLHttpReq.status == 200) {
                 if (success) {
-                    success(text);
+                    try {
+                        success(JSON.parse(text));
+                    } catch (e) {
+                        success(text);
+                    }
                 }
             } else {
                 if (failed) {
