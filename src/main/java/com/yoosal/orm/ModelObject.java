@@ -1,10 +1,13 @@
 package com.yoosal.orm;
 
+import com.yoosal.common.StringUtils;
 import com.yoosal.json.JSON;
 import com.yoosal.json.JSONObject;
 import com.yoosal.orm.query.Join;
 import com.yoosal.orm.query.Query;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -112,5 +115,33 @@ public class ModelObject extends JSONObject {
             }
         }
         return object;
+    }
+
+    public void clearNull() {
+        List keys = new ArrayList();
+        for (Map.Entry entry : this.entrySet()) {
+            Object object = entry.getValue();
+            if (object == null) {
+                keys.add(entry.getKey());
+            }
+        }
+        for (Object key : keys) {
+            this.remove(key);
+        }
+    }
+
+    public void clearEmpty() {
+        List keys = new ArrayList();
+        for (Map.Entry entry : this.entrySet()) {
+            Object object = entry.getValue();
+            if (object == null) {
+                keys.add(entry.getKey());
+            } else if (object instanceof String && StringUtils.isBlank(String.valueOf(object))) {
+                keys.add(entry.getKey());
+            }
+        }
+        for (Object key : keys) {
+            this.remove(key);
+        }
     }
 }
