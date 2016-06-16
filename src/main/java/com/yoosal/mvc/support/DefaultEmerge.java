@@ -7,6 +7,7 @@ import com.yoosal.json.JSONArray;
 import com.yoosal.json.JSONException;
 import com.yoosal.mvc.convert.ConversionService;
 import com.yoosal.mvc.convert.service.DefaultConversionService;
+import com.yoosal.orm.ModelObject;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -58,7 +59,7 @@ public class DefaultEmerge implements Emerge {
             } else if (Map.class.isAssignableFrom(s)) {
                 //simple Implementation
                 try {
-                    Map map = JSON.parseObject((String) object[0]);
+                    Map map = ModelObject.parseObject((String) object[0]);
                     return map;
                 } catch (Exception e) {
                     throw new ClassCastException("request parameter case to " + s.getName() + " error.");

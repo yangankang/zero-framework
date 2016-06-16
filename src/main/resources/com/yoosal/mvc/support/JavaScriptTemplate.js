@@ -41,11 +41,11 @@ function executor(cinfo) {
 }
 
 var templateFunction = function (_params_) {
-    var object = new Object();
-    object.call = function (SuccessFunction, FailedFunction) {
+    var _$object = new Object();
+    _$object.call = function (SuccessFunction, FailedFunction) {
         __mvc_ajax_object("POST", _address_ + "_url_", _json_, SuccessFunction, FailedFunction);
     };
-    return object;
+    return _$object;
 }
 
 function __mvc_ajax_object(type, url, data, success, failed) {

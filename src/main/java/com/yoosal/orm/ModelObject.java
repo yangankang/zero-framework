@@ -1,5 +1,6 @@
 package com.yoosal.orm;
 
+import com.yoosal.json.JSON;
 import com.yoosal.json.JSONObject;
 import com.yoosal.orm.query.Join;
 import com.yoosal.orm.query.Query;
@@ -92,5 +93,24 @@ public class ModelObject extends JSONObject {
 
     public void copy(Object key, ModelObject object) {
         this.put(key, object.get(key));
+    }
+
+    public static ModelObject parseObject(String text) {
+        Object obj = parse(text);
+        ModelObject object = null;
+        JSONObject json = null;
+        if (obj instanceof JSONObject) {
+            json = (JSONObject) obj;
+        } else {
+            json = (JSONObject) JSON.toJSON(obj);
+        }
+
+        if (json != null) {
+            object = new ModelObject();
+            for (Map.Entry entry : json.entrySet()) {
+                object.put(entry.getKey(), entry.getValue());
+            }
+        }
+        return object;
     }
 }
