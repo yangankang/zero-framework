@@ -5,6 +5,8 @@ import com.yoosal.json.JSON;
 import com.yoosal.json.JSONObject;
 import com.yoosal.mvc.convert.ConversionService;
 import com.yoosal.mvc.convert.service.DefaultConversionService;
+import com.yoosal.orm.core.Check;
+import com.yoosal.orm.core.CheckFactory;
 import com.yoosal.orm.query.Join;
 import com.yoosal.orm.query.Query;
 
@@ -91,16 +93,34 @@ public class ModelObject extends JSONObject {
         return this;
     }
 
+    /**
+     * 为了能够链式编程
+     *
+     * @param m
+     * @return
+     */
     @Override
     public ModelObject fluentPutAll(Map<? extends Object, ? extends Object> m) {
         super.fluentPutAll(m);
         return this;
     }
 
-    public void copy(Object key, ModelObject object) {
-        this.put(key, object.get(key));
+    /**
+     * 把sourceObject中的字段key的值，添加到当前ModelObject对象中
+     *
+     * @param key
+     * @param sourceObject
+     */
+    public void copy(Object key, ModelObject sourceObject) {
+        this.put(key, sourceObject.get(key));
     }
 
+    /**
+     * 字符串转换成为ModelObject对象
+     *
+     * @param text
+     * @return
+     */
     public static ModelObject parseObject(String text) {
         Object obj = parse(text);
         ModelObject object = null;
@@ -120,6 +140,9 @@ public class ModelObject extends JSONObject {
         return object;
     }
 
+    /**
+     * 清除包含null的字段
+     */
     public void clearNull() {
         List keys = new ArrayList();
         for (Map.Entry entry : this.entrySet()) {
@@ -133,6 +156,9 @@ public class ModelObject extends JSONObject {
         }
     }
 
+    /**
+     * 清除所有无效字段，为空的包括null 和 ""
+     */
     public void clearEmpty() {
         List keys = new ArrayList();
         for (Map.Entry entry : this.entrySet()) {
@@ -154,7 +180,7 @@ public class ModelObject extends JSONObject {
      * @param key
      * @param targetClass
      */
-    public void conver(Object key, Class targetClass) throws Exception {
+    public void convert(Object key, Class targetClass) throws Exception {
         Object value = this.get(key);
         if (value != null) {
             try {
@@ -163,6 +189,28 @@ public class ModelObject extends JSONObject {
             } catch (Exception e) {
                 throw e;
             }
+        }
+    }
+
+    public boolean check(Object key, Class<Check> c) {
+        Check check = CheckFactory.getCheck(c);
+        if (check != null) {
+            return check.check(this.get(key));
+        }
+        return false;
+    }
+
+    public int checkForCode(Object key, Class<Check> c) {
+        Check check = CheckFactory.getCheck(c);
+        if (check != null) {
+            return check.verify(this.get(key));
+        }
+        return -1;
+    }
+
+    public void checkAndThrow(Object key, Class<Check> c) {
+        if (!check(key, c)) {
+            throw new IllegalArgumentException("failure check " + key + " value:" + this.get(key));
         }
     }
 }
