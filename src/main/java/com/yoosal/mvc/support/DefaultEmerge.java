@@ -7,6 +7,7 @@ import com.yoosal.json.JSONArray;
 import com.yoosal.json.JSONException;
 import com.yoosal.mvc.convert.ConversionService;
 import com.yoosal.mvc.convert.service.DefaultConversionService;
+import com.yoosal.mvc.convert.service.GenericConversionService;
 import com.yoosal.orm.ModelObject;
 
 import javax.servlet.ServletRequest;
@@ -18,6 +19,7 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -45,7 +47,9 @@ public class DefaultEmerge implements Emerge {
             }
             return arrayObj;
         }
-        if (ClassUtils.isPrimitiveOrWrapper(s) || s.isAssignableFrom(String.class)) {
+        if (ClassUtils.isPrimitiveOrWrapper(s)
+                || s.isAssignableFrom(String.class)
+                || Date.class.isAssignableFrom(s)) {
             return conversionService.executeConversion(object[0], s);
         } else {
             if (Collection.class.isAssignableFrom(s)) {

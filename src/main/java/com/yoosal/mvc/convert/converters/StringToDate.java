@@ -18,7 +18,7 @@ public class StringToDate extends StringToObject {
 
     private String pattern;
 
-    private Locale locale;
+    private Locale locale = Locale.getDefault();
 
     public StringToDate() {
         super(Date.class);

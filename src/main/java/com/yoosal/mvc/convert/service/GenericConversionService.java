@@ -383,6 +383,22 @@ public class GenericConversionService implements ConversionService {
         return sourceClassConverters;
     }
 
+
+    @Override
+    public boolean canConvert(Class<?> sourceType, Class<?> targetType) {
+        if (sourceType == null) {
+            return true;
+        }
+        Converter converter = getConverter(sourceType, targetType);
+        return (converter != null);
+    }
+
+    public <T> T convert(Object source, Class<T> targetType) throws Exception {
+        Converter converter = getConverter(source.getClass(), targetType);
+        Object object = converter.convertSourceToTargetClass(source, converter.getTargetClass());
+        return (T) object;
+    }
+
     protected Converter getConverter(Class sourceClass, Class targetClass) {
         Map sourceTargetConverters = findConvertersForSource(sourceClass);
         return findTargetConverter(sourceTargetConverters, targetClass);

@@ -33,4 +33,8 @@ public interface ConversionService {
 
     Class getClassForAlias(String alias);
 
+    boolean canConvert(Class<?> sourceType, Class<?> targetType);
+
+    <T> T convert(Object source, Class<T> targetType) throws Exception;
+
 }
