@@ -251,4 +251,51 @@ public class ModelObject extends JSONObject {
             return false;
         }
     }
+
+    public boolean checkLength(Object key, int start, int end) {
+        Object object = get(key);
+        if (object != null && object instanceof String) {
+            String str = String.valueOf(object);
+            if (start >= 0 && end >= 0) {
+                if (str.length() >= start && str.length() <= end) {
+                    return true;
+                }
+            } else if (start >= 0 && end < 0) {
+                if (str.length() >= start) {
+                    return true;
+                }
+            } else if (start < 0 && end >= 0) {
+                if (str.length() <= end) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public void checkLengthAndThrow(Object key, int start, int end) {
+        if (!checkLength(key, start, end)) {
+            throw new IllegalArgumentException("failure check " + key + " value:" + this.get(key));
+        }
+    }
+
+    public void checkLengthGtAndThrow(Object key, int start) {
+        if (!checkLengthGt(key, start)) {
+            throw new IllegalArgumentException("failure check " + key + " value:" + this.get(key));
+        }
+    }
+
+    public boolean checkLengthGt(Object key, int start) {
+        return checkLength(key, start, -1);
+    }
+
+    public void checkLengthLtAndThrow(Object key, int end) {
+        if (!checkLengthLt(key, end)) {
+            throw new IllegalArgumentException("failure check " + key + " value:" + this.get(key));
+        }
+    }
+
+    public boolean checkLengthLt(Object key, int end) {
+        return checkLength(key, -1, end);
+    }
 }
