@@ -1,5 +1,6 @@
 package com.yoosal.mvc;
 
+import com.yoosal.common.ClassUtils;
 import com.yoosal.common.CollectionUtils;
 import com.yoosal.common.StringUtils;
 import com.yoosal.common.scan.DefaultFrameworkScanClass;
@@ -49,6 +50,8 @@ public class EntryPointManager {
     static final String KEY_REQUEST_RESTFUL = "mvc.request.restful";
     static final String KEY_COMPRESSOR_JS = "mvc.compressor.js";
     static final String KEY_AUTH_CLASS = "mvc.auth.class";
+    static final String KEY_API_CATCH_STRING = "mvc.api.catchFormat";
+    static final String KEY_API_CATCH_CLASS = "mvc.api.catchClass";
 
 
     private static FrameworkScanClass frameworkScanClass = new DefaultFrameworkScanClass();
@@ -174,6 +177,22 @@ public class EntryPointManager {
             return true;
         }
         return false;
+    }
+
+    public static String getCatchString() {
+        return (String) getProperty(KEY_API_CATCH_STRING);
+    }
+
+    public static Class<? extends CatchFormat> getCatchClass() {
+        String className = (String) getProperty(KEY_API_CATCH_CLASS);
+        if (StringUtils.isNotBlank(className)) {
+            try {
+                return (Class<? extends CatchFormat>) ClassUtils.getDefaultClassLoader().loadClass(className);
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+        return null;
     }
 
     public static ViewResolver getViewResolver() {

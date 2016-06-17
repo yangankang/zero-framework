@@ -34,6 +34,8 @@ public class SpringEntryPointManager extends EntryPointManager implements Initia
     private String isCompressorJs;
     private String isRestful;
     private AuthoritySupport authoritySupport;
+    private String catchFormat;
+    private String catchClass;
 
     @Override
     public void setAuthoritySupport(AuthoritySupport authoritySupport) {
@@ -94,6 +96,17 @@ public class SpringEntryPointManager extends EntryPointManager implements Initia
     public void setIsRestful(String isRestful) {
         this.isRestful = isRestful;
         this.setProperty(EntryPointManager.KEY_REQUEST_RESTFUL, isRestful);
+    }
+
+    public void setCatchFormat(String catchFormat) {
+        this.catchFormat = catchFormat;
+        this.setProperty(EntryPointManager.KEY_API_CATCH_STRING, catchFormat);
+    }
+
+
+    public void setCatchClass(String catchClass) {
+        this.catchClass = catchClass;
+        this.setProperty(EntryPointManager.KEY_API_CATCH_CLASS, catchClass);
     }
 
     public void setScanSpringContext(boolean scanSpringContext) {

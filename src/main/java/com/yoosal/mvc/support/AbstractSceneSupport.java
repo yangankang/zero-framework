@@ -1,6 +1,7 @@
 package com.yoosal.mvc.support;
 
 import com.yoosal.common.ClassUtils;
+import com.yoosal.common.StringUtils;
 import com.yoosal.json.JSON;
 import com.yoosal.mvc.EntryPointManager;
 import com.yoosal.mvc.exception.SceneInvokeException;
@@ -10,9 +11,20 @@ import java.util.Map;
 public abstract class AbstractSceneSupport implements SceneSupport {
     private static final Emerge emerge = new DefaultEmerge();
     private ControllerMethodParse controllerClassSupport;
+    private CatchFormat catchFormat = null;
 
     public AbstractSceneSupport(ControllerMethodParse controllerClassSupport) {
         this.controllerClassSupport = controllerClassSupport;
+        Class c = EntryPointManager.getCatchClass();
+        if (c != null) {
+            try {
+                catchFormat = (CatchFormat) c.newInstance();
+            } catch (InstantiationException e) {
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     @Override
@@ -38,7 +50,17 @@ public abstract class AbstractSceneSupport implements SceneSupport {
             //开始执行当前方法
             return controllerClassSupport.getMethod().invoke(controllerClassSupport.getInstance(), objects);
         } catch (Exception e) {
-            throw new SceneInvokeException("invoke method failed", e);
+            if (catchFormat != null) {
+                return catchFormat.format(e);
+            } else {
+                String catchString = EntryPointManager.getCatchString();
+                if (StringUtils.isNotBlank(catchString)) {
+                    return catchString.replaceAll("[ex]", e.getClass().getSimpleName())
+                            .replaceAll("[msg]", e.getMessage());
+                } else {
+                    throw new SceneInvokeException("invoke method failed", e);
+                }
+            }
         }
     }
 
