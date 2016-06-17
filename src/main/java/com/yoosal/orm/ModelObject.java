@@ -3,6 +3,8 @@ package com.yoosal.orm;
 import com.yoosal.common.StringUtils;
 import com.yoosal.json.JSON;
 import com.yoosal.json.JSONObject;
+import com.yoosal.mvc.convert.ConversionService;
+import com.yoosal.mvc.convert.service.DefaultConversionService;
 import com.yoosal.orm.query.Join;
 import com.yoosal.orm.query.Query;
 
@@ -14,6 +16,7 @@ import java.util.Map;
  * 用来做添删改查的对象，继承自JSONObject，包含各种和数据库相关的信息
  */
 public class ModelObject extends JSONObject {
+    private static final ConversionService conversionService = new DefaultConversionService();
     private Class objectClass;
     private String dataSourceName;
     /**
@@ -142,6 +145,24 @@ public class ModelObject extends JSONObject {
         }
         for (Object key : keys) {
             this.remove(key);
+        }
+    }
+
+    /**
+     * 把字段的值转变类型
+     *
+     * @param key
+     * @param targetClass
+     */
+    public void conver(Object key, Class targetClass) throws Exception {
+        Object value = this.get(key);
+        if (value != null) {
+            try {
+                value = conversionService.executeConversion(value, targetClass);
+                this.put(key, value);
+            } catch (Exception e) {
+                throw e;
+            }
         }
     }
 }
