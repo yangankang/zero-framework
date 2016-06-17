@@ -192,7 +192,7 @@ public class ModelObject extends JSONObject {
         }
     }
 
-    public boolean check(Object key, Class<Check> c) {
+    public boolean check(Object key, Class<? extends Check> c) {
         Check check = CheckFactory.getCheck(c);
         if (check != null) {
             return check.check(this.get(key));
@@ -200,7 +200,7 @@ public class ModelObject extends JSONObject {
         return false;
     }
 
-    public int checkForCode(Object key, Class<Check> c) {
+    public int checkForCode(Object key, Class<? extends Check> c) {
         Check check = CheckFactory.getCheck(c);
         if (check != null) {
             return check.verify(this.get(key));
@@ -208,7 +208,7 @@ public class ModelObject extends JSONObject {
         return -1;
     }
 
-    public void checkAndThrow(Object key, Class<Check> c) {
+    public void checkAndThrow(Object key, Class<? extends Check> c) {
         if (!check(key, c)) {
             throw new IllegalArgumentException("failure check " + key + " value:" + this.get(key));
         }
