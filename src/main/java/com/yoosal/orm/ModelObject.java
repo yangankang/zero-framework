@@ -192,6 +192,13 @@ public class ModelObject extends JSONObject {
         }
     }
 
+    /**
+     * 校验当前对象中key的值是否正确，返回true和false
+     *
+     * @param key
+     * @param c
+     * @return
+     */
     public boolean check(Object key, Class<? extends Check> c) {
         Check check = CheckFactory.getCheck(c);
         if (check != null) {
@@ -200,6 +207,14 @@ public class ModelObject extends JSONObject {
         return false;
     }
 
+
+    /**
+     * 校验当前对象中key的值是否正确，返回一个code可根据不同的code写不同的逻辑
+     *
+     * @param key
+     * @param c
+     * @return
+     */
     public int checkForCode(Object key, Class<? extends Check> c) {
         Check check = CheckFactory.getCheck(c);
         if (check != null) {
@@ -208,6 +223,13 @@ public class ModelObject extends JSONObject {
         return -1;
     }
 
+    /**
+     * 校验当前对象中key的值是否正确，不正确会抛出异常，适用于只校验不反馈的业务逻辑
+     *
+     * @param key
+     * @param c
+     * @return
+     */
     public void checkAndThrow(Object key, Class<? extends Check> c) {
         if (!check(key, c)) {
             throw new IllegalArgumentException("failure check " + key + " value:" + this.get(key));
