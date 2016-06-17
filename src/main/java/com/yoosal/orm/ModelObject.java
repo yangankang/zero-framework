@@ -235,4 +235,20 @@ public class ModelObject extends JSONObject {
             throw new IllegalArgumentException("failure check " + key + " value:" + this.get(key));
         }
     }
+
+    public boolean isEmpty(Object key) {
+        if (this.get(key) == null || StringUtils.isBlank((String) this.get(key))) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public boolean isNotEmpty(Object key) {
+        if (!isEmpty(key)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 }
