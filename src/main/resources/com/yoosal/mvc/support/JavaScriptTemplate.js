@@ -30,6 +30,7 @@ function executor(cinfo) {
                 .replace("_json_", json)
                 .replace("_address_", defaultSuffixName + ".address")
 
+                .replace("_address_", defaultSuffixName + ".address")
                 .replace("_url_", url)
                 .replace("_json_", json);
 
