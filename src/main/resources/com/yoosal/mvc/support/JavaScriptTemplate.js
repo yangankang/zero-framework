@@ -28,6 +28,8 @@ function executor(cinfo) {
                 .replace("_params_", paramString)
                 .replace("_url_", url)
                 .replace("_json_", json)
+                .replace("_address_", defaultSuffixName + ".address")
+                .replace("_json_", json)
                 .replace("_address_", defaultSuffixName + ".address");
 
             codeArray.push(defaultSuffixName + "." + controllerName + "." + methodName + "=" + funString);
@@ -44,6 +46,9 @@ var templateFunction = function (_params_) {
     var _$object = new Object();
     _$object.call = function (SuccessFunction, FailedFunction) {
         __mvc_ajax_object("POST", _address_ + "_url_", _json_, SuccessFunction, FailedFunction);
+    };
+    _$object.info = function () {
+        return {url: _address_ + "_url_", param: _json_};
     };
     return _$object;
 }
