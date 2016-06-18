@@ -80,10 +80,10 @@ public abstract class StandardSQL implements SQLDialect {
                 DefaultValue defaultValue = cm.getDefaultValue();
                 if (defaultValue != null) {
                     if (defaultValue.enable()) {
-                        if (defaultValue.intValue() != 0) {
+                        if (clazz.equals(Integer.class)) {
                             pkString += "DEFAULT " + defaultValue.intValue();
                         }
-                        if (StringUtils.isNotBlank(defaultValue.stringValue())) {
+                        if (clazz.equals(String.class)) {
                             pkString += "DEFAULT '" + defaultValue.stringValue() + "'";
                         }
                     }
@@ -140,10 +140,10 @@ public abstract class StandardSQL implements SQLDialect {
                 DefaultValue defaultValue = cm.getDefaultValue();
                 if (defaultValue != null) {
                     if (defaultValue.enable()) {
-                        if (defaultValue.intValue() != 0) {
+                        if (clazz.equals(Integer.class)) {
                             sqlBuilder.append("DEFAULT " + defaultValue.intValue());
                         }
-                        if (StringUtils.isNotBlank(defaultValue.stringValue())) {
+                        if (clazz.equals(String.class)) {
                             sqlBuilder.append("DEFAULT '" + defaultValue.stringValue() + "'");
                         }
                     }
