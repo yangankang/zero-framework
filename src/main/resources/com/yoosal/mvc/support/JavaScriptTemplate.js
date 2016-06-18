@@ -99,10 +99,6 @@ function __mvc_ajax_object(type, url, data, success, failed) {
                     failed(self.XMLHttpReq.status);
                 }
             }
-        } else {
-            if (failed) {
-                failed(self.XMLHttpReq.readyState);
-            }
         }
     };
     this.XMLHttpReq.send(this.dataToRequest(data));
