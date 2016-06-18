@@ -20,10 +20,10 @@ public class TestModelObjectConver {
                     int rnd = (int) (Math.random() * 10);
                     if (rnd > 5) {
                         object.put("key", "2016-06-17");
-                        object.conver("key", Date.class);
+                        object.convert("key", Date.class);
                     } else {
                         object.put("key", "20");
-                        object.conver("key", int.class);
+                        object.convert("key", int.class);
                     }
                     return 1;
                 }
