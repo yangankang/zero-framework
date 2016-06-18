@@ -244,8 +244,8 @@ public class DefaultDBMapping implements DBMapping {
                         generateStrategy = null;
                     boolean isLock = (column == null ? false : column.lock());
 
-                    boolean allowNull = column.allowNull();
-                    DefaultValue defaultValue = column.defaultValue();
+                    boolean allowNull = (column == null ? true : column.allowNull());
+                    DefaultValue defaultValue = (column == null ? null : column.defaultValue());
 
                     columnModel.setPrimaryKey(isPrimaryKey);
                     columnModel.setJavaType(type);
