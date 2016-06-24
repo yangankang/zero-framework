@@ -149,12 +149,13 @@ public abstract class StandardSQL implements SQLDialect {
                     }
                 }
             }
-
-            if (CollectionUtils.isLast(columnModelList, cm)) {
-                indexSQLBuilder.append(columnName);
-            } else {
-                sqlBuilder.append(",");
-                indexSQLBuilder.append(columnName + ",");
+            if (cm.isIndex()) {
+                if (CollectionUtils.isLast(columnModelList, cm)) {
+                    indexSQLBuilder.append(columnName);
+                } else {
+                    sqlBuilder.append(",");
+                    indexSQLBuilder.append(columnName + ",");
+                }
             }
         }
         if (tableModel.haPrimaryKey()) {
