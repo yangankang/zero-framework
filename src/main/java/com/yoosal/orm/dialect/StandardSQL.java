@@ -59,7 +59,7 @@ public abstract class StandardSQL implements SQLDialect {
             String columnType = typesMapping.get(clazz);
             boolean isPrimaryKey = cm.isPrimaryKey();
 
-            if (isPrimaryKey) {
+            if (isPrimaryKey && cm.isAutoIncrement()) {
                 columnType = typesMapping.get(Integer.class);
             }
 
@@ -116,7 +116,7 @@ public abstract class StandardSQL implements SQLDialect {
             boolean isPrimaryKey = cm.isPrimaryKey();
 
             sqlBuilder.append(columnName + " ");
-            if (isPrimaryKey) {
+            if (isPrimaryKey && cm.isAutoIncrement()) {
                 dbTypeName = typesMapping.get(Integer.class);
             }
 

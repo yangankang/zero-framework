@@ -1,6 +1,7 @@
 package test.com.yoosal.orm;
 
 import com.yoosal.orm.ModelObject;
+import org.junit.Test;
 
 import java.util.Date;
 import java.util.LinkedList;
@@ -36,5 +37,13 @@ public class TestModelObjectConver {
             Integer ci = future.get();
         }
         service.shutdown();
+    }
+
+
+    @Test
+    public void testDate() {
+        ModelObject object = new ModelObject();
+        object.put("date", new Date());
+        System.out.println(object);
     }
 }
