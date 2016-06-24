@@ -108,6 +108,11 @@ public class Query {
         return this;
     }
 
+    public Query or(Object key, List<Object> values) {
+        this.wheres.add(new Wheres(String.valueOf(key), values, Wheres.Operation.OR));
+        return this;
+    }
+
     public Query like(Object key, Object value) {
         this.wheres.add(new Wheres(String.valueOf(key), value, Wheres.Operation.LIKE));
         return this;

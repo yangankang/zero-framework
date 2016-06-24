@@ -13,7 +13,7 @@ package com.yoosal.orm.query;
  */
 public class Wheres {
     public enum Operation {
-        EQUAL, IN, LIKE, NOT_EQUAL, GT, GT_EQUAL, LT, LT_EQUAL
+        EQUAL, IN, OR, LIKE, NOT_EQUAL, GT, GT_EQUAL, LT, LT_EQUAL
     }
 
     public enum Order {
@@ -50,6 +50,10 @@ public class Wheres {
      */
     public static Wheres in(Object key, Object value) {
         return new Wheres(key, value, Operation.IN);
+    }
+
+    public static Wheres or(Object key, Object value) {
+        return new Wheres(key, value, Operation.OR);
     }
 
     /**

@@ -333,7 +333,7 @@ public abstract class StandardSQL implements SQLDialect {
 
             if (whs.isNormal()) {
                 Wheres.Operation operation = whs.getEnumOperation();
-                if (operation.equals(Wheres.Operation.IN)) {
+                if (operation.equals(Wheres.Operation.IN) || operation.equals(Wheres.Operation.OR)) {
                     List<Object> valueList = (List<Object>) whs.getValue();
 
                     Iterator<Object> inIterator = valueList.iterator();
