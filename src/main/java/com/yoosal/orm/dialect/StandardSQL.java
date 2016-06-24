@@ -149,11 +149,13 @@ public abstract class StandardSQL implements SQLDialect {
                     }
                 }
             }
-            if (cm.isIndex()) {
-                if (CollectionUtils.isLast(columnModelList, cm)) {
+            if (CollectionUtils.isLast(columnModelList, cm)) {
+                if (cm.isIndex()) {
                     indexSQLBuilder.append(columnName);
-                } else {
-                    sqlBuilder.append(",");
+                }
+            } else {
+                sqlBuilder.append(",");
+                if (cm.isIndex()) {
                     indexSQLBuilder.append(columnName + ",");
                 }
             }
@@ -162,7 +164,11 @@ public abstract class StandardSQL implements SQLDialect {
             sqlBuilder.append(primaryKeySQLBuilder.substring(0, primaryKeySQLBuilder.length() - 1) + ")");
         }
         if (StringUtils.isNotBlank(indexSQLBuilder.toString())) {
-            sqlBuilder.append(",INDEX(" + indexSQLBuilder.toString() + ")");
+            String indexString = indexSQLBuilder.toString();
+            if (indexString.endsWith(",")) {
+                indexString = indexString.substring(0, indexString.length() - 1);
+            }
+            sqlBuilder.append(",INDEX(" + indexString + ")");
         }
         sqlBuilder.append(")");
         showSQL(sqlBuilder.toString());

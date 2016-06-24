@@ -244,6 +244,7 @@ public class DefaultDBMapping implements DBMapping {
                         generateStrategy = null;
                     boolean isLock = (column == null ? false : column.lock());
 
+                    boolean index = (column == null ? false : column.index());
                     boolean allowNull = (column == null ? true : column.allowNull());
                     DefaultValue defaultValue = (column == null ? null : column.defaultValue());
 
@@ -254,6 +255,7 @@ public class DefaultDBMapping implements DBMapping {
                     columnModel.setLock(isLock);
                     columnModel.setAllowNull(allowNull);
                     columnModel.setDefaultValue(defaultValue);
+                    columnModel.setIndex(index);
 
                     columnModel.convert();
                     model.addMappingColumnModel(columnModel);
