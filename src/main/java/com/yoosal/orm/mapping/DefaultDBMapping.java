@@ -2,6 +2,7 @@ package com.yoosal.orm.mapping;
 
 import com.yoosal.common.AnnotationUtils;
 import com.yoosal.common.CollectionUtils;
+import com.yoosal.common.Logger;
 import com.yoosal.common.StringUtils;
 import com.yoosal.orm.annotation.Column;
 import com.yoosal.orm.annotation.DefaultValue;
@@ -18,6 +19,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class DefaultDBMapping implements DBMapping {
+    private static final Logger logger = Logger.getLogger(DefaultDBMapping.class);
     private DataSourceManager dataSourceManager;
     private Set<Class> classes;
     private Map<Class, TableModel> mappingModelMap = new HashMap<Class, TableModel>();
@@ -103,6 +105,9 @@ public class DefaultDBMapping implements DBMapping {
 
             for (TableModel tableModel : tableModels) {
                 if (tableNames.contains(tableModel.getDbTableName().toLowerCase())) {
+
+                    logger.info("Doing Mapping : " + tableModel.getDbTableName());
+
                     ResultSet columnResultSet = databaseMetaData.getColumns(connection.getCatalog(), null, tableModel.getDbTableName(), null);
                     List<ColumnModel> columnModels = tableModel.getMappingColumnModels();
                     List<ColumnModel> existColumns = new ArrayList<ColumnModel>();
