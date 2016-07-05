@@ -26,8 +26,15 @@ public abstract class StandardSQL implements SQLDialect {
         typesMapping.put(String.class, "VARCHAR");
         typesMapping.put(char.class, "CHAR");
         typesMapping.put(Integer.class, "INT");
+        typesMapping.put(int.class, "INT");
         typesMapping.put(Date.class, "TIMESTAMP");
         typesMapping.put(java.sql.Date.class, "TIMESTAMP");
+        typesMapping.put(short.class, "SMALLINT");
+        typesMapping.put(byte.class, "TINYINT");
+        typesMapping.put(Long.class, "BIGINT");
+        typesMapping.put(long.class, "BIGINT");
+        typesMapping.put(Float.class, "FLOAT");
+        typesMapping.put(float.class, "FLOAT");
 
         Field[] fields = Types.class.getDeclaredFields();
         for (Field field : fields) {

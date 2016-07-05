@@ -8,9 +8,10 @@ public class MySQLDialect extends StandardSQL {
 
     static {
         typesMapping.put(Text.class, "TEXT");
-        typesMapping.put(Long.class, "FLOAT");
         typesMapping.put(Boolean.class, "BOOLEAN");
+        typesMapping.put(boolean.class, "BOOLEAN");
         typesMapping.put(Double.class, "DOUBLE");
+        typesMapping.put(double.class, "DOUBLE");
     }
 
     @Override
