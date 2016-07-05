@@ -31,16 +31,16 @@ public class Query {
         return query;
     }
 
-    public Query(Class<Enum> clazz) {
+    public Query(Class clazz) {
         this.clazz = clazz;
     }
 
-    public Query(Class<Enum> clazz, String dataSourceName) {
+    public Query(Class clazz, String dataSourceName) {
         this.clazz = clazz;
         this.dataSourceName = dataSourceName;
     }
 
-    public Query setClazz(Class<Enum> clazz) {
+    public Query setClazz(Class clazz) {
         this.clazz = clazz;
         return this;
     }
@@ -140,7 +140,7 @@ public class Query {
         return whs;
     }
 
-    public Class<Enum> getObjectClass() {
+    public Class getObjectClass() {
         return clazz;
     }
 }
