@@ -139,7 +139,12 @@ public class DefaultJavaScriptMapping implements JavaScriptMapping {
         public CUnit(ControllerMethodParse controllerMethodParse) {
             this.url = EntryPointManager.getRequestUri();
             this.url = (this.url == null ? "" : this.url);
-            this.controllerMethodParse = controllerMethodParse;
+            this.controllerMethodParse = new ControllerMethodParse();
+            this.controllerMethodParse.setMethodName(controllerMethodParse.getMethodName());
+            this.controllerMethodParse.setJavaMethodParamNames(controllerMethodParse.getJavaMethodParamNames());
+            this.controllerMethodParse.setControllerName(controllerMethodParse.getControllerName());
+            this.controllerMethodParse.setClazz(controllerMethodParse.getClazz());
+            this.controllerMethodParse.setInvokeName(controllerMethodParse.getInvokeName());
             this.createParam();
         }
 
