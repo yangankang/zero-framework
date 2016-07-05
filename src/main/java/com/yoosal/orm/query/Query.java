@@ -8,7 +8,7 @@ import java.util.List;
  * 判断当前的查询是在哪个数据源上
  */
 public class Query {
-    private Class<Enum> clazz;
+    private Class clazz;
     private String dataSourceName;
     private List<Wheres> wheres = new ArrayList<Wheres>();
     private List<Wheres> limitWheres = new ArrayList<Wheres>();
@@ -142,5 +142,13 @@ public class Query {
 
     public Class getObjectClass() {
         return clazz;
+    }
+
+    public void clearJoin() {
+        joins.clear();
+    }
+
+    public void clearWheres() {
+        wheres.clear();
     }
 }
