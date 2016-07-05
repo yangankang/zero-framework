@@ -88,8 +88,10 @@ public class Query {
     }
 
     public Query limit(long start, long limit) {
-        this.limitWheres.add(new Wheres(null, start, Wheres.TYPE_START));
-        this.limitWheres.add(new Wheres(null, limit, Wheres.TYPE_LIMIT));
+        if (start > -1 && limit > -1) {
+            this.limitWheres.add(new Wheres(null, start, Wheres.TYPE_START));
+            this.limitWheres.add(new Wheres(null, limit, Wheres.TYPE_LIMIT));
+        }
         return this;
     }
 
