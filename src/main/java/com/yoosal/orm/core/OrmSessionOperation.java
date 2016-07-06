@@ -127,6 +127,9 @@ public class OrmSessionOperation implements SessionOperation {
     }
 
     private void joinToQuery(Join join, List<ModelObject> objects) {
+        if (objects == null) {
+            return;
+        }
         List<Wheres> wheres = join.getWheres();
         Class clazz = join.getObjectClass();
         String dataSourceName = join.getDataSourceName();
@@ -154,7 +157,7 @@ public class OrmSessionOperation implements SessionOperation {
                         in.add(joinObject);
                     }
                 }
-                object.put(join.getJoinName(), in);
+                putToModelObject(object, join, in);
             }
         } else {
             for (ModelObject object : objects) {
@@ -163,7 +166,17 @@ public class OrmSessionOperation implements SessionOperation {
                 }
                 Operation operation = getOperation(query);
                 List<ModelObject> joinObjects = operation.list(query);
-                object.put(join.getJoinName(), joinObjects);
+                putToModelObject(object, join, joinObjects);
+            }
+        }
+    }
+
+    private void putToModelObject(ModelObject object, Join join, List<ModelObject> in) {
+        if (join.isMulti()) {
+            object.put(join.getJoinName(), in);
+        } else {
+            if (in != null && in.size() > 0) {
+                object.put(join.getJoinName(), in.get(0));
             }
         }
     }

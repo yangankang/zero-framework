@@ -27,6 +27,11 @@ public class Join {
      */
     private String joinName;
 
+    /**
+     * 查询的值是否是数组
+     */
+    private boolean isMulti = true;
+
     public static Join join(Class clazz) {
         return new Join(clazz);
     }
@@ -53,6 +58,12 @@ public class Join {
 
     public Join where(Object key, Object value) {
         this.wheres.add(new Wheres(String.valueOf(key), value));
+        return this;
+    }
+
+    public Join one(Object key, Object value) {
+        this.wheres.add(new Wheres(String.valueOf(key), value));
+        this.isMulti = false;
         return this;
     }
 
@@ -93,5 +104,19 @@ public class Join {
     public Join setWheres(List<Wheres> wheres) {
         this.wheres = wheres;
         return this;
+    }
+
+    public Join one() {
+        this.isMulti = false;
+        return this;
+    }
+
+    public Join multi() {
+        this.isMulti = true;
+        return this;
+    }
+
+    public boolean isMulti() {
+        return this.isMulti;
     }
 }

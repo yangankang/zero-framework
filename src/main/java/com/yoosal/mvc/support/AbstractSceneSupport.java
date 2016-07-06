@@ -3,6 +3,7 @@ package com.yoosal.mvc.support;
 import com.yoosal.common.ClassUtils;
 import com.yoosal.common.StringUtils;
 import com.yoosal.json.JSON;
+import com.yoosal.json.serializer.SerializerFeature;
 import com.yoosal.mvc.EntryPointManager;
 import com.yoosal.mvc.exception.SceneInvokeException;
 
@@ -83,7 +84,7 @@ public abstract class AbstractSceneSupport implements SceneSupport {
         if (ClassUtils.isPrimitiveOrWrapper(object.getClass()) || object.getClass().isAssignableFrom(String.class)) {
             return object == null ? "" : (String) object;
         } else {
-            return JSON.toJSONString(object);
+            return JSON.toJSONString(object, SerializerFeature.DisableCircularReferenceDetect);
         }
     }
 }
