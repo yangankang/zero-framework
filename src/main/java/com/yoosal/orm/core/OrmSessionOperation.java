@@ -148,16 +148,18 @@ public class OrmSessionOperation implements SessionOperation {
             Operation operation = getOperation(query);
             List<ModelObject> joinObjects = operation.list(query);
 
-            for (ModelObject object : objects) {
-                String s1 = object.getString(key);
-                List<ModelObject> in = new ArrayList<ModelObject>();
-                for (ModelObject joinObject : joinObjects) {
-                    String s2 = joinObject.getString(value);
-                    if (s1.equals(s2)) {
-                        in.add(joinObject);
+            if (joinObjects != null) {
+                for (ModelObject object : objects) {
+                    String s1 = object.getString(key);
+                    List<ModelObject> in = new ArrayList<ModelObject>();
+                    for (ModelObject joinObject : joinObjects) {
+                        String s2 = joinObject.getString(value);
+                        if (s1.equals(s2)) {
+                            in.add(joinObject);
+                        }
                     }
+                    putToModelObject(object, join, in);
                 }
-                putToModelObject(object, join, in);
             }
         } else {
             for (ModelObject object : objects) {
