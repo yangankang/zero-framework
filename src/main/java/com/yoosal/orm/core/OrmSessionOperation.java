@@ -154,7 +154,7 @@ public class OrmSessionOperation implements SessionOperation {
                     List<ModelObject> in = new ArrayList<ModelObject>();
                     for (ModelObject joinObject : joinObjects) {
                         String s2 = joinObject.getString(value);
-                        if (s1.equals(s2)) {
+                        if (s1 != null && s1.equals(s2)) {
                             in.add(joinObject);
                         }
                     }

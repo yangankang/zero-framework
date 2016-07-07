@@ -56,8 +56,10 @@ var templateFunction = function (_params_) {
 }
 
 function __mvc_ajax_object(type, url, data, success, failed) {
-    var self = this;
-    this.dataToRequest = function (data) {
+    var self = new Object();
+    self.success = success;
+    self.failed = failed;
+    self.dataToRequest = function (data) {
         if (!data)return null;
         var dataStr = "";
         for (var i in data) {
@@ -70,37 +72,41 @@ function __mvc_ajax_object(type, url, data, success, failed) {
         }
         if (!dataStr || dataStr == "")return null;
         return dataStr.substring(1, dataStr.length);
-    }
+    };
 
     try {
-        this.XMLHttpReq = new ActiveXObject("Msxml2.XMLHTTP");
+        self.XMLHttpReq = new ActiveXObject("Msxml2.XMLHTTP");
     } catch (e) {
         try {
-            this.XMLHttpReq = new ActiveXObject("Microsoft.XMLHTTP");
+            self.XMLHttpReq = new ActiveXObject("Microsoft.XMLHTTP");
         } catch (e) {
-            this.XMLHttpReq = new XMLHttpRequest();
+            self.XMLHttpReq = new XMLHttpRequest();
         }
     }
-    this.XMLHttpReq.open(type, url, true);
-    this.XMLHttpReq.setRequestHeader("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8");
-    this.XMLHttpReq.onreadystatechange = function () {
+    self.XMLHttpReq.open(type, url, true);
+    self.XMLHttpReq.setRequestHeader("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8");
+    self.XMLHttpReq.onreadystatechange = function () {
         if (self.XMLHttpReq.readyState == 4) {
             var text = self.XMLHttpReq.responseText;
             if (self.XMLHttpReq.status == 200) {
-                if (success) {
+                if (self.success) {
                     try {
-                        success(JSON.parse(text));
+                        text = JSON.parse(text);
                     } catch (e) {
-                        success(text);
+                    }
+                    try {
+                        self.success(text);
+                    } catch (e) {
+                        console.error(e);
                     }
                 }
             } else {
-                if (failed) {
-                    failed(self.XMLHttpReq.status);
+                if (self.failed) {
+                    self.failed(self.XMLHttpReq.status);
                 }
             }
         }
     };
-    this.XMLHttpReq.send(this.dataToRequest(data));
+    self.XMLHttpReq.send(self.dataToRequest(data));
 }
 
