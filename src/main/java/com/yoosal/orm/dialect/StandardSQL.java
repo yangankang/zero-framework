@@ -197,6 +197,7 @@ public abstract class StandardSQL implements SQLDialect {
 
     private List<ColumnModel> getValidateColumn(TableModel tableMapping, ModelObject object, List<ColumnModel> whereColumns) {
         List<ColumnModel> columnModels = new ArrayList<ColumnModel>();
+        object.clearNull();
         Object[] ucs = object.getUpdateColumn();    //主键作为修改内容的数组
         Object[] wcs = object.getWhereColumn();     //作为修改条件的数组
         for (ColumnModel cm : tableMapping.getMappingColumnModels()) {

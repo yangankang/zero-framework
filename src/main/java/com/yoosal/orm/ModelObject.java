@@ -298,4 +298,8 @@ public class ModelObject extends JSONObject {
     public boolean checkLengthLt(Object key, int end) {
         return checkLength(key, -1, end);
     }
+
+    public ModelObject getModelObject(Object key) {
+        return (ModelObject) get(key);
+    }
 }
