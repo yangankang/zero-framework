@@ -48,6 +48,14 @@ public class ModelObject extends JSONObject {
         this.dataSourceName = dataSourceName;
     }
 
+    public ModelObject(JSONObject json) {
+        if (json != null) {
+            for (Map.Entry entry : json.entrySet()) {
+                this.put(entry.getKey(), entry.getValue());
+            }
+        }
+    }
+
     public ModelObject() {
     }
 
@@ -237,7 +245,7 @@ public class ModelObject extends JSONObject {
     }
 
     public boolean isEmpty(Object key) {
-        if (this.get(key) == null || StringUtils.isBlank((String) this.get(key))) {
+        if (this.get(key) == null || StringUtils.isBlank(String.valueOf(this.get(key)))) {
             return true;
         } else {
             return false;
