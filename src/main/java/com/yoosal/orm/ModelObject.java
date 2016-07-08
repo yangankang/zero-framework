@@ -2,6 +2,7 @@ package com.yoosal.orm;
 
 import com.yoosal.common.StringUtils;
 import com.yoosal.json.JSON;
+import com.yoosal.json.JSONArray;
 import com.yoosal.json.JSONObject;
 import com.yoosal.mvc.convert.ConversionService;
 import com.yoosal.mvc.convert.service.DefaultConversionService;
@@ -309,5 +310,16 @@ public class ModelObject extends JSONObject {
 
     public ModelObject getModelObject(Object key) {
         return (ModelObject) get(key);
+    }
+
+    public static JSONArray parseArray(String text) {
+        JSONArray array = JSON.parseArray(text);
+        for (int i = 0; i < array.size(); i++) {
+            Object object = array.get(i);
+            if (object instanceof JSONObject) {
+                array.set(i, new ModelObject((JSONObject) object));
+            }
+        }
+        return array;
     }
 }

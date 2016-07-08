@@ -256,11 +256,21 @@ public class SingleDatabaseOperation implements SessionOperation {
 
     @Override
     public void rollback() {
+        Connection connection = null;
         try {
-            Connection connection = getConnection();
-            connection.setAutoCommit(true);
-            connection.rollback();
+            connection = getConnection();
+            if (!connection.getAutoCommit()) {
+                connection.rollback();
+                connection.setAutoCommit(true);
+            }
         } catch (SQLException e) {
+            if (connection != null) {
+                try {
+                    connection.setAutoCommit(true);
+                } catch (SQLException e1) {
+                    e1.printStackTrace();
+                }
+            }
             throw new DatabaseOperationException("rollback throw", e);
         }
     }

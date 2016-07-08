@@ -3,17 +3,11 @@ package com.yoosal.mvc.support;
 import com.yoosal.asm.*;
 import com.yoosal.common.ClassUtils;
 import com.yoosal.json.JSON;
-import com.yoosal.json.JSONArray;
 import com.yoosal.json.JSONException;
 import com.yoosal.mvc.convert.ConversionService;
 import com.yoosal.mvc.convert.service.DefaultConversionService;
-import com.yoosal.mvc.convert.service.GenericConversionService;
 import com.yoosal.orm.ModelObject;
 
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
@@ -55,7 +49,7 @@ public class DefaultEmerge implements Emerge {
             if (Collection.class.isAssignableFrom(s)) {
                 //simple Implementation
                 try {
-                    List list = JSON.parseArray((String) object[0]);
+                    List list = ModelObject.parseArray((String) object[0]);
                     return list;
                 } catch (Exception e) {
                     throw new ClassCastException("action parameter case to " + s.getName() + " error.");
