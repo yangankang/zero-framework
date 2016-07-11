@@ -136,39 +136,41 @@ public class OrmSessionOperation implements SessionOperation {
         Query query = new Query(clazz, dataSourceName);
         if (wheres.size() == 0) {
             return;
-        } else if (wheres.size() == 1) {
-            Wheres whs = wheres.get(0);
-            String key = whs.getKey();
-            String value = String.valueOf(whs.getValue());
-            List<Object> values = new ArrayList<Object>();
-            for (ModelObject object : objects) {
-                values.add(object.get(key));
+        } else {
+            for (Wheres whs : wheres) {
+                String key = whs.getKey();
+                String value = String.valueOf(whs.getValue());
+                List<Object> values = new ArrayList<Object>();
+                for (ModelObject object : objects) {
+                    values.add(object.get(key));
+                }
+                query.in(value, values);
             }
-            query.in(value, values);
             Operation operation = getOperation(query);
             List<ModelObject> joinObjects = operation.list(query);
 
             if (joinObjects != null) {
                 for (ModelObject object : objects) {
-                    String s1 = object.getString(key);
+                    StringBuffer s1 = new StringBuffer();
+                    for (Wheres whs : wheres) {
+                        String key = whs.getKey();
+                        String ov = object.getString(key);
+                        s1.append(ov);
+                    }
                     List<ModelObject> in = new ArrayList<ModelObject>();
                     for (ModelObject joinObject : joinObjects) {
-                        String s2 = joinObject.getString(value);
-                        if (s1 != null && s1.equals(s2)) {
+                        String s2 = null;
+                        for (Wheres whs : wheres) {
+                            String value = String.valueOf(whs.getValue());
+                            String jo = joinObject.getString(value);
+                            s1.append(jo);
+                        }
+                        if (s1 != null && s1.toString().equals(s2.toString())) {
                             in.add(joinObject);
                         }
                     }
                     putToModelObject(object, join, in);
                 }
-            }
-        } else {
-            for (ModelObject object : objects) {
-                for (Wheres whs : wheres) {
-                    query.where(whs.getValue(), object.get(whs.getKey()));
-                }
-                Operation operation = getOperation(query);
-                List<ModelObject> joinObjects = operation.list(query);
-                putToModelObject(object, join, joinObjects);
             }
         }
     }
