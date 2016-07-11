@@ -199,7 +199,7 @@ public class SingleDatabaseOperation implements SessionOperation {
                 if (objects == null) {
                     objects = new ArrayList<ModelObject>();
                 }
-                ModelObject object = new ModelObject();
+                ModelObject object = new ModelObject(query.getObjectClass());
                 for (ColumnModel cm : columnModels) {
                     object.put(cm.getJavaName(), resultSet.getObject(cm.getColumnName()));
                 }
