@@ -97,7 +97,7 @@ function __mvc_ajax_object(type, url, data, success, failed) {
                     try {
                         self.success(text);
                     } catch (e) {
-                        console.error(e);
+                        throw e;
                     }
                 }
             } else {

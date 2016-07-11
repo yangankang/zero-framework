@@ -159,13 +159,13 @@ public class OrmSessionOperation implements SessionOperation {
                     }
                     List<ModelObject> in = new ArrayList<ModelObject>();
                     for (ModelObject joinObject : joinObjects) {
-                        String s2 = null;
+                        StringBuffer s2 = new StringBuffer();
                         for (Wheres whs : wheres) {
                             String value = String.valueOf(whs.getValue());
                             String jo = joinObject.getString(value);
-                            s1.append(jo);
+                            s2.append(jo);
                         }
-                        if (s1 != null && s1.toString().equals(s2.toString())) {
+                        if (s1 != null && s2 != null && s1.toString().equals(s2.toString())) {
                             in.add(joinObject);
                         }
                     }
