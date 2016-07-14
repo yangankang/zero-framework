@@ -32,7 +32,7 @@ public class ValuesForPrepared {
         String[] strings = getKeys();
         for (int i = 0; i < strings.length; i++) {
             String s = strings[i];
-            statement.setObject(i + 1, object.get(s.substring(1, s.length())));
+            statement.setObject(i + 1, object.get(":" + s));
         }
     }
 
