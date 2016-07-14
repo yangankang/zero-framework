@@ -312,6 +312,21 @@ public class ModelObject extends JSONObject {
         return (ModelObject) get(key);
     }
 
+    public List getModelArray(Object key) {
+        JSONArray array = this.getJSONArray(key);
+        if (array != null && array.size() > 0) {
+            List objects = new ArrayList();
+            for (Object object : array) {
+                if (object != null && object instanceof JSONObject) {
+                    objects.add(new ModelObject((JSONObject) object));
+                } else {
+                    objects.add(object);
+                }
+            }
+        }
+        return null;
+    }
+
     public static JSONArray parseArray(String text) {
         JSONArray array = JSON.parseArray(text);
         for (int i = 0; i < array.size(); i++) {
