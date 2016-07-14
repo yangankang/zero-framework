@@ -1,5 +1,6 @@
 package com.yoosal.orm;
 
+import com.yoosal.common.ClassUtils;
 import com.yoosal.common.StringUtils;
 import com.yoosal.json.JSON;
 import com.yoosal.json.JSONArray;
@@ -304,6 +305,22 @@ public class ModelObject extends JSONObject {
         }
     }
 
+    public boolean equals(Object key, Object value) {
+        Object o = this.get(key);
+        if (o == null) {
+            return false;
+        }
+        Class vc = value.getClass();
+        if (o.getClass().equals(vc)) {
+            if (vc.equals(String.class) && value.equals(o)) {
+                return true;
+            } else if (value == o) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public boolean checkLengthLt(Object key, int end) {
         return checkLength(key, -1, end);
     }
@@ -323,6 +340,7 @@ public class ModelObject extends JSONObject {
                     objects.add(object);
                 }
             }
+            return objects;
         }
         return null;
     }
