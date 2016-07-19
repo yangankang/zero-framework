@@ -389,7 +389,7 @@ public abstract class StandardSQL implements SQLDialect {
         if (limit != null) {
             sb.append(" limit " + limit.getStart() + "," + limit.getLimit());
         }
-        if ((limit != null || orderBy != null) && (wheres == null || wheres.size() == 0)) {
+        if (wheres == null || wheres.size() == 0) {
             valuesForPrepared.setSql(sb.toString());
         } else {
             valuesForPrepared.setSql(where + sb.toString());
