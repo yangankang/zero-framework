@@ -13,33 +13,17 @@ package com.yoosal.orm.query;
  */
 public class Wheres {
     public enum Operation {
-        EQUAL, IN, OR, LIKE, NOT_EQUAL, GT, GT_EQUAL, LT, LT_EQUAL
+        EQUAL, IN, LIKE, NOT_EQUAL, GT, GT_EQUAL, LT, LT_EQUAL
     }
 
-    public enum Order {
-        /**
-         * 排序的升序标记
-         */
-        asc,
-        /**
-         * 排序的降序标记
-         */
-        desc
+    public enum Logic {
+        AND, OR
     }
 
-    public static final byte TYPE_ID = 1;
-    public static final byte TYPE_START = 2;
-    public static final byte TYPE_LIMIT = 3;
-    public static final byte TYPE_ORDER = 4;
-
+    private Logic logic = Logic.AND;
     private String key;
     private Object value;
-    private Operation operation;
-
-    /**
-     * 操作类型标记，比如ID操作，排序操作，分页操作
-     */
-    private int type = 0;
+    private Operation operation = Operation.EQUAL;
 
     /**
      * in 操作符，判断某列是否包含
@@ -50,10 +34,6 @@ public class Wheres {
      */
     public static Wheres in(Object key, Object value) {
         return new Wheres(key, value, Operation.IN);
-    }
-
-    public static Wheres or(Object key, Object value) {
-        return new Wheres(key, value, Operation.OR);
     }
 
     /**
@@ -139,16 +119,22 @@ public class Wheres {
         this.operation = operation;
     }
 
+    public Wheres(Object key, Object value, Operation operation, Logic logic) {
+        this.key = String.valueOf(key);
+        this.value = value;
+        this.operation = operation;
+        this.logic = logic;
+    }
+
+    public Wheres(Object key, Object value, Logic logic) {
+        this.key = String.valueOf(key);
+        this.value = value;
+        this.logic = logic;
+    }
+
     public Wheres(String key, Object value) {
         this.key = key;
         this.value = value;
-        this.operation = Operation.EQUAL;
-    }
-
-    public Wheres(String key, Object value, int type) {
-        this.key = key;
-        this.value = value;
-        this.type = type;
         this.operation = Operation.EQUAL;
     }
 
@@ -170,16 +156,6 @@ public class Wheres {
 
 
     public String getOperation() {
-        /**
-         * static final String operationEqual = "=";
-         * static final String operationIn = "in";
-         * static final String operationLike = "like";
-         * static final String operationNotEqual = "!=";
-         * static final String operationGt = ">";
-         * static final String operationGtEqual = ">=";
-         * static final String operationLt = "<";
-         * static final String operationLtEqual = "<=";
-         */
         if (operation.equals(Operation.EQUAL)) {
             return "=";
         } else if (operation.equals(Operation.IN)) {
@@ -209,18 +185,14 @@ public class Wheres {
         this.operation = operation;
     }
 
-    public int getType() {
-        return type;
-    }
-
-    public void setType(int type) {
-        this.type = type;
-    }
-
-    public boolean isNormal() {
-        if (this.type == 0) {
-            return true;
+    public Logic getLogic() {
+        if (logic == null) {
+            return Logic.AND;
         }
-        return false;
+        return logic;
+    }
+
+    public void setLogic(Logic logic) {
+        this.logic = logic;
     }
 }

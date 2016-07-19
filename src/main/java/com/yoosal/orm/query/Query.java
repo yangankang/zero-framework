@@ -11,23 +11,36 @@ public class Query {
     private Class clazz;
     private String dataSourceName;
     private List<Wheres> wheres = new ArrayList<Wheres>();
-    private List<Wheres> limitWheres = new ArrayList<Wheres>();
-    private List<Wheres> orderByWheres = new ArrayList<Wheres>();
+    private Limit limit = null;
+    private OrderBy orderBy = null;
+    private Object idValue = null;
     private List<Join> joins = new ArrayList<Join>();
 
     public static Query query(Class clazz) {
         return new Query(clazz);
     }
 
-    public static Query where(Class clazz, Object key, Object value) {
+    public static Query and(Class clazz, Object key, Object value) {
         Query query = new Query(clazz);
-        query.where(key, value);
+        query.and(key, value);
         return query;
     }
 
-    public static Query where(Class clazz, Object key, Object value, Wheres.Operation operation) {
+    public static Query and(Class clazz, Object key, Object value, Wheres.Operation operation) {
         Query query = new Query(clazz);
-        query.where(key, value, operation);
+        query.and(key, value, operation);
+        return query;
+    }
+
+    public static Query or(Class clazz, Object key, Object value) {
+        Query query = new Query(clazz);
+        query.or(key, value);
+        return query;
+    }
+
+    public static Query or(Class clazz, Object key, Object value, Wheres.Operation operation) {
+        Query query = new Query(clazz);
+        query.or(key, value, operation);
         return query;
     }
 
@@ -62,7 +75,7 @@ public class Query {
      * @return
      */
     public Query id(Object value) {
-        this.wheres.add(new Wheres(null, value, Wheres.TYPE_ID));
+        this.idValue = value;
         return this;
     }
 
@@ -77,41 +90,57 @@ public class Query {
         return this;
     }
 
-    public Query where(Object key, Object value) {
-        this.wheres.add(new Wheres(String.valueOf(key), value));
+    public Query and(Object key, Object value) {
+        this.wheres.add(new Wheres(String.valueOf(key), value, Wheres.Logic.AND));
         return this;
     }
 
-    public Query where(Object key, Object value, Wheres.Operation operation) {
-        this.wheres.add(new Wheres(String.valueOf(key), value, operation));
+    public Query and(Object key, Object value, Wheres.Operation operation) {
+        this.wheres.add(new Wheres(String.valueOf(key), value, operation, Wheres.Logic.AND));
+        return this;
+    }
+
+    public Query or(Object key, Object value) {
+        this.wheres.add(new Wheres(String.valueOf(key), value, Wheres.Logic.OR));
+        return this;
+    }
+
+    public Query or(Object key, Object value, Wheres.Operation operation) {
+        this.wheres.add(new Wheres(String.valueOf(key), value, operation, Wheres.Logic.OR));
         return this;
     }
 
     public Query limit(long start, long limit) {
         if (start > -1 && limit > -1) {
-            this.limitWheres.add(new Wheres(null, start, Wheres.TYPE_START));
-            this.limitWheres.add(new Wheres(null, limit, Wheres.TYPE_LIMIT));
+            if (this.limit == null) {
+                this.limit = new Limit();
+            }
+            this.limit.setStart(start);
+            this.limit.setLimit(limit);
         }
         return this;
     }
 
     public Query orderByAsc(Object key) {
-        this.orderByWheres.add(new Wheres(String.valueOf(key), Wheres.Order.asc, Wheres.TYPE_ORDER));
+        if (this.orderBy == null) {
+            this.orderBy = new OrderBy();
+        }
+        this.orderBy.setType(OrderBy.Type.ASC);
+        this.orderBy.setField(key);
         return this;
     }
 
     public Query orderByDesc(Object key) {
-        this.orderByWheres.add(new Wheres(String.valueOf(key), Wheres.Order.desc, Wheres.TYPE_ORDER));
+        if (this.orderBy == null) {
+            this.orderBy = new OrderBy();
+        }
+        this.orderBy.setType(OrderBy.Type.DESC);
+        this.orderBy.setField(key);
         return this;
     }
 
     public Query in(Object key, List<Object> values) {
         this.wheres.add(new Wheres(String.valueOf(key), values, Wheres.Operation.IN));
-        return this;
-    }
-
-    public Query or(Object key, List<Object> values) {
-        this.wheres.add(new Wheres(String.valueOf(key), values, Wheres.Operation.OR));
         return this;
     }
 
@@ -137,13 +166,35 @@ public class Query {
     public List<Wheres> getWheres() {
         List<Wheres> whs = new ArrayList<Wheres>();
         whs.addAll(wheres);
-        whs.addAll(orderByWheres);
-        whs.addAll(limitWheres);
         return whs;
     }
 
     public Class getObjectClass() {
         return clazz;
+    }
+
+    public Object getIdValue() {
+        return idValue;
+    }
+
+    public void setIdValue(Object idValue) {
+        this.idValue = idValue;
+    }
+
+    public Limit getLimit() {
+        return limit;
+    }
+
+    public void setLimit(Limit limit) {
+        this.limit = limit;
+    }
+
+    public OrderBy getOrderBy() {
+        return orderBy;
+    }
+
+    public void setOrderBy(OrderBy orderBy) {
+        this.orderBy = orderBy;
     }
 
     public void clearJoin() {

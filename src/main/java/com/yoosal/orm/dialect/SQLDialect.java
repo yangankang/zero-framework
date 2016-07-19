@@ -4,6 +4,7 @@ import com.yoosal.orm.ModelObject;
 import com.yoosal.orm.core.Batch;
 import com.yoosal.orm.mapping.ColumnModel;
 import com.yoosal.orm.mapping.TableModel;
+import com.yoosal.orm.query.Query;
 import com.yoosal.orm.query.Wheres;
 
 import java.util.List;
@@ -41,11 +42,11 @@ public interface SQLDialect {
 
     ValuesForPrepared prepareUpdateBatch(TableModel tableMapping, Batch batch);
 
-    ValuesForPrepared prepareDelete(TableModel tableMapping, List<Wheres> wheres);
+    ValuesForPrepared prepareDelete(TableModel tableMapping, Query query);
 
-    ValuesForPrepared prepareSelect(TableModel tableMapping, List<Wheres> wheres);
+    ValuesForPrepared prepareSelect(TableModel tableMapping, Query query);
 
-    ValuesForPrepared prepareSelectCount(TableModel tableMapping, List<Wheres> wheres);
+    ValuesForPrepared prepareSelectCount(TableModel tableMapping, Query query);
 
     void setShowSQL(boolean isShowSQL);
 }

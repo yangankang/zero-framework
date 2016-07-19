@@ -165,10 +165,9 @@ public class SingleDatabaseOperation implements SessionOperation {
         PreparedStatement statement = null;
         try {
             connection = getConnection();
-            List<Wheres> wheres = query.getWheres();
             SQLDialect sqlDialect = getDialect(connection);
             TableModel tableModel = dbMapping.getTableMapping(query.getObjectClass());
-            ValuesForPrepared valuesForPrepared = sqlDialect.prepareDelete(tableModel, wheres);
+            ValuesForPrepared valuesForPrepared = sqlDialect.prepareDelete(tableModel, query);
             statement = connection.prepareStatement(valuesForPrepared.getSql());
             valuesForPrepared.setPrepared(statement);
             statement.execute();
@@ -186,11 +185,10 @@ public class SingleDatabaseOperation implements SessionOperation {
         List<ModelObject> objects = null;
         try {
             connection = getConnection();
-            List<Wheres> wheres = query.getWheres();
             SQLDialect sqlDialect = getDialect(connection);
             TableModel tableModel = dbMapping.getTableMapping(query.getObjectClass());
             List<ColumnModel> columnModels = tableModel.getMappingColumnModels();
-            ValuesForPrepared valuesForPrepared = sqlDialect.prepareSelect(tableModel, wheres);
+            ValuesForPrepared valuesForPrepared = sqlDialect.prepareSelect(tableModel, query);
             statement = connection.prepareStatement(valuesForPrepared.getSql());
             valuesForPrepared.setPrepared(statement);
             ResultSet resultSet = statement.executeQuery();
@@ -229,10 +227,9 @@ public class SingleDatabaseOperation implements SessionOperation {
         long count = 0;
         try {
             connection = getConnection();
-            List<Wheres> wheres = query.getWheres();
             SQLDialect sqlDialect = getDialect(connection);
             TableModel tableModel = dbMapping.getTableMapping(query.getObjectClass());
-            ValuesForPrepared valuesForPrepared = sqlDialect.prepareSelectCount(tableModel, wheres);
+            ValuesForPrepared valuesForPrepared = sqlDialect.prepareSelectCount(tableModel, query);
             statement = connection.prepareStatement(valuesForPrepared.getSql());
             valuesForPrepared.setPrepared(statement);
             ResultSet resultSet = statement.executeQuery();

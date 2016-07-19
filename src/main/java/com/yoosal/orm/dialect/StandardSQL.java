@@ -9,6 +9,9 @@ import com.yoosal.orm.core.Batch;
 import com.yoosal.orm.exception.SQLDialectException;
 import com.yoosal.orm.mapping.ColumnModel;
 import com.yoosal.orm.mapping.TableModel;
+import com.yoosal.orm.query.Limit;
+import com.yoosal.orm.query.OrderBy;
+import com.yoosal.orm.query.Query;
 import com.yoosal.orm.query.Wheres;
 
 import java.lang.reflect.Field;
@@ -329,78 +332,75 @@ public abstract class StandardSQL implements SQLDialect {
         return valuesForPrepared;
     }
 
-    private ValuesForPrepared common(TableModel tableMapping, List<Wheres> wheres) {
+    private ValuesForPrepared common(TableModel tableMapping, Query query) {
         ValuesForPrepared valuesForPrepared = new ValuesForPrepared();
         String where = " WHERE ";
-        boolean hasNormal = false;
         StringBuilder sb = new StringBuilder();
-        StringBuilder notWhereSql = new StringBuilder();
-        List<ColumnModel> columnModels = tableMapping.getMappingPrimaryKeyColumnModels();
+
+        List<Wheres> wheres = query.getWheres();
+        Object idValue = query.getIdValue();
+        if (idValue != null) {
+            List<ColumnModel> columnModels = tableMapping.getMappingPrimaryKeyColumnModels();
+            if (columnModels.size() > 0) {
+                ColumnModel cm = columnModels.get(0);
+                wheres.add(new Wheres(cm.getJavaName(), idValue));
+            }
+        }
         Iterator<Wheres> wheresIterator = wheres.iterator();
         while (wheresIterator.hasNext()) {
             Wheres whs = wheresIterator.next();
             ColumnModel columnModel = tableMapping.getColumnByJavaName(whs.getKey());
 
-            if (whs.isNormal()) {
-                Wheres.Operation operation = whs.getEnumOperation();
-                if (operation.equals(Wheres.Operation.IN) || operation.equals(Wheres.Operation.OR)) {
-                    List<Object> valueList = (List<Object>) whs.getValue();
+            if (sb.length() != 0) {
+                sb.append(" " + whs.getLogic().toString() + " ");
+            }
+            Wheres.Operation operation = whs.getEnumOperation();
+            if (operation.equals(Wheres.Operation.IN)) {
+                List<Object> valueList = (List<Object>) whs.getValue();
 
-                    Iterator<Object> inIterator = valueList.iterator();
-                    StringBuilder insb = new StringBuilder();
-                    int i = 0;
-                    while (inIterator.hasNext()) {
-                        Object object = inIterator.next();
-                        insb.append(":" + columnModel.getJavaName() + i);
-                        valuesForPrepared.addValue(":" + columnModel.getJavaName() + i, object);
-                        if (inIterator.hasNext()) {
-                            insb.append(",");
-                        }
-                        i++;
+                Iterator<Object> inIterator = valueList.iterator();
+                StringBuilder insb = new StringBuilder();
+                int i = 0;
+                while (inIterator.hasNext()) {
+                    Object object = inIterator.next();
+                    insb.append(":" + columnModel.getJavaName() + i);
+                    valuesForPrepared.addValue(":" + columnModel.getJavaName() + i, object);
+                    if (inIterator.hasNext()) {
+                        insb.append(",");
                     }
-                    sb.append(columnModel.getColumnName() + " IN(" + insb + ")");
-                } else if (operation.equals(Wheres.Operation.LIKE)) {
-                    sb.append(columnModel.getColumnName() + " LIKE(:" + columnModel.getJavaName() + ")");
-                    valuesForPrepared.addValue(":" + columnModel.getJavaName(), "%" + whs.getValue() + "%");
-                } else {
-                    sb.append(columnModel.getColumnName() + whs.getOperation() + ":" + columnModel.getJavaName());
-                    valuesForPrepared.addValue(":" + columnModel.getJavaName(), whs.getValue());
+                    i++;
                 }
-                sb.append(" AND ");
-
-                hasNormal = true;
+                sb.append(columnModel.getColumnName() + " IN(" + insb + ")");
+            } else if (operation.equals(Wheres.Operation.LIKE)) {
+                sb.append(columnModel.getColumnName() + " LIKE(:" + columnModel.getJavaName() + ")");
+                valuesForPrepared.addValue(":" + columnModel.getJavaName(), "%" + whs.getValue() + "%");
             } else {
-                if (whs.getType() == 1) {
-                    if (columnModels.size() > 0) {
-                        ColumnModel cm = columnModels.get(0);
-                        sb.append(cm.getColumnName() + "=:" + cm.getJavaName());
-                        valuesForPrepared.addValue(":" + cm.getJavaName(), whs.getValue());
-                    }
-                    sb.append(" AND ");
-                    hasNormal = true;
-                } else if (whs.getType() == 2) {
-                    notWhereSql.append(" LIMIT " + whs.getValue() + ",");
-                } else if (whs.getType() == 3) {
-                    notWhereSql.append(whs.getValue());
-                } else if (whs.getType() == 4) {
-                    Wheres.Order v = (Wheres.Order) whs.getValue();
-                    notWhereSql.append(" ORDER BY " + columnModel.getColumnName() + " " + (v == Wheres.Order.asc ? "ASC" : "DESC"));
-                }
+                sb.append(columnModel.getColumnName() + whs.getOperation() + ":" + columnModel.getJavaName());
+                valuesForPrepared.addValue(":" + columnModel.getJavaName(), whs.getValue());
             }
         }
 
-        if (sb.toString().endsWith(" AND ")) {
-            valuesForPrepared.setSql((hasNormal ? where : "") + sb.toString().substring(0, sb.toString().length() - " AND ".length()) + notWhereSql.toString());
+        Limit limit = query.getLimit();
+        OrderBy orderBy = query.getOrderBy();
+
+        if (orderBy != null) {
+            sb.append(" ORDER BY " + orderBy.getField() + " " + orderBy.getType().toString());
+        }
+        if (limit != null) {
+            sb.append(" limit " + limit.getStart() + "," + limit.getLimit());
+        }
+        if ((limit != null || orderBy != null) && (wheres == null || wheres.size() == 0)) {
+            valuesForPrepared.setSql(sb.toString());
         } else {
-            valuesForPrepared.setSql((hasNormal ? where : "") + sb.toString() + " " + notWhereSql.toString());
+            valuesForPrepared.setSql(where + sb.toString());
         }
 
         return valuesForPrepared;
     }
 
     @Override
-    public ValuesForPrepared prepareDelete(TableModel tableMapping, List<Wheres> wheres) {
-        ValuesForPrepared valuesForPrepared = common(tableMapping, wheres);
+    public ValuesForPrepared prepareDelete(TableModel tableMapping, Query query) {
+        ValuesForPrepared valuesForPrepared = common(tableMapping, query);
         String lastSQLString = valuesForPrepared.getSql();
         if (StringUtils.isBlank(lastSQLString)) {
             throw new SQLDialectException("delete sql must has where");
@@ -413,8 +413,8 @@ public abstract class StandardSQL implements SQLDialect {
     }
 
     @Override
-    public ValuesForPrepared prepareSelect(TableModel tableMapping, List<Wheres> wheres) {
-        ValuesForPrepared valuesForPrepared = common(tableMapping, wheres);
+    public ValuesForPrepared prepareSelect(TableModel tableMapping, Query query) {
+        ValuesForPrepared valuesForPrepared = common(tableMapping, query);
         String lastSQLString = valuesForPrepared.getSql();
         valuesForPrepared.setSql("SELECT * FROM " + tableMapping.getDbTableName() + lastSQLString);
 
@@ -424,8 +424,8 @@ public abstract class StandardSQL implements SQLDialect {
     }
 
     @Override
-    public ValuesForPrepared prepareSelectCount(TableModel tableMapping, List<Wheres> wheres) {
-        ValuesForPrepared valuesForPrepared = common(tableMapping, wheres);
+    public ValuesForPrepared prepareSelectCount(TableModel tableMapping, Query query) {
+        ValuesForPrepared valuesForPrepared = common(tableMapping, query);
         valuesForPrepared.setSql("SELECT COUNT(*) FROM " + tableMapping.getDbTableName() + valuesForPrepared.getSql());
 
         showSQL(valuesForPrepared.getSql());
