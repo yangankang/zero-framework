@@ -347,7 +347,7 @@ public abstract class MiddleCreator implements SQLDialect {
 
     @Override
     public ValuesForPrepared prepareSelect(DBMapping tableMapping, Query query) {
-        Set<TableModel> tableModels = new HashSet<TableModel>();
+        List<TableModel> tableModels = new ArrayList<TableModel>();
         tableModels.add(tableMapping.getTableMapping(query.getObjectClass()));
         List<Join> joins = query.getJoins();
         for (Join join : joins) {
