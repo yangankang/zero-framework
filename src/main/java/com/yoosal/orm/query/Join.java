@@ -11,7 +11,8 @@ import java.util.List;
  */
 public class Join {
 
-    private Class<Enum> objectClass;
+    private Class leftClass;
+    private Class rightClass;
     private String dataSourceName;
     /**
      * 这里的wheres的用法和Query中的用法有差异，这个只使用条件判断值比如
@@ -32,22 +33,37 @@ public class Join {
      */
     private boolean isMulti = true;
 
-    public static Join join(Class clazz) {
-        return new Join(clazz);
+    public static Join join(Class rightClass) {
+        return new Join(rightClass);
     }
 
-    public static Join where(Class clazz, Object key, Object value) {
-        Join join = new Join(clazz);
+    public static Join join(Class leftClass, Class rightClass) {
+        return new Join(leftClass, rightClass);
+    }
+
+    public static Join where(Class rightClass, Object key, Object value) {
+        Join join = new Join(rightClass);
         join.where(key, value);
         return join;
     }
 
-    public Join(Class<Enum> objectClass) {
-        this.objectClass = objectClass;
+    public static Join where(Class leftClass, Class rightClass, Object key, Object value) {
+        Join join = new Join(leftClass, rightClass);
+        join.where(key, value);
+        return join;
     }
 
-    public Join(Class<Enum> objectClass, String dataSourceName) {
-        this.objectClass = objectClass;
+    public Join(Class rightClass) {
+        this.rightClass = rightClass;
+    }
+
+    public Join(Class leftClass, Class rightClass) {
+        this.leftClass = leftClass;
+        this.rightClass = rightClass;
+    }
+
+    public Join(Class<Enum> rightClass, String dataSourceName) {
+        this.rightClass = rightClass;
         this.dataSourceName = dataSourceName;
     }
 
@@ -69,7 +85,7 @@ public class Join {
 
     public String getJoinName() {
         if (StringUtils.isBlank(joinName)) {
-            joinName = objectClass.getSimpleName();
+            joinName = rightClass.getSimpleName();
         }
         return joinName;
     }
@@ -79,13 +95,21 @@ public class Join {
         return this;
     }
 
-    public Join setObjectClass(Class<Enum> objectClass) {
-        this.objectClass = objectClass;
+    public Join setObjectClass(Class rightClass) {
+        this.rightClass = rightClass;
         return this;
     }
 
     public Class<Enum> getObjectClass() {
-        return objectClass;
+        return rightClass;
+    }
+
+    public Class getSourceObjectClass() {
+        return leftClass;
+    }
+
+    public void setSourceObjectClass(Class leftClass) {
+        this.leftClass = leftClass;
     }
 
     public Join setDataSourceName(String dataSourceName) {

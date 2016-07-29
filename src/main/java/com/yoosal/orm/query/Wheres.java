@@ -156,6 +156,10 @@ public class Wheres {
 
 
     public String getOperation() {
+        return getOperation(operation);
+    }
+
+    public static String getOperation(Wheres.Operation operation) {
         if (operation.equals(Operation.EQUAL)) {
             return "=";
         } else if (operation.equals(Operation.IN)) {
@@ -176,6 +180,7 @@ public class Wheres {
 
         return "=";
     }
+
 
     public Operation getEnumOperation() {
         return this.operation;

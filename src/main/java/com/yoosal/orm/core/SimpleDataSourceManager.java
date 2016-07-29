@@ -10,9 +10,11 @@ import java.util.*;
 
 public class SimpleDataSourceManager implements DataSourceManager {
     private static final Logger logger = Logger.getLogger(DataSourceManager.class);
-    private static final Map<String, DataSource> dataSourceMap = new HashMap<String, DataSource>();
     private static final List<GroupDataSource> groupDataSources = new ArrayList<GroupDataSource>();
     private static final Map<String, DataSourceResolve> dataSourceResolve = new HashMap<String, DataSourceResolve>();
+
+    private static DataSource masterDataSource;
+    private static DataSource slaveDataSource;
 
     private static final String DATA_SOURCE_NAME_KEY = "dataSourceName";
     private static final String DATA_SOURCE_GROUP_KEY = "group";
@@ -26,10 +28,6 @@ public class SimpleDataSourceManager implements DataSourceManager {
     @Override
     public synchronized void addDataSource(GroupDataSource groupDataSource) {
         groupDataSources.add(groupDataSource);
-        for (GroupDataSource.SourceObject gds : groupDataSource.getSourceObjects()) {
-            dataSourceMap.put(gds.getDataSourceName(), gds.getDataSource());
-            logger.info("got a dataSource from add:" + gds.getDataSourceName());
-        }
     }
 
     @Override
@@ -51,15 +49,27 @@ public class SimpleDataSourceManager implements DataSourceManager {
 
     @Override
     public DataSource getDataSource(String dataSourceName) {
-        return dataSourceMap.get(dataSourceName);
+        return null;
     }
 
     @Override
-    public DataSource getDataSource() {
-        for (Map.Entry<String, DataSource> entry : dataSourceMap.entrySet()) {
-            return entry.getValue();
-        }
-        return null;
+    public DataSource getMasterDataSource() {
+        return masterDataSource;
+    }
+
+    @Override
+    public DataSource getSlaveDataSource() {
+        return slaveDataSource;
+    }
+
+    @Override
+    public void setMasterDataSource(DataSource dataSource) {
+        masterDataSource = dataSource;
+    }
+
+    @Override
+    public void setSlaveDataSource(DataSource dataSource) {
+        slaveDataSource = dataSource;
     }
 
     @Override
@@ -139,8 +149,8 @@ public class SimpleDataSourceManager implements DataSourceManager {
                 groupDataSource.setEnumNames(Arrays.asList(tablesString.split("\\.")));
             }
             groupDataSources.add(groupDataSource);
-            dataSourceMap.put(dataSourceName, (DataSource) object);
             DataSource dataSource = (DataSource) object;
+            masterDataSource = dataSource;
             logger.info("got a dataSource from properties:" + dataSourceName);
 
             return dataSource;

@@ -3,6 +3,7 @@ package com.yoosal.orm.dialect;
 import com.yoosal.orm.ModelObject;
 import com.yoosal.orm.core.Batch;
 import com.yoosal.orm.mapping.ColumnModel;
+import com.yoosal.orm.mapping.DBMapping;
 import com.yoosal.orm.mapping.TableModel;
 import com.yoosal.orm.query.Query;
 import com.yoosal.orm.query.Wheres;
@@ -12,6 +13,8 @@ import java.util.List;
 public interface SQLDialect {
 
     String getType(int columnTypeInt);
+
+    String getType(Class clazz);
 
     /**
      * @param tableModel   表映射信息
@@ -44,7 +47,7 @@ public interface SQLDialect {
 
     ValuesForPrepared prepareDelete(TableModel tableMapping, Query query);
 
-    ValuesForPrepared prepareSelect(TableModel tableMapping, Query query);
+    ValuesForPrepared prepareSelect(DBMapping dbMapping, Query query);
 
     ValuesForPrepared prepareSelectCount(TableModel tableMapping, Query query);
 

@@ -45,6 +45,14 @@ public class OperationManager {
      * 存放所有的映射为表的Class 类
      */
     private static Set<Class> classesFromScan = new HashSet<Class>();
+    /**
+     * 默认使用单机查询类
+     */
+    private static String sessionOperation = "com.yoosal.orm.core.StandAloneSessionOperation";
+
+    public static String getSessionOperation() {
+        return sessionOperation;
+    }
 
     public void setProperties(Properties prop) throws ClassNotFoundException, InstantiationException, IllegalAccessException, InvocationTargetException, SQLException {
         if (prop != null) {

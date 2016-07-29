@@ -118,6 +118,10 @@ public class ColumnModel extends AbstractModelCheck {
         return isPrimaryKey;
     }
 
+    public boolean isKey() {
+        return false;
+    }
+
     public void setPrimaryKey(boolean primaryKey) {
         isPrimaryKey = primaryKey;
     }

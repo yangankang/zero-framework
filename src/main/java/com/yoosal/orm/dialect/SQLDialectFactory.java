@@ -12,7 +12,7 @@ public abstract class SQLDialectFactory {
     private static final Map<String, SQLDialect> registerSQLDialect = new ConcurrentHashMap<String, SQLDialect>();
 
     static {
-        registerSQLDialect.put(DataSourceManager.SupportList.MYSQL.toString(), new MySQLDialect());
+        registerSQLDialect.put(DataSourceManager.SupportList.MYSQL.toString(), new MysqlMiddleCreator());
     }
 
     public static SQLDialect getSQLDialect(DatabaseMetaData databaseMetaData) throws SQLException {

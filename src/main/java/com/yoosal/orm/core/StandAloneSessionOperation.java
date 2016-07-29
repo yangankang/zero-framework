@@ -1,57 +1,31 @@
 package com.yoosal.orm.core;
 
+import com.yoosal.common.Logger;
 import com.yoosal.orm.ModelObject;
 import com.yoosal.orm.dialect.SQLDialect;
 import com.yoosal.orm.dialect.SQLDialectFactory;
 import com.yoosal.orm.dialect.ValuesForPrepared;
 import com.yoosal.orm.exception.DatabaseOperationException;
+import com.yoosal.orm.exception.SessionException;
 import com.yoosal.orm.mapping.ColumnModel;
 import com.yoosal.orm.mapping.DBMapping;
 import com.yoosal.orm.mapping.TableModel;
 import com.yoosal.orm.query.Query;
-import com.yoosal.orm.query.Wheres;
 
 import javax.sql.DataSource;
 import java.sql.*;
-import java.util.ArrayList;
 import java.util.List;
 
-/**
- * 线程非安全的，局部变量使用
- */
-public class SingleDatabaseOperation implements SessionOperation {
-    private DataSourceManager dataSourceManager = null;
-    private Connection conn = null;
-    private DataSource dataSource = null;
+public class StandAloneSessionOperation implements SessionOperation {
+    private static final Logger logger = Logger.getLogger(StandAloneSessionOperation.class);
+    private DataSourceManager dataSourceManager;
+    private Connection connection = null;
+    private Connection slaveConnection = null;
     private SQLDialect dialect = null;
     private DBMapping dbMapping;
 
-    public SingleDatabaseOperation(DBMapping dbMapping) {
+    public void setDbMapping(DBMapping dbMapping) {
         this.dbMapping = dbMapping;
-    }
-
-    public SingleDatabaseOperation(DataSource dataSource, DBMapping dbMapping) {
-        this.dataSource = dataSource;
-        this.dbMapping = dbMapping;
-    }
-
-    public SingleDatabaseOperation() {
-    }
-
-    private Connection getConnection() throws SQLException {
-        if (conn == null) {
-            conn = dataSource.getConnection();
-        }
-        return conn;
-    }
-
-    private SQLDialect getDialect(Connection connection) throws SQLException {
-        if (dialect == null) {
-            DatabaseMetaData databaseMetaData = connection.getMetaData();
-            SQLDialect sqlDialect = SQLDialectFactory.getSQLDialect(databaseMetaData);
-            dialect = sqlDialect;
-        }
-        return dialect;
     }
 
     private void close(Statement statement) {
@@ -65,9 +39,65 @@ public class SingleDatabaseOperation implements SessionOperation {
     }
 
     @Override
+    public void close() {
+        try {
+            if (connection == null || !connection.getAutoCommit()) {
+                return;
+            }
+            if (connection != null && connection.isClosed()) {
+                connection = null;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        try {
+            connection.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private Connection getConnection() throws SQLException {
+        if (connection != null) {
+            return connection;
+        }
+        DataSource dataSource = dataSourceManager.getMasterDataSource();
+        if (dataSource == null) {
+            throw new SessionException("there is no dataSource");
+        }
+        connection = dataSource.getConnection();
+        return connection;
+    }
+
+    private Connection getSlaveConnection() throws SQLException {
+        if (slaveConnection != null) {
+            return slaveConnection;
+        }
+        DataSource dataSource = dataSourceManager.getSlaveDataSource();
+        if (dataSource == null) {
+            throw new SessionException("there is no dataSource");
+        }
+        slaveConnection = dataSource.getConnection();
+        return slaveConnection;
+    }
+
+    private SQLDialect getDialect(Connection connection) throws SQLException {
+        if (dialect == null) {
+            DatabaseMetaData databaseMetaData = connection.getMetaData();
+            SQLDialect sqlDialect = SQLDialectFactory.getSQLDialect(databaseMetaData);
+            dialect = sqlDialect;
+        }
+        return dialect;
+    }
+
+    @Override
+    public void setDataSourceManager(DataSourceManager dataSourceManager) {
+        this.dataSourceManager = dataSourceManager;
+    }
+
+    @Override
     public void begin() throws SQLException {
-        Connection connection = getConnection();
-        connection.setAutoCommit(false);
+        this.getConnection().setAutoCommit(true);
     }
 
     @Override
@@ -181,43 +211,11 @@ public class SingleDatabaseOperation implements SessionOperation {
 
     @Override
     public List<ModelObject> list(Query query) {
-        Connection connection = null;
-        PreparedStatement statement = null;
-        List<ModelObject> objects = null;
-        try {
-            connection = getConnection();
-            SQLDialect sqlDialect = getDialect(connection);
-            TableModel tableModel = dbMapping.getTableMapping(query.getObjectClass());
-            List<ColumnModel> columnModels = tableModel.getMappingColumnModels();
-            ValuesForPrepared valuesForPrepared = sqlDialect.prepareSelect(dbMapping, query);
-            statement = connection.prepareStatement(valuesForPrepared.getSql());
-            valuesForPrepared.setPrepared(statement);
-            ResultSet resultSet = statement.executeQuery();
-
-            while (resultSet.next()) {
-                if (objects == null) {
-                    objects = new ArrayList<ModelObject>();
-                }
-                ModelObject object = new ModelObject(query.getObjectClass());
-                for (ColumnModel cm : columnModels) {
-                    object.put(cm.getJavaName(), resultSet.getObject(cm.getColumnName()));
-                }
-                objects.add(object);
-            }
-        } catch (SQLException e) {
-            throw new DatabaseOperationException("query throw", e);
-        } finally {
-            close(statement);
-        }
-        return objects;
+        return null;
     }
 
     @Override
     public ModelObject query(Query query) {
-        List<ModelObject> objects = this.list(query);
-        if (objects != null && objects.size() > 0) {
-            return objects.get(0);
-        }
         return null;
     }
 
@@ -247,14 +245,12 @@ public class SingleDatabaseOperation implements SessionOperation {
 
     @Override
     public void commit() throws SQLException {
-        Connection connection = getConnection();
         connection.commit();
         connection.setAutoCommit(true);
     }
 
     @Override
     public void rollback() {
-        Connection connection = null;
         try {
             connection = getConnection();
             if (!connection.getAutoCommit()) {
@@ -271,37 +267,5 @@ public class SingleDatabaseOperation implements SessionOperation {
             }
             throw new DatabaseOperationException("rollback throw", e);
         }
-    }
-
-    @Override
-    public void close() {
-        try {
-            if (conn == null || !conn.getAutoCommit()) {
-                return;
-            }
-            if (conn != null && conn.isClosed()) {
-                conn = null;
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        if (conn != null) {
-            try {
-                conn.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
-        this.conn = null;
-    }
-
-    @Override
-    public void setDataSourceManager(DataSourceManager dataSourceManager) {
-        this.dataSourceManager = dataSourceManager;
-    }
-
-    @Override
-    public void setDbMapping(DBMapping dbMapping) {
-        this.dbMapping = dbMapping;
     }
 }

@@ -2,6 +2,7 @@ package com.yoosal.orm.core;
 
 import com.yoosal.orm.ModelObject;
 import com.yoosal.orm.OperationManager;
+import com.yoosal.orm.mapping.DBMapping;
 import com.yoosal.orm.query.Query;
 
 import java.sql.SQLException;
@@ -9,6 +10,7 @@ import java.util.List;
 
 public class SessionOperationManager implements Operation {
     public static ThreadLocal<SessionOperation> threadLocal = new ThreadLocal();
+    private static DBMapping mapping = OperationManager.getMapping();
 
     @Override
     public void begin() throws SQLException {
@@ -17,7 +19,17 @@ public class SessionOperationManager implements Operation {
 
     private SessionOperation getOperation() {
         if (threadLocal.get() == null) {
-            threadLocal.set(new OrmSessionOperation(OperationManager.getDataSourceManager()));
+            try {
+                SessionOperation sessionOperation = new OrmSessionOperation(OperationManager.getDataSourceManager());
+                sessionOperation.setDbMapping(mapping);
+                threadLocal.set(sessionOperation);
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            } catch (InstantiationException e) {
+                e.printStackTrace();
+            }
         }
         return threadLocal.get();
     }

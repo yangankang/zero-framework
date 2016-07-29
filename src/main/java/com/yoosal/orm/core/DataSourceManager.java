@@ -21,7 +21,13 @@ public interface DataSourceManager {
 
     DataSource getDataSource(String dataSourceName);
 
-    DataSource getDataSource();
+    DataSource getMasterDataSource();
+
+    DataSource getSlaveDataSource();
+
+    void setMasterDataSource(DataSource dataSource);
+
+    void setSlaveDataSource(DataSource dataSource);
 
     void fromProperties(Map<String, Object> properties) throws IllegalAccessException, InvocationTargetException, InstantiationException, ClassNotFoundException;
 

@@ -8,6 +8,7 @@ import com.yoosal.orm.annotation.DefaultValue;
 import com.yoosal.orm.core.Batch;
 import com.yoosal.orm.exception.SQLDialectException;
 import com.yoosal.orm.mapping.ColumnModel;
+import com.yoosal.orm.mapping.DBMapping;
 import com.yoosal.orm.mapping.TableModel;
 import com.yoosal.orm.query.Limit;
 import com.yoosal.orm.query.OrderBy;
@@ -19,6 +20,9 @@ import java.sql.*;
 import java.util.*;
 import java.util.Date;
 
+/**
+ * 旧的方式，新的方式 {@link MysqlMiddleCreator}
+ */
 public abstract class StandardSQL implements SQLDialect {
     private static final Logger logger = Logger.getLogger(StandardSQL.class);
     protected static final Map<Integer, String> types = new HashMap<Integer, String>();
@@ -57,6 +61,11 @@ public abstract class StandardSQL implements SQLDialect {
     @Override
     public String getType(int columnTypeInt) {
         return types.get(columnTypeInt);
+    }
+
+    @Override
+    public String getType(Class clazz) {
+        return typesMapping.get(clazz);
     }
 
     @Override
@@ -413,7 +422,8 @@ public abstract class StandardSQL implements SQLDialect {
     }
 
     @Override
-    public ValuesForPrepared prepareSelect(TableModel tableMapping, Query query) {
+    public ValuesForPrepared prepareSelect(DBMapping dbMapping, Query query) {
+        TableModel tableMapping = dbMapping.getTableMapping(query.getObjectClass());
         ValuesForPrepared valuesForPrepared = common(tableMapping, query);
         String lastSQLString = valuesForPrepared.getSql();
         valuesForPrepared.setSql("SELECT * FROM " + tableMapping.getDbTableName() + lastSQLString);
