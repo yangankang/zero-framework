@@ -82,6 +82,18 @@ public class CreatorJoinModel {
         }
     }
 
+    public CreatorJoinModel getModelByTableModel(TableModel tableModel) {
+        if (this.getTableModel() == tableModel) {
+            return this;
+        }
+        for (CreatorJoinModel model : child) {
+            if (model.getTableModel() == tableModel) {
+                return model;
+            }
+        }
+        return null;
+    }
+
     public Map<String, String> getJavaColumnAsName() {
         return javaColumnAsName;
     }

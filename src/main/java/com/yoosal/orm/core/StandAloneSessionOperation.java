@@ -11,17 +11,16 @@ import com.yoosal.orm.exception.SessionException;
 import com.yoosal.orm.mapping.ColumnModel;
 import com.yoosal.orm.mapping.DBMapping;
 import com.yoosal.orm.mapping.TableModel;
+import com.yoosal.orm.query.Join;
 import com.yoosal.orm.query.Query;
+import com.yoosal.orm.query.Wheres;
 
 import javax.sql.DataSource;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class StandAloneSessionOperation implements SessionOperation {
-    private static final Logger logger = Logger.getLogger(StandAloneSessionOperation.class);
+    //private static final Logger logger = Logger.getLogger(StandAloneSessionOperation.class);
     private DataSourceManager dataSourceManager;
     private Connection connection = null;
     private Connection slaveConnection = null;
@@ -45,11 +44,12 @@ public class StandAloneSessionOperation implements SessionOperation {
     @Override
     public void close() {
         try {
-            if (connection == null || !connection.getAutoCommit()) {
-                return;
-            }
             if (connection != null && connection.isClosed()) {
                 connection = null;
+            }
+
+            if (connection == null || !connection.getAutoCommit()) {
+                return;
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -254,8 +254,102 @@ public class StandAloneSessionOperation implements SessionOperation {
     }
 
     private List<ModelObject> pressResult(Map<CreatorJoinModel, List<ModelObject>> results) {
+        Map<Class, List<ModelObject>> datas = new HashMap<Class, List<ModelObject>>();
 
-        return null;
+
+        List<ModelObject> result = null;
+        for (Map.Entry<CreatorJoinModel, List<ModelObject>> entry : results.entrySet()) {
+            List<ModelObject> dos = distinct(entry.getValue(), entry.getKey().getTableModel());
+            datas.put(
+                    entry.getKey().isQuery() ? entry.getKey().getQuery().getObjectClass() : entry.getKey().getJoin().getObjectClass(),
+                    dos
+            );
+            if (entry.getKey().isQuery()) {
+                result = dos;
+            }
+        }
+
+        if (result == null) {
+            return null;
+        }
+
+        for (Map.Entry<CreatorJoinModel, List<ModelObject>> entry : results.entrySet()) {
+            if (!entry.getKey().isQuery()) {
+                Join join = entry.getKey().getJoin();
+                Class a = join.getObjectClass();
+                Class b = join.getSourceObjectClass();
+
+                List<Wheres> wheres = join.getWheres();
+                List<ModelObject> aoes = datas.get(a);
+                /**
+                 * 假如b为空那么当前join的左表就是Query的类
+                 */
+                List<ModelObject> boes = b == null ? result : datas.get(b);
+                /**
+                 * 对左表类的数据遍历,然后在遍历右表类的数据,判断如果wheres相等就加入
+                 */
+                for (ModelObject bo : boes) {
+                    for (ModelObject ao : aoes) {
+                        boolean isConform = true;
+                        for (Wheres wh : wheres) {
+                            Object whereObject = wh.getValue();
+                            if (whereObject.getClass().isEnum()) {
+                                if (!this.isSameValue(bo.get(wh.getKey()), ao.get(whereObject))) {
+                                    isConform = false;
+                                }
+                            } else {
+                                if (!this.isSameValue(ao.get(wh.getKey()), whereObject)) {
+                                    isConform = false;
+                                }
+                            }
+                        }
+                        /**
+                         * 确认wheres对应的值是相等的那么就把当前的ao加到bo得子项中
+                         */
+                        if (isConform) {
+                            List<ModelObject> chOs = bo.getModelArray(join.getJoinName());
+                            if (chOs == null) {
+                                chOs = new ArrayList<ModelObject>();
+                            }
+                            chOs.add(ao);
+                            bo.put(join.getJoinName(), chOs);
+                        }
+                    }
+                }
+            }
+        }
+
+        return result;
+    }
+
+    private List<ModelObject> distinct(List<ModelObject> objects, TableModel tableModel) {
+        List<ColumnModel> models = tableModel.getMappingPrimaryKeyColumnModels();
+        List<ModelObject> arrayNewObjects = new ArrayList<ModelObject>();
+        Map<String, ModelObject> hashMap = new HashMap<String, ModelObject>();
+        for (ModelObject object : objects) {
+            StringBuffer buffer = new StringBuffer();
+            if (models != null) {
+                for (ColumnModel cm : models) {
+                    buffer.append(object.get(cm.getJavaName()));
+                }
+            } else {
+                buffer.append(object.toJSONString());
+            }
+            hashMap.put(buffer.toString(), object);
+        }
+
+        for (Map.Entry<String, ModelObject> entry : hashMap.entrySet()) {
+            arrayNewObjects.add(entry.getValue());
+        }
+
+        return arrayNewObjects;
+    }
+
+    private boolean isSameValue(Object a, Object b) {
+        if (String.valueOf(a).equals(String.valueOf(b))) {
+            return true;
+        }
+        return false;
     }
 
     @Override

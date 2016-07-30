@@ -372,6 +372,9 @@ public abstract class MiddleCreator implements SQLDialect {
         chain.from().setValue(joinModel.getTableModel().getDbTableName()).as().setValue(joinModel.getTableAsName());
 
         List<CreatorJoinModel> leftJoinModels = joinModel.getChild();
+        String valueColumn = "##";
+        int valueCount = 0;
+
         if (leftJoinModels != null) {
             for (CreatorJoinModel cm : leftJoinModels) {
                 Join join = cm.getJoin();
@@ -379,12 +382,25 @@ public abstract class MiddleCreator implements SQLDialect {
                 List<Wheres> wheres = join.getWheres();
                 for (int i = 0; i < wheres.size(); i++) {
                     Wheres wh = wheres.get(i);
+                    Object whValue = wh.getValue();
                     if (i != 0) {
                         chain.setOperation(wh.getLogic());
                     }
-                    chain.setValue(cm.getTableAsName() + "." + wh.getKey())
-                            .setValue(wh.getOperation())
-                            .setValue(cm.getTableAsName() + "." + wh.getValue());
+                    if (whValue.getClass().isEnum()) {
+                        chain.setValue(cm.getTableAsName() + "." + wh.getKey())
+                                .setValue(wh.getOperation())
+                                .setValue(cm.getTableAsName() + "." + wh.getValue());
+                    } else {
+                        TableModel leftm = tableMapping.getTableMapping(join.getSourceObjectClass());
+                        if (leftm == null) {
+                            throw new SQLDialectException("current query not find table " + join.getSourceObjectClass().getSimpleName());
+                        }
+                        String vc = valueColumn + (valueCount++);
+                        chain.setValue(joinModel.getModelByTableModel(leftm) + "." + wh.getKey())
+                                .setValue(wh.getOperation())
+                                .setValue(":" + vc);
+                        valuesForPrepared.addValue(":" + vc, whValue);
+                    }
                 }
             }
         }
