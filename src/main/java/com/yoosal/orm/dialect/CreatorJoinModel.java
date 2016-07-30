@@ -15,6 +15,7 @@ public class CreatorJoinModel {
     private Query query;
     private Join join;
     private List<CreatorJoinModel> child;
+    private Map<String, String> javaColumnAsName;
 
     public boolean hasChild() {
         if (child == null || child.size() <= 0) {
@@ -79,6 +80,14 @@ public class CreatorJoinModel {
         if (!child.isQuery()) {
             this.child.add(child);
         }
+    }
+
+    public Map<String, String> getJavaColumnAsName() {
+        return javaColumnAsName;
+    }
+
+    public void setJavaColumnAsName(Map<String, String> javaChildColumnAsName) {
+        this.javaColumnAsName = javaChildColumnAsName;
     }
 
     public List<CreatorJoinModel> getSelectColumns() {

@@ -2,6 +2,7 @@ package com.yoosal.orm.core;
 
 import com.yoosal.common.Logger;
 import com.yoosal.orm.ModelObject;
+import com.yoosal.orm.dialect.CreatorJoinModel;
 import com.yoosal.orm.dialect.SQLDialect;
 import com.yoosal.orm.dialect.SQLDialectFactory;
 import com.yoosal.orm.dialect.ValuesForPrepared;
@@ -14,7 +15,10 @@ import com.yoosal.orm.query.Query;
 
 import javax.sql.DataSource;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 public class StandAloneSessionOperation implements SessionOperation {
     private static final Logger logger = Logger.getLogger(StandAloneSessionOperation.class);
@@ -220,15 +224,37 @@ public class StandAloneSessionOperation implements SessionOperation {
             statement = connection.prepareStatement(valuesForPrepared.getSql());
             valuesForPrepared.setPrepared(statement);
 
+            CreatorJoinModel model = valuesForPrepared.getModel();
+            List<CreatorJoinModel> joinModels = model.getSelectColumns();
             ResultSet resultSet = statement.executeQuery();
-            while (resultSet.next()) {
-                
+            Map<CreatorJoinModel, List<ModelObject>> results = new LinkedHashMap<CreatorJoinModel, List<ModelObject>>();
+            if (resultSet.next()) {
+                for (CreatorJoinModel jm : joinModels) {
+                    List<ModelObject> ol = results.get(jm);
+                    if (ol == null) {
+                        ol = new ArrayList<ModelObject>();
+                    }
+
+                    Map<String, String> javaColumnAdName = jm.getJavaColumnAsName();
+                    ModelObject object = new ModelObject();
+                    for (Map.Entry<String, String> entry : javaColumnAdName.entrySet()) {
+                        object.put(entry.getKey(), resultSet.getObject(entry.getValue()));
+                    }
+                    ol.add(object);
+                    results.put(jm, ol);
+                }
             }
+
+            return pressResult(results);
         } catch (SQLException e) {
             throw new DatabaseOperationException("remove throw", e);
         } finally {
             close(statement);
         }
+    }
+
+    private List<ModelObject> pressResult(Map<CreatorJoinModel, List<ModelObject>> results) {
+
         return null;
     }
 
