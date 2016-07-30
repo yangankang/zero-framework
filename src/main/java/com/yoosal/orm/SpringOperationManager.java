@@ -46,6 +46,7 @@ public class SpringOperationManager extends OperationManager implements Initiali
         GroupDataSource groupDataSource = new GroupDataSource();
         groupDataSource.addGroup(null, dataSource);
         getDataSourceManager().addDataSource(groupDataSource);
+        getDataSourceManager().setMasterDataSource(dataSource);
     }
 
     public void setDataSourceMap(Map<String, DataSource> dataSourceMap) {

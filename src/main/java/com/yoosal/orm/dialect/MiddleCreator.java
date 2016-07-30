@@ -350,19 +350,21 @@ public abstract class MiddleCreator implements SQLDialect {
         CreatorJoinModel joinModel = this.getJoinModel(tableMapping, query);
         List<CreatorJoinModel> allJoinModel = joinModel.getSelectColumns();
         ValuesForPrepared valuesForPrepared = new ValuesForPrepared();
-
+        valuesForPrepared.setModel(joinModel);
 
         SQLChain chain = new SQLChain();
         chain.select();
-        for (CreatorJoinModel jm : allJoinModel) {
-            Map<String, String> map = jm.getColumnAsName();
-            String tname = jm.getTableAsName();
-            Iterator iterator = map.entrySet().iterator();
-            while (iterator.hasNext()) {
-                Map.Entry<String, String> entry = (Map.Entry<String, String>) iterator.next();
-                chain.setValue(tname + "." + entry.getKey()).as().setValue(entry.getValue());
-                if (iterator.hasNext()) {
-                    chain.setSplit();
+        if (allJoinModel != null) {
+            for (CreatorJoinModel jm : allJoinModel) {
+                Map<String, String> map = jm.getColumnAsName();
+                String tname = jm.getTableAsName();
+                Iterator iterator = map.entrySet().iterator();
+                while (iterator.hasNext()) {
+                    Map.Entry<String, String> entry = (Map.Entry<String, String>) iterator.next();
+                    chain.setValue(tname + "." + entry.getKey()).as().setValue(entry.getValue());
+                    if (iterator.hasNext()) {
+                        chain.setSplit();
+                    }
                 }
             }
         }
@@ -370,32 +372,32 @@ public abstract class MiddleCreator implements SQLDialect {
         chain.from().setValue(joinModel.getTableModel().getDbTableName()).as().setValue(joinModel.getTableAsName());
 
         List<CreatorJoinModel> leftJoinModels = joinModel.getChild();
-        for (CreatorJoinModel cm : leftJoinModels) {
-            Join join = cm.getJoin();
-            Map<String, String> javaKV = cm.getJavaColumnAsName();
-            chain.left().join().setValue(cm.getTableModel().getDbTableName()).as().setValue(cm.getTableAsName()).on();
-            List<Wheres> wheres = join.getWheres();
-            for (int i = 0; i < wheres.size(); i++) {
-                Wheres wh = wheres.get(i);
-                if (i != 0) {
-                    chain.setOperation(wh.getLogic());
+        if (leftJoinModels != null) {
+            for (CreatorJoinModel cm : leftJoinModels) {
+                Join join = cm.getJoin();
+                chain.left().join().setValue(cm.getTableModel().getDbTableName()).as().setValue(cm.getTableAsName()).on();
+                List<Wheres> wheres = join.getWheres();
+                for (int i = 0; i < wheres.size(); i++) {
+                    Wheres wh = wheres.get(i);
+                    if (i != 0) {
+                        chain.setOperation(wh.getLogic());
+                    }
+                    chain.setValue(cm.getTableAsName() + "." + wh.getKey())
+                            .setValue(wh.getOperation())
+                            .setValue(cm.getTableAsName() + "." + wh.getValue());
                 }
-                chain.setValue(cm.getTableAsName() + "." + javaKV.get(wh.getKey()))
-                        .setValue(cm.getTableAsName() + "." + javaKV.get(wh.getOperation()))
-                        .setValue(cm.getTableAsName() + "." + javaKV.get(wh.getValue()));
             }
         }
 
         List<Wheres> wheres = query.getWheres();
         if (wheres != null && wheres.size() > 0) {
             chain.where();
-            Map<String, String> qm = joinModel.getJavaColumnAsName();
             for (int i = 0; i < wheres.size(); i++) {
                 Wheres wh = wheres.get(i);
                 if (i != 0) {
                     chain.setOperation(wh.getLogic());
                 }
-                String k = joinModel.getTableAsName() + "." + qm.get(wh.getKey());
+                String k = joinModel.getTableAsName() + "." + wh.getKey();
                 chain.setValue(k)
                         .setValue(wh.getOperation())
                         .setValue(":" + k);
@@ -406,7 +408,7 @@ public abstract class MiddleCreator implements SQLDialect {
 
         String sql = chain.toString();
         valuesForPrepared.setSql(sql);
-        showSQL(sql);
+        showSQL(valuesForPrepared.getSql());
         return valuesForPrepared;
     }
 

@@ -12,7 +12,6 @@ public class CreatorJoinModel {
     private TableModel tableModel;
     private String tableAsName;
     private Map<String, String> columnAsName;
-    private Map<String, String> javaColumnAsName;
     private Query query;
     private Join join;
     private List<CreatorJoinModel> child;
@@ -52,14 +51,6 @@ public class CreatorJoinModel {
         this.columnAsName = columnAsName;
     }
 
-    public Map<String, String> getJavaColumnAsName() {
-        return javaColumnAsName;
-    }
-
-    public void setJavaColumnAsName(Map<String, String> javaColumnAsName) {
-        this.javaColumnAsName = javaColumnAsName;
-    }
-
     public Query getQuery() {
         return query;
     }
@@ -93,7 +84,8 @@ public class CreatorJoinModel {
     public List<CreatorJoinModel> getSelectColumns() {
         List<CreatorJoinModel> joinModels = new ArrayList<CreatorJoinModel>();
         joinModels.add(this);
-        joinModels.addAll(child);
+        if (null != child)
+            joinModels.addAll(child);
         return joinModels;
     }
 }

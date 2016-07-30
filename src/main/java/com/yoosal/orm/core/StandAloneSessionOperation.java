@@ -211,12 +211,31 @@ public class StandAloneSessionOperation implements SessionOperation {
 
     @Override
     public List<ModelObject> list(Query query) {
+        Connection connection = null;
+        PreparedStatement statement = null;
+        try {
+            connection = getConnection();
+            SQLDialect sqlDialect = getDialect(connection);
+            ValuesForPrepared valuesForPrepared = sqlDialect.prepareSelect(dbMapping, query);
+            statement = connection.prepareStatement(valuesForPrepared.getSql());
+            valuesForPrepared.setPrepared(statement);
+
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                
+            }
+        } catch (SQLException e) {
+            throw new DatabaseOperationException("remove throw", e);
+        } finally {
+            close(statement);
+        }
         return null;
     }
 
     @Override
     public ModelObject query(Query query) {
-        return null;
+        List<ModelObject> objects = this.list(query);
+        return (objects != null && objects.size() > 0) ? objects.get(0) : null;
     }
 
     @Override

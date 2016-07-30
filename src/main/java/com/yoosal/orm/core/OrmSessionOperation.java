@@ -24,6 +24,7 @@ public class OrmSessionOperation implements SessionOperation {
             sessionOperation = (SessionOperation) Class.forName(sessionOperationClass).newInstance();
         }
         sessionOperation.setDataSourceManager(this.dataSourceManager);
+        sessionOperation.setDbMapping(mapping);
     }
 
     @Override
@@ -39,6 +40,7 @@ public class OrmSessionOperation implements SessionOperation {
     @Override
     public void setDbMapping(DBMapping dbMapping) {
         mapping = dbMapping;
+        sessionOperation.setDbMapping(mapping);
     }
 
     @Override

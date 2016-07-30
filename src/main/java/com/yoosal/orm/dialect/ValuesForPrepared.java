@@ -9,6 +9,7 @@ public class ValuesForPrepared {
     private String sql;
     private String[] keys;
     private Map<String, Object> values = new HashMap<String, Object>();
+    private CreatorJoinModel model;
 
     public String getSql() {
         String[] strings = getKeys();
@@ -55,6 +56,14 @@ public class ValuesForPrepared {
         values.put(key, value);
     }
 
+    public CreatorJoinModel getModel() {
+        return model;
+    }
+
+    public void setModel(CreatorJoinModel model) {
+        this.model = model;
+    }
+
     private String[] wildcardString() {
         String[] s1 = sql.split(":");
         List<String> strings = new ArrayList<String>();
@@ -73,7 +82,9 @@ public class ValuesForPrepared {
                     }
                     if ((chars[i] >= 'a' && chars[i] <= 'z') ||
                             (chars[i] >= 'A' && chars[i] <= 'Z')
-                            || chars[i] == '_' || Character.isDigit(chars[i])) {
+                            || chars[i] == '_'
+                            || chars[i] == '.'
+                            || Character.isDigit(chars[i])) {
                         sb.append(chars[i]);
                     } else {
                         break;

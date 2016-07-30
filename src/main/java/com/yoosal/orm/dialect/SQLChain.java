@@ -305,6 +305,11 @@ public class SQLChain {
         return this;
     }
 
+    public SQLChain setSpace() {
+        commands.add(" ");
+        return this;
+    }
+
     public SQLChain matchColumn(ColumnModel cm, SQLDialect dialect, boolean isLast, boolean matchKey) {
         long len = cm.getLength();
         String columnName = cm.getColumnName();
@@ -318,10 +323,12 @@ public class SQLChain {
             columnType = dialect.getType(Integer.class);
         }
 
+
         if (len <= 0 && clazz.isAssignableFrom(String.class) && !isPrimaryKey) {
             len = DEFAULT_LENGTH;
         }
-        this.setValue(columnName);
+        this.setValue(columnName).setSpace();
+        this.setValue(columnType);
         if (len > 0) {
             this.setBegin().setValue(len).setEnd();
         }
