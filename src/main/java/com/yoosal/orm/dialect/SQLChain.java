@@ -14,7 +14,7 @@ public class SQLChain {
         CREATE, TABLE, IF, NOT, EXISTS, PRIMARY, KEY, AUTO_INCREMENT, NULL, DEFAULT,
         INDEX, ALTER, ADD, INSERT, INTO, VALUES, UPDATE, SET, WHERE, AND, OR, ENGINE,
         CHARSET, IN, LIKE, BY, ORDER, ASC, DESC, LIMIT, DELETE, FROM, SELECT, COUNT,
-        ON
+        ON, AS, LEFT, JOIN
     }
 
     private List commands = new ArrayList();
@@ -61,6 +61,16 @@ public class SQLChain {
 
     public SQLChain from() {
         commands.add(Command.FROM);
+        return this;
+    }
+
+    public SQLChain left() {
+        commands.add(Command.LEFT);
+        return this;
+    }
+
+    public SQLChain join() {
+        commands.add(Command.JOIN);
         return this;
     }
 
@@ -170,8 +180,18 @@ public class SQLChain {
         return this;
     }
 
+    public SQLChain as() {
+        commands.add(Command.AS);
+        return this;
+    }
+
     public SQLChain setValue(Object value) {
         commands.add(String.valueOf(value));
+        return this;
+    }
+
+    public SQLChain setQuestion() {
+        commands.add("?");
         return this;
     }
 
@@ -345,10 +365,26 @@ public class SQLChain {
         return this;
     }
 
+    public SQLChain append(SQLChain chain) {
+        List cm = chain.getCommands();
+        this.commands.addAll(cm);
+        return this;
+    }
+
+    public List getCommands() {
+        return commands;
+    }
+
     public String toString() {
         StringBuffer sql = new StringBuffer();
-        for (Object object : commands) {
-
+        for (int i = 0; i < commands.size(); i++) {
+            Object object = commands.get(i);
+            if ((object instanceof Command) ||
+                    (i < commands.size() - 1 && commands.get(i + 1) instanceof Command)) {
+                sql.append(String.valueOf(object) + " ");
+            } else {
+                sql.append(String.valueOf(object));
+            }
         }
         return sql.toString();
     }

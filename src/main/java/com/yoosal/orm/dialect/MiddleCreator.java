@@ -78,13 +78,13 @@ public abstract class MiddleCreator implements SQLDialect {
 
         SQLChain chain = new SQLChain();
         chain.create().table().ifCommand().not().exists().setValue(tableModel.getDbTableName()).setBegin();
-        String pk = null;
+        List<String> pk = new ArrayList<String>();
         List<String> key = new ArrayList<String>();
         List<String> index = new ArrayList<String>();
         for (ColumnModel cm : columnModelList) {
             chain.matchColumn(cm, this, false, false);
             if (cm.isPrimaryKey()) {
-                pk = cm.getColumnName();
+                pk.add(cm.getColumnName());
             }
             if (cm.isKey()) {
                 key.add(cm.getColumnName());
@@ -93,8 +93,8 @@ public abstract class MiddleCreator implements SQLDialect {
                 index.add(cm.getColumnName());
             }
         }
-        if (pk != null) {
-            chain.primary().key().setBegin().setValue(pk).setEnd().setSplit();
+        if (pk.size() > 0) {
+            chain.primary().key().setBegin().setValueList(pk).setEnd().setSplit();
         }
         if (key.size() > 0) {
             chain.key().setBegin().setValueList(key).setEnd().setSplit();
@@ -347,16 +347,116 @@ public abstract class MiddleCreator implements SQLDialect {
 
     @Override
     public ValuesForPrepared prepareSelect(DBMapping tableMapping, Query query) {
-        List<TableModel> tableModels = new ArrayList<TableModel>();
-        tableModels.add(tableMapping.getTableMapping(query.getObjectClass()));
-        List<Join> joins = query.getJoins();
-        for (Join join : joins) {
-            tableModels.add(tableMapping.getTableMapping(join.getObjectClass()));
-        }
+        CreatorJoinModel joinModel = this.getJoinModel(tableMapping, query);
+        List<CreatorJoinModel> allJoinModel = joinModel.getSelectColumns();
+        ValuesForPrepared valuesForPrepared = new ValuesForPrepared();
+
 
         SQLChain chain = new SQLChain();
         chain.select();
-        return null;
+        for (CreatorJoinModel jm : allJoinModel) {
+            Map<String, String> map = jm.getColumnAsName();
+            String tname = jm.getTableAsName();
+            Iterator iterator = map.entrySet().iterator();
+            while (iterator.hasNext()) {
+                Map.Entry<String, String> entry = (Map.Entry<String, String>) iterator.next();
+                chain.setValue(tname + "." + entry.getKey()).as().setValue(entry.getValue());
+                if (iterator.hasNext()) {
+                    chain.setSplit();
+                }
+            }
+        }
+
+        chain.from().setValue(joinModel.getTableModel().getDbTableName()).as().setValue(joinModel.getTableAsName());
+
+        List<CreatorJoinModel> leftJoinModels = joinModel.getChild();
+        for (CreatorJoinModel cm : leftJoinModels) {
+            Join join = cm.getJoin();
+            Map<String, String> javaKV = cm.getJavaColumnAsName();
+            chain.left().join().setValue(cm.getTableModel().getDbTableName()).as().setValue(cm.getTableAsName()).on();
+            List<Wheres> wheres = join.getWheres();
+            for (int i = 0; i < wheres.size(); i++) {
+                Wheres wh = wheres.get(i);
+                if (i != 0) {
+                    chain.setOperation(wh.getLogic());
+                }
+                chain.setValue(cm.getTableAsName() + "." + javaKV.get(wh.getKey()))
+                        .setValue(cm.getTableAsName() + "." + javaKV.get(wh.getOperation()))
+                        .setValue(cm.getTableAsName() + "." + javaKV.get(wh.getValue()));
+            }
+        }
+
+        List<Wheres> wheres = query.getWheres();
+        if (wheres != null && wheres.size() > 0) {
+            chain.where();
+            Map<String, String> qm = joinModel.getJavaColumnAsName();
+            for (int i = 0; i < wheres.size(); i++) {
+                Wheres wh = wheres.get(i);
+                if (i != 0) {
+                    chain.setOperation(wh.getLogic());
+                }
+                String k = joinModel.getTableAsName() + "." + qm.get(wh.getKey());
+                chain.setValue(k)
+                        .setValue(wh.getOperation())
+                        .setValue(":" + k);
+
+                valuesForPrepared.addValue(":" + k, wh.getValue());
+            }
+        }
+
+        String sql = chain.toString();
+        valuesForPrepared.setSql(sql);
+        showSQL(sql);
+        return valuesForPrepared;
+    }
+
+    private CreatorJoinModel getJoinModel(DBMapping dbMapping, Query query) {
+        TableModel tableModel = dbMapping.getTableMapping(query.getObjectClass());
+        List<ColumnModel> columnModels = tableModel.getMappingColumnModels();
+        List<Join> joins = query.getJoins();
+
+        String t = "t";
+        int tint = 0;
+        String c = "c";
+        int cint = 0;
+
+        CreatorJoinModel joinModel = new CreatorJoinModel();
+        joinModel.setTableModel(tableModel);
+        joinModel.setQuery(query);
+        Map<String, String> columnAsName = new LinkedHashMap<String, String>();
+        Map<String, String> javaColumnAsName = new LinkedHashMap<String, String>();
+        for (ColumnModel cm : columnModels) {
+            String an = c + (cint++);
+            columnAsName.put(cm.getColumnName(), an);
+            javaColumnAsName.put(cm.getJavaName(), an);
+        }
+        joinModel.setColumnAsName(columnAsName);
+        joinModel.setJavaColumnAsName(javaColumnAsName);
+        joinModel.setTableAsName(t + (tint++));
+
+
+        for (Join join : joins) {
+            TableModel joinTableModel = dbMapping.getTableMapping(join.getObjectClass());
+            List<ColumnModel> joinColumnModels = tableModel.getMappingColumnModels();
+            CreatorJoinModel childJoinModel = new CreatorJoinModel();
+            childJoinModel.setTableModel(joinTableModel);
+            childJoinModel.setJoin(join);
+            Map<String, String> childColumnAsName = new LinkedHashMap<String, String>();
+            Map<String, String> javaChildColumnAsName = new LinkedHashMap<String, String>();
+            for (ColumnModel cm : joinColumnModels) {
+                String an = c + (cint++);
+                childColumnAsName.put(cm.getColumnName(), an);
+                javaChildColumnAsName.put(cm.getJavaName(), an);
+            }
+            childJoinModel.setColumnAsName(childColumnAsName);
+            childJoinModel.setJavaColumnAsName(javaChildColumnAsName);
+            childJoinModel.setTableAsName(t + (tint++));
+
+            joinModel.addChild(childJoinModel);
+        }
+
+
+        return joinModel;
     }
 
     @Override
