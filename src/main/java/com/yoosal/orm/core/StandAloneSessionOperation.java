@@ -228,7 +228,7 @@ public class StandAloneSessionOperation implements SessionOperation {
             List<CreatorJoinModel> joinModels = model.getSelectColumns();
             ResultSet resultSet = statement.executeQuery();
             Map<CreatorJoinModel, List<ModelObject>> results = new LinkedHashMap<CreatorJoinModel, List<ModelObject>>();
-            if (resultSet.next()) {
+            while (resultSet.next()) {
                 for (CreatorJoinModel jm : joinModels) {
                     List<ModelObject> ol = results.get(jm);
                     if (ol == null) {
@@ -247,7 +247,7 @@ public class StandAloneSessionOperation implements SessionOperation {
 
             return pressResult(results);
         } catch (SQLException e) {
-            throw new DatabaseOperationException("remove throw", e);
+            throw new DatabaseOperationException("list throw", e);
         } finally {
             close(statement);
         }
@@ -375,7 +375,7 @@ public class StandAloneSessionOperation implements SessionOperation {
                 count = resultSet.getLong(1);
             }
         } catch (SQLException e) {
-            throw new DatabaseOperationException("remove throw", e);
+            throw new DatabaseOperationException("count throw", e);
         } finally {
             close(statement);
         }

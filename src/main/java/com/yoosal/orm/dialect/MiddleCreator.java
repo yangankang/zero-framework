@@ -208,7 +208,7 @@ public abstract class MiddleCreator implements SQLDialect {
         while (wcIt.hasNext()) {
             ColumnModel cm = wcIt.next();
             valuesForPrepared.addValue(":" + cm.getJavaName(), object.get(cm.getJavaName()));
-            chain.setValue(cm.getColumnName()).setSplit().setValue(":" + cm.getJavaName());
+            chain.setValue(cm.getColumnName()).and().setValue(":" + cm.getJavaName());
             if (wcIt.hasNext()) {
                 chain.and();
             }
@@ -282,36 +282,11 @@ public abstract class MiddleCreator implements SQLDialect {
         boolean isFirst = true;
         while (wheresIterator.hasNext()) {
             Wheres whs = wheresIterator.next();
-            ColumnModel columnModel = tableMapping.getColumnByJavaName(whs.getKey());
-            if (isFirst) {
+            if (!isFirst) {
                 chain.setOperation(whs.getLogic());
+                isFirst = false;
             }
-            isFirst = false;
-            Wheres.Operation operation = whs.getEnumOperation();
-            if (operation.equals(Wheres.Operation.IN)) {
-                List<Object> valueList = (List<Object>) whs.getValue();
-
-                chain.in();
-                chain.setBegin();
-                Iterator<Object> inIterator = valueList.iterator();
-                int i = 0;
-                while (inIterator.hasNext()) {
-                    Object object = inIterator.next();
-                    chain.setValue(":" + columnModel.getJavaName() + i);
-                    valuesForPrepared.addValue(":" + columnModel.getJavaName() + i, object);
-                    if (inIterator.hasNext()) {
-                        chain.setSplit();
-                    }
-                    i++;
-                }
-                chain.setEnd();
-            } else if (operation.equals(Wheres.Operation.LIKE)) {
-                chain.setValue(columnModel.getColumnName()).like().setBegin().setValue(":" + columnModel.getJavaName()).setEnd();
-                valuesForPrepared.addValue(":" + columnModel.getJavaName(), "%" + whs.getValue() + "%");
-            } else {
-                chain.setValue(columnModel.getColumnName() + whs.getOperation() + ":" + columnModel.getJavaName());
-                valuesForPrepared.addValue(":" + columnModel.getJavaName(), whs.getValue());
-            }
+            selectWhereChain(tableMapping, null, whs, chain, valuesForPrepared);
         }
 
         Limit limit = query.getLimit();
@@ -326,6 +301,39 @@ public abstract class MiddleCreator implements SQLDialect {
 
         valuesForPrepared.setSql(chain.toString());
         return valuesForPrepared;
+    }
+
+    private void selectWhereChain(TableModel tableMapping, String tableAsName, Wheres whs, SQLChain chain, ValuesForPrepared valuesForPrepared) {
+        ColumnModel columnModel = tableMapping.getColumnByJavaName(whs.getKey());
+
+        String cn = columnModel.getColumnName();
+        if (StringUtils.isNotBlank(tableAsName)) {
+            cn = tableAsName + "." + cn;
+        }
+        Wheres.Operation operation = whs.getEnumOperation();
+        if (operation.equals(Wheres.Operation.IN)) {
+            List<Object> valueList = (List<Object>) whs.getValue();
+
+            chain.setValue(cn).in().setBegin();
+            Iterator<Object> inIterator = valueList.iterator();
+            int i = 0;
+            while (inIterator.hasNext()) {
+                Object object = inIterator.next();
+                chain.setValue(":" + cn + i);
+                valuesForPrepared.addValue(":" + cn + i, object);
+                if (inIterator.hasNext()) {
+                    chain.setSplit();
+                }
+                i++;
+            }
+            chain.setEnd();
+        } else if (operation.equals(Wheres.Operation.LIKE)) {
+            chain.setValue(cn).like().setBegin().setValue(":" + cn).setEnd();
+            valuesForPrepared.addValue(":" + cn, "%" + whs.getValue() + "%");
+        } else {
+            chain.setValue(cn + whs.getOperation() + ":" + cn);
+            valuesForPrepared.addValue(":" + cn, whs.getValue());
+        }
     }
 
     public abstract void setLimit(SQLChain chain, Limit limit);
@@ -413,12 +421,9 @@ public abstract class MiddleCreator implements SQLDialect {
                 if (i != 0) {
                     chain.setOperation(wh.getLogic());
                 }
-                String k = joinModel.getTableAsName() + "." + wh.getKey();
-                chain.setValue(k)
-                        .setValue(wh.getOperation())
-                        .setValue(":" + k);
 
-                valuesForPrepared.addValue(":" + k, wh.getValue());
+
+                selectWhereChain(joinModel.getTableModel(), joinModel.getTableAsName(), wh, chain, valuesForPrepared);
             }
         }
 

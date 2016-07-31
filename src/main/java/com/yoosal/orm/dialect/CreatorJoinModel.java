@@ -78,7 +78,9 @@ public class CreatorJoinModel {
 
     public void addChild(CreatorJoinModel child) {
         if (!child.isQuery()) {
-            this.child.add(child);
+            if (this.child != null) {
+                this.child.add(child);
+            }
         }
     }
 

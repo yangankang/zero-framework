@@ -386,8 +386,8 @@ public class SQLChain {
         StringBuffer sql = new StringBuffer();
         for (int i = 0; i < commands.size(); i++) {
             Object object = commands.get(i);
-            if ((object instanceof Command) ||
-                    (i < commands.size() - 1 && commands.get(i + 1) instanceof Command)) {
+            if (((object instanceof Command) || (i < commands.size() - 1 && commands.get(i + 1) instanceof Command))
+                    && (i < commands.size() - 1 && commands.get(i + 1) != "(")) {
                 sql.append(String.valueOf(object) + " ");
             } else {
                 sql.append(String.valueOf(object));

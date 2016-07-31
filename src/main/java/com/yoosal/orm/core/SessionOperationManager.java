@@ -10,28 +10,37 @@ import java.util.List;
 
 public class SessionOperationManager implements Operation {
     public static ThreadLocal<SessionOperation> threadLocal = new ThreadLocal();
+    public static ThreadLocal<Boolean> isBegin = new ThreadLocal();
     private static DBMapping mapping = OperationManager.getMapping();
 
     @Override
     public void begin() throws SQLException {
         getOperation().begin();
+        isBegin.set(true);
     }
 
     private SessionOperation getOperation() {
-        if (threadLocal.get() == null) {
-            try {
+        try {
+            if (isBegin.get() != null && isBegin.get()) {
+                if (threadLocal.get() == null) {
+                    SessionOperation sessionOperation = new OrmSessionOperation(OperationManager.getDataSourceManager());
+                    sessionOperation.setDbMapping(mapping);
+                    threadLocal.set(sessionOperation);
+                }
+                return threadLocal.get();
+            } else {
                 SessionOperation sessionOperation = new OrmSessionOperation(OperationManager.getDataSourceManager());
                 sessionOperation.setDbMapping(mapping);
-                threadLocal.set(sessionOperation);
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
-            } catch (InstantiationException e) {
-                e.printStackTrace();
+                return sessionOperation;
             }
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InstantiationException e) {
+            e.printStackTrace();
         }
-        return threadLocal.get();
+        return null;
     }
 
     @Override
@@ -100,10 +109,12 @@ public class SessionOperationManager implements Operation {
     @Override
     public void commit() throws SQLException {
         getOperation().commit();
+        isBegin.set(false);
     }
 
     @Override
     public void rollback() {
         getOperation().rollback();
+        isBegin.set(false);
     }
 }
