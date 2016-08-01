@@ -12,6 +12,7 @@ public class SpringOperationManager extends OperationManager implements Initiali
     private Set<String> mapping;
     private boolean isAlter;
     private DataSource dataSource;
+    private DataSource slaveDataSource;
     private Map<String, DataSource> dataSourceMap;
     private String convert;
     private boolean isShowSql;
@@ -47,6 +48,11 @@ public class SpringOperationManager extends OperationManager implements Initiali
         groupDataSource.addGroup(null, dataSource);
         getDataSourceManager().addDataSource(groupDataSource);
         getDataSourceManager().setMasterDataSource(dataSource);
+    }
+
+    public void setSlaveDataSource(DataSource slaveDataSource) {
+        this.slaveDataSource = slaveDataSource;
+        getDataSourceManager().setSlaveDataSource(slaveDataSource);
     }
 
     public void setDataSourceMap(Map<String, DataSource> dataSourceMap) {

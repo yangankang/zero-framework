@@ -15,6 +15,7 @@ public class Query {
     private OrderBy orderBy = null;
     private Object idValue = null;
     private List<Join> joins = new ArrayList<Join>();
+    private boolean isMaster = true;
 
     public static Query query(Class clazz) {
         return new Query(clazz);
@@ -56,6 +57,20 @@ public class Query {
     public Query setClazz(Class clazz) {
         this.clazz = clazz;
         return this;
+    }
+
+    public Query master() {
+        this.isMaster = true;
+        return this;
+    }
+
+    public Query slave() {
+        this.isMaster = false;
+        return this;
+    }
+
+    public boolean isMaster() {
+        return this.isMaster;
     }
 
     public Query setDataSourceName(String dataSourceName) {

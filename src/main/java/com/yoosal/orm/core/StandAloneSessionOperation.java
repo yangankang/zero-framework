@@ -43,6 +43,13 @@ public class StandAloneSessionOperation implements SessionOperation {
 
     @Override
     public void close() {
+        if (slaveConnection != null) {
+            try {
+                slaveConnection.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
         try {
             if (connection != null && connection.isClosed()) {
                 connection = null;
@@ -71,6 +78,22 @@ public class StandAloneSessionOperation implements SessionOperation {
         }
         connection = dataSource.getConnection();
         return connection;
+    }
+
+    private Connection getQueryConnection(Query query) throws SQLException {
+        if (query.isMaster()) {
+            return getConnection();
+        } else {
+            if (slaveConnection != null) {
+                return slaveConnection;
+            }
+            DataSource slaveDataSource = dataSourceManager.getSlaveDataSource();
+            if (slaveDataSource == null) {
+                throw new SessionException("there is no slave dataSource");
+            }
+            slaveConnection = slaveDataSource.getConnection();
+            return slaveConnection;
+        }
     }
 
     private Connection getSlaveConnection() throws SQLException {
@@ -213,7 +236,7 @@ public class StandAloneSessionOperation implements SessionOperation {
     public List<ModelObject> list(Query query) {
         PreparedStatement statement = null;
         try {
-            connection = getConnection();
+            Connection connection = getQueryConnection(query);
             SQLDialect sqlDialect = getDialect(connection);
             ValuesForPrepared valuesForPrepared = sqlDialect.prepareSelect(dbMapping, query);
             statement = connection.prepareStatement(valuesForPrepared.getSql());
