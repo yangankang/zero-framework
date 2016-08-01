@@ -101,7 +101,7 @@ public class StandAloneSessionOperation implements SessionOperation {
 
     @Override
     public void begin() throws SQLException {
-        this.getConnection().setAutoCommit(true);
+        this.getConnection().setAutoCommit(false);
     }
 
     @Override

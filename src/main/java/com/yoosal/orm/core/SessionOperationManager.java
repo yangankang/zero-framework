@@ -9,30 +9,24 @@ import java.sql.SQLException;
 import java.util.List;
 
 public class SessionOperationManager implements Operation {
-    public static ThreadLocal<SessionOperation> threadLocal = new ThreadLocal();
-    public static ThreadLocal<Boolean> isBegin = new ThreadLocal();
+    public static ThreadLocal<LocalSessionModel> threadLocal = new ThreadLocal();
     private static DBMapping mapping = OperationManager.getMapping();
 
     @Override
     public void begin() throws SQLException {
-        getOperation().begin();
-        isBegin.set(true);
+        LocalSessionModel sessionModel = getOperation();
+        sessionModel.getSessionOperation().begin();
+        sessionModel.setIsBegin(true);
     }
 
-    private SessionOperation getOperation() {
+    private LocalSessionModel getOperation() {
         try {
-            if (isBegin.get() != null && isBegin.get()) {
-                if (threadLocal.get() == null) {
-                    SessionOperation sessionOperation = new OrmSessionOperation(OperationManager.getDataSourceManager());
-                    sessionOperation.setDbMapping(mapping);
-                    threadLocal.set(sessionOperation);
-                }
-                return threadLocal.get();
-            } else {
+            if (threadLocal.get() == null) {
                 SessionOperation sessionOperation = new OrmSessionOperation(OperationManager.getDataSourceManager());
                 sessionOperation.setDbMapping(mapping);
-                return sessionOperation;
+                threadLocal.set(new LocalSessionModel(sessionOperation));
             }
+            return threadLocal.get();
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         } catch (IllegalAccessException e) {
@@ -46,7 +40,8 @@ public class SessionOperationManager implements Operation {
     @Override
     public ModelObject save(ModelObject object) {
         try {
-            return getOperation().save(object);
+            LocalSessionModel sessionModel = getOperation();
+            return sessionModel.getSessionOperation().save(object);
         } finally {
             this.close();
         }
@@ -55,7 +50,8 @@ public class SessionOperationManager implements Operation {
     @Override
     public void update(ModelObject object) {
         try {
-            getOperation().update(object);
+            LocalSessionModel sessionModel = getOperation();
+            sessionModel.getSessionOperation().update(object);
         } finally {
             this.close();
         }
@@ -64,7 +60,8 @@ public class SessionOperationManager implements Operation {
     @Override
     public void updates(Batch batch) {
         try {
-            getOperation().updates(batch);
+            LocalSessionModel sessionModel = getOperation();
+            sessionModel.getSessionOperation().updates(batch);
         } finally {
             this.close();
         }
@@ -73,7 +70,8 @@ public class SessionOperationManager implements Operation {
     @Override
     public void remove(Query query) {
         try {
-            getOperation().remove(query);
+            LocalSessionModel sessionModel = getOperation();
+            sessionModel.getSessionOperation().remove(query);
         } finally {
             this.close();
         }
@@ -82,7 +80,8 @@ public class SessionOperationManager implements Operation {
     @Override
     public List<ModelObject> list(Query query) {
         try {
-            return getOperation().list(query);
+            LocalSessionModel sessionModel = getOperation();
+            return sessionModel.getSessionOperation().list(query);
         } finally {
             this.close();
         }
@@ -91,7 +90,8 @@ public class SessionOperationManager implements Operation {
     @Override
     public ModelObject query(Query query) {
         try {
-            return getOperation().query(query);
+            LocalSessionModel sessionModel = getOperation();
+            return sessionModel.getSessionOperation().query(query);
         } finally {
             this.close();
         }
@@ -100,7 +100,8 @@ public class SessionOperationManager implements Operation {
     @Override
     public long count(Query query) {
         try {
-            return getOperation().count(query);
+            LocalSessionModel sessionModel = getOperation();
+            return sessionModel.getSessionOperation().count(query);
         } finally {
             this.close();
         }
@@ -108,19 +109,30 @@ public class SessionOperationManager implements Operation {
 
     @Override
     public void commit() throws SQLException {
-        getOperation().commit();
-        isBegin.set(false);
+        try {
+            LocalSessionModel sessionModel = getOperation();
+            sessionModel.getSessionOperation().commit();
+            sessionModel.setIsBegin(false);
+        } catch (SQLException e) {
+            throw e;
+        } finally {
+            this.close();
+        }
     }
 
     @Override
     public void rollback() {
-        getOperation().rollback();
-        isBegin.set(false);
+        try {
+            LocalSessionModel sessionModel = getOperation();
+            sessionModel.getSessionOperation().rollback();
+            sessionModel.setIsBegin(false);
+        } finally {
+            this.close();
+        }
     }
 
     private void close() {
-        if (isBegin.get() == null || !isBegin.get()) {
-            getOperation().close();
-        }
+        LocalSessionModel sessionModel = getOperation();
+        sessionModel.close(threadLocal);
     }
 }
