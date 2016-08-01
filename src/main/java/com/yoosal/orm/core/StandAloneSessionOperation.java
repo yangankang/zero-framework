@@ -275,6 +275,7 @@ public class StandAloneSessionOperation implements SessionOperation {
                 Class b = join.getSourceObjectClass();
 
                 List<Wheres> wheres = join.getWheres();
+                boolean isMulti = join.isMulti();
                 List<ModelObject> aoes = datas.get(a);
                 /**
                  * 假如b为空那么当前join的左表就是Query的类
@@ -302,12 +303,16 @@ public class StandAloneSessionOperation implements SessionOperation {
                          * 确认wheres对应的值是相等的那么就把当前的ao加到bo得子项中
                          */
                         if (isConform) {
-                            List<ModelObject> chOs = bo.getModelArray(join.getJoinName());
-                            if (chOs == null) {
-                                chOs = new ArrayList<ModelObject>();
+                            if (isMulti) {
+                                List<ModelObject> chOs = bo.getModelArray(join.getJoinName());
+                                if (chOs == null) {
+                                    chOs = new ArrayList<ModelObject>();
+                                }
+                                chOs.add(ao);
+                                bo.put(join.getJoinName(), chOs);
+                            } else {
+                                bo.put(join.getJoinName(), ao);
                             }
-                            chOs.add(ao);
-                            bo.put(join.getJoinName(), chOs);
                         }
                     }
                 }

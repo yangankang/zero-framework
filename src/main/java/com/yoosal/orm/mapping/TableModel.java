@@ -20,7 +20,7 @@ public class TableModel extends AbstractModelCheck {
                 columnModelMap.put(cm.getJavaName(), cm);
             }
         }
-        return columnModelMap.get(key);
+        return columnModelMap.get(String.valueOf(key));
     }
 
     public String getJavaTableName() {

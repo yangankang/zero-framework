@@ -363,16 +363,21 @@ public abstract class MiddleCreator implements SQLDialect {
         SQLChain chain = new SQLChain();
         chain.select();
         if (allJoinModel != null) {
-            for (CreatorJoinModel jm : allJoinModel) {
+            Iterator<CreatorJoinModel> iterator = allJoinModel.iterator();
+            while (iterator.hasNext()) {
+                CreatorJoinModel jm = iterator.next();
                 Map<String, String> map = jm.getColumnAsName();
                 String tname = jm.getTableAsName();
-                Iterator iterator = map.entrySet().iterator();
-                while (iterator.hasNext()) {
-                    Map.Entry<String, String> entry = (Map.Entry<String, String>) iterator.next();
+                Iterator mapIterator = map.entrySet().iterator();
+                while (mapIterator.hasNext()) {
+                    Map.Entry<String, String> entry = (Map.Entry<String, String>) mapIterator.next();
                     chain.setValue(tname + "." + entry.getKey()).as().setValue(entry.getValue());
-                    if (iterator.hasNext()) {
+                    if (mapIterator.hasNext()) {
                         chain.setSplit();
                     }
+                }
+                if (iterator.hasNext()) {
+                    chain.setSplit();
                 }
             }
         }
@@ -384,7 +389,9 @@ public abstract class MiddleCreator implements SQLDialect {
         int valueCount = 0;
 
         if (leftJoinModels != null) {
-            for (CreatorJoinModel cm : leftJoinModels) {
+            Iterator<CreatorJoinModel> iterator = leftJoinModels.iterator();
+            while (iterator.hasNext()) {
+                CreatorJoinModel cm = iterator.next();
                 Join join = cm.getJoin();
                 chain.left().join().setValue(cm.getTableModel().getDbTableName()).as().setValue(cm.getTableAsName()).on();
                 List<Wheres> wheres = join.getWheres();
@@ -394,17 +401,21 @@ public abstract class MiddleCreator implements SQLDialect {
                     if (i != 0) {
                         chain.setOperation(wh.getLogic());
                     }
+                    ColumnModel keyColumnModel = cm.getTableModel().getColumnByJavaName(wh.getKey());
                     if (whValue.getClass().isEnum()) {
-                        chain.setValue(cm.getTableAsName() + "." + wh.getKey())
+                        //where的value的enum字段类型不在cm这个表中
+                        TableModel vtm = tableMapping.getTableMapping(whValue.getClass());
+                        ColumnModel vcm = vtm.getColumnByJavaName(whValue);
+                        chain.setValue(cm.getTableAsName() + "." + keyColumnModel.getColumnName())
                                 .setValue(wh.getOperation())
-                                .setValue(cm.getTableAsName() + "." + wh.getValue());
+                                .setValue(cm.getTableAsName() + "." + vcm.getColumnName());
                     } else {
                         TableModel leftm = tableMapping.getTableMapping(join.getSourceObjectClass());
                         if (leftm == null) {
                             throw new SQLDialectException("current query not find table " + join.getSourceObjectClass().getSimpleName());
                         }
                         String vc = valueColumn + (valueCount++);
-                        chain.setValue(joinModel.getModelByTableModel(leftm) + "." + wh.getKey())
+                        chain.setValue(joinModel.getModelByTableModel(leftm) + "." + keyColumnModel.getColumnName())
                                 .setValue(wh.getOperation())
                                 .setValue(":" + vc);
                         valuesForPrepared.addValue(":" + vc, whValue);
@@ -414,6 +425,14 @@ public abstract class MiddleCreator implements SQLDialect {
         }
 
         List<Wheres> wheres = query.getWheres();
+        Object idValue = query.getIdValue();
+        if (idValue != null) {
+            List<ColumnModel> columnModels = joinModel.getTableModel().getMappingPrimaryKeyColumnModels();
+            if (columnModels.size() > 0) {
+                ColumnModel cm = columnModels.get(0);
+                wheres.add(new Wheres(cm.getJavaName(), idValue));
+            }
+        }
         if (wheres != null && wheres.size() > 0) {
             chain.where();
             for (int i = 0; i < wheres.size(); i++) {
@@ -421,7 +440,6 @@ public abstract class MiddleCreator implements SQLDialect {
                 if (i != 0) {
                     chain.setOperation(wh.getLogic());
                 }
-
 
                 selectWhereChain(joinModel.getTableModel(), joinModel.getTableAsName(), wh, chain, valuesForPrepared);
             }
@@ -460,7 +478,7 @@ public abstract class MiddleCreator implements SQLDialect {
 
         for (Join join : joins) {
             TableModel joinTableModel = dbMapping.getTableMapping(join.getObjectClass());
-            List<ColumnModel> joinColumnModels = tableModel.getMappingColumnModels();
+            List<ColumnModel> joinColumnModels = joinTableModel.getMappingColumnModels();
             CreatorJoinModel childJoinModel = new CreatorJoinModel();
             childJoinModel.setTableModel(joinTableModel);
             childJoinModel.setJoin(join);
