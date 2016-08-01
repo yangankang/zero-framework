@@ -15,16 +15,23 @@ import java.util.List;
 public class OrmSessionOperation implements SessionOperation {
     private static final String sessionOperationClass = OperationManager.getSessionOperation();
     private DBMapping mapping = null;
+    private Class soClass;
     private SessionOperation sessionOperation;
     private DataSourceManager dataSourceManager;
 
-    public OrmSessionOperation(DataSourceManager dataSourceManager) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
+    public OrmSessionOperation(DataSourceManager dataSourceManager) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
         this.dataSourceManager = dataSourceManager;
         if (StringUtils.isNotBlank(sessionOperationClass)) {
-            sessionOperation = (SessionOperation) Class.forName(sessionOperationClass).newInstance();
+            soClass = Class.forName(sessionOperationClass);
         }
+        setSessionOperation();
+    }
+
+    private SessionOperation setSessionOperation() throws IllegalAccessException, InstantiationException {
+        sessionOperation = (SessionOperation) soClass.newInstance();
         sessionOperation.setDataSourceManager(this.dataSourceManager);
         sessionOperation.setDbMapping(mapping);
+        return sessionOperation;
     }
 
     @Override

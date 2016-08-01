@@ -48,7 +48,7 @@ public class SessionOperationManager implements Operation {
         try {
             return getOperation().save(object);
         } finally {
-            getOperation().close();
+            this.close();
         }
     }
 
@@ -57,7 +57,7 @@ public class SessionOperationManager implements Operation {
         try {
             getOperation().update(object);
         } finally {
-            getOperation().close();
+            this.close();
         }
     }
 
@@ -66,7 +66,7 @@ public class SessionOperationManager implements Operation {
         try {
             getOperation().updates(batch);
         } finally {
-            getOperation().close();
+            this.close();
         }
     }
 
@@ -75,7 +75,7 @@ public class SessionOperationManager implements Operation {
         try {
             getOperation().remove(query);
         } finally {
-            getOperation().close();
+            this.close();
         }
     }
 
@@ -84,7 +84,7 @@ public class SessionOperationManager implements Operation {
         try {
             return getOperation().list(query);
         } finally {
-            getOperation().close();
+            this.close();
         }
     }
 
@@ -93,7 +93,7 @@ public class SessionOperationManager implements Operation {
         try {
             return getOperation().query(query);
         } finally {
-            getOperation().close();
+            this.close();
         }
     }
 
@@ -102,7 +102,7 @@ public class SessionOperationManager implements Operation {
         try {
             return getOperation().count(query);
         } finally {
-            getOperation().close();
+            this.close();
         }
     }
 
@@ -116,5 +116,11 @@ public class SessionOperationManager implements Operation {
     public void rollback() {
         getOperation().rollback();
         isBegin.set(false);
+    }
+
+    private void close() {
+        if (isBegin.get() == null || !isBegin.get()) {
+            getOperation().close();
+        }
     }
 }

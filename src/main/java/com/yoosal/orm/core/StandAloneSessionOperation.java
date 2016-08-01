@@ -20,7 +20,7 @@ import java.sql.*;
 import java.util.*;
 
 public class StandAloneSessionOperation implements SessionOperation {
-    //private static final Logger logger = Logger.getLogger(StandAloneSessionOperation.class);
+    private static final Logger logger = Logger.getLogger(StandAloneSessionOperation.class);
     private DataSourceManager dataSourceManager;
     private Connection connection = null;
     private Connection slaveConnection = null;
@@ -106,7 +106,6 @@ public class StandAloneSessionOperation implements SessionOperation {
 
     @Override
     public ModelObject save(ModelObject object) {
-        Connection connection = null;
         PreparedStatement statement = null;
         try {
             connection = getConnection();
@@ -155,7 +154,6 @@ public class StandAloneSessionOperation implements SessionOperation {
 
     @Override
     public void update(ModelObject object) {
-        Connection connection = null;
         PreparedStatement statement = null;
         try {
             connection = getConnection();
@@ -174,7 +172,6 @@ public class StandAloneSessionOperation implements SessionOperation {
 
     @Override
     public void updates(Batch batch) {
-        Connection connection = null;
         PreparedStatement statement = null;
         try {
             connection = getConnection();
@@ -196,7 +193,6 @@ public class StandAloneSessionOperation implements SessionOperation {
 
     @Override
     public void remove(Query query) {
-        Connection connection = null;
         PreparedStatement statement = null;
         try {
             connection = getConnection();
@@ -215,7 +211,6 @@ public class StandAloneSessionOperation implements SessionOperation {
 
     @Override
     public List<ModelObject> list(Query query) {
-        Connection connection = null;
         PreparedStatement statement = null;
         try {
             connection = getConnection();
@@ -360,7 +355,6 @@ public class StandAloneSessionOperation implements SessionOperation {
 
     @Override
     public long count(Query query) {
-        Connection connection = null;
         PreparedStatement statement = null;
         long count = 0;
         try {
