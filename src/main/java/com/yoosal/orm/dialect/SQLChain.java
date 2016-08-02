@@ -10,6 +10,13 @@ import java.util.*;
 public class SQLChain {
     private static final int DEFAULT_LENGTH = 255;
 
+    public SQLChain setChain(SQLChain chain) {
+        if (chain != null) {
+            this.commands.addAll(chain.commands);
+        }
+        return this;
+    }
+
     private enum Command {
         CREATE, TABLE, IF, NOT, EXISTS, PRIMARY, KEY, AUTO_INCREMENT, NULL, DEFAULT,
         INDEX, ALTER, ADD, INSERT, INTO, VALUES, UPDATE, SET, WHERE, AND, OR, ENGINE,

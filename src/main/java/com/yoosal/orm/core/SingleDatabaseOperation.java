@@ -168,7 +168,7 @@ public class SingleDatabaseOperation implements SessionOperation {
             connection = getConnection();
             SQLDialect sqlDialect = getDialect(connection);
             TableModel tableModel = dbMapping.getTableMapping(query.getObjectClass());
-            ValuesForPrepared valuesForPrepared = sqlDialect.prepareDelete(tableModel, query);
+            ValuesForPrepared valuesForPrepared = sqlDialect.prepareDelete(dbMapping, query);
             statement = connection.prepareStatement(valuesForPrepared.getSql());
             valuesForPrepared.setPrepared(statement);
             statement.execute();

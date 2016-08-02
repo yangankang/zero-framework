@@ -408,13 +408,14 @@ public abstract class StandardSQL implements SQLDialect {
     }
 
     @Override
-    public ValuesForPrepared prepareDelete(TableModel tableMapping, Query query) {
-        ValuesForPrepared valuesForPrepared = common(tableMapping, query);
+    public ValuesForPrepared prepareDelete(DBMapping dbMapping, Query query) {
+        TableModel tableModel = dbMapping.getTableMapping(query.getObjectClass());
+        ValuesForPrepared valuesForPrepared = common(tableModel, query);
         String lastSQLString = valuesForPrepared.getSql();
         if (StringUtils.isBlank(lastSQLString)) {
             throw new SQLDialectException("delete sql must has where");
         }
-        valuesForPrepared.setSql("DELETE FROM " + tableMapping.getDbTableName() + valuesForPrepared.getSql());
+        valuesForPrepared.setSql("DELETE FROM " + tableModel.getDbTableName() + valuesForPrepared.getSql());
 
         showSQL(valuesForPrepared.getSql());
 

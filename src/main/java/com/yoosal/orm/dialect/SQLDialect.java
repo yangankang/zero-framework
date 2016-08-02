@@ -45,7 +45,7 @@ public interface SQLDialect {
 
     ValuesForPrepared prepareUpdateBatch(TableModel tableMapping, Batch batch);
 
-    ValuesForPrepared prepareDelete(TableModel tableMapping, Query query);
+    ValuesForPrepared prepareDelete(DBMapping tableMapping, Query query);
 
     ValuesForPrepared prepareSelect(DBMapping dbMapping, Query query);
 
