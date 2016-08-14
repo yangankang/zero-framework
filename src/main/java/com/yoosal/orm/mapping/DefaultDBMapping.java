@@ -14,6 +14,8 @@ import com.yoosal.orm.dialect.SQLDialectFactory;
 import com.yoosal.orm.exception.OrmMappingException;
 
 import javax.sql.DataSource;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.sql.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -221,53 +223,87 @@ public class DefaultDBMapping implements DBMapping {
                     model.setDataSourceName(dataSourceName);
                 }
                 model.convert();
-
-                Object[] objects = clazz.getEnumConstants();
-                int i = 0;
-                for (Object obj : objects) {
-                    ColumnModel columnModel = new ColumnModel();
-                    columnModel.setWordConvert(convert);
-                    columnModel.setCode(i);
-                    columnModel.setJavaName(obj.toString());
-                    Column column = null;
-                    try {
-                        column = clazz.getField(obj.toString()).getAnnotation(Column.class);
-                    } catch (NoSuchFieldException e) {
-                        throw new OrmMappingException("not find Column in field " + tableName + "." + obj.toString(), e);
-                    }
-                    String name = column == null ? null : column.name();
-                    if (StringUtils.isBlank(name)) name = null;
-                    Class type = column == null ? String.class : column.type();
-                    long length = column == null ? 255 : column.length();
-                    if (length == 255 && type == Integer.class) length = 11;
-                    if (length == 255 && type == Long.class) length = 13;
-                    if (length == 255 && type == Double.class) length = 16;
-                    if (length == 255 && type == Text.class) length = 0;
-                    boolean isPrimaryKey = (column == null ? false : column.key());
-                    Class generateStrategy = (column == null ? null : column.strategy());
-                    if (generateStrategy != null && generateStrategy.isAssignableFrom(Column.class))
-                        generateStrategy = null;
-                    boolean isLock = (column == null ? false : column.lock());
-
-                    boolean index = (column == null ? false : column.index());
-                    boolean allowNull = (column == null ? true : column.allowNull());
-                    DefaultValue defaultValue = (column == null ? null : column.defaultValue());
-
-                    columnModel.setPrimaryKey(isPrimaryKey);
-                    columnModel.setJavaType(type);
-                    columnModel.setLength(length);
-                    columnModel.setGenerateStrategy(generateStrategy);
-                    columnModel.setLock(isLock);
-                    columnModel.setAllowNull(allowNull);
-                    columnModel.setDefaultValue(defaultValue);
-                    columnModel.setIndex(index);
-
-                    columnModel.convert();
-                    model.addMappingColumnModel(columnModel);
-                    i++;
+                if (clazz.isEnum()) {
+                    setEnumClass(clazz, model, convert, tableName);
+                } else {
+                    setBeanClass(clazz, model, convert);
                 }
                 mappingModelMap.put(clazz, model);
             }
         }
+    }
+
+    private void setEnumClass(Class clazz, TableModel model, String convert, String tableName) {
+        Object[] objects = clazz.getEnumConstants();
+        int i = 0;
+        for (Object obj : objects) {
+            ColumnModel columnModel = new ColumnModel();
+            columnModel.setWordConvert(convert);
+            columnModel.setCode(i);
+            columnModel.setJavaName(obj.toString());
+            Column column = null;
+            try {
+                column = clazz.getField(obj.toString()).getAnnotation(Column.class);
+            } catch (NoSuchFieldException e) {
+                throw new OrmMappingException("not find Column in field " + tableName + "." + obj.toString(), e);
+            }
+            setColumn(column, columnModel);
+            model.addMappingColumnModel(columnModel);
+            i++;
+        }
+    }
+
+    private void setBeanClass(Class clazz, TableModel model, String convert) {
+        Field[] fields = clazz.getDeclaredFields();
+        int i = 0;
+        for (Field field : fields) {
+            field.setAccessible(true);
+            String fieldName = field.getName();
+            ColumnModel columnModel = new ColumnModel();
+            columnModel.setWordConvert(convert);
+            columnModel.setCode(i);
+            columnModel.setJavaName(fieldName);
+            Column column = field.getAnnotation(Column.class);
+            if (column == null) {
+                try {
+                    Method method = clazz.getMethod(StringUtils.beanFieldToMethod(fieldName));
+                    column = method.getAnnotation(Column.class);
+                } catch (NoSuchMethodException e) {
+                }
+            }
+            setColumn(column, columnModel);
+            model.addMappingColumnModel(columnModel);
+            i++;
+        }
+    }
+
+    private void setColumn(Column column, ColumnModel columnModel) {
+        String name = column == null ? null : column.name();
+        if (StringUtils.isBlank(name)) name = null;
+        Class type = column == null ? String.class : column.type();
+        long length = column == null ? 255 : column.length();
+        if (length == 255 && type == Integer.class) length = 11;
+        if (length == 255 && type == Long.class) length = 13;
+        if (length == 255 && type == Double.class) length = 16;
+        if (length == 255 && type == Text.class) length = 0;
+        boolean isPrimaryKey = (column == null ? false : column.key());
+        Class generateStrategy = (column == null ? null : column.strategy());
+        if (generateStrategy != null && generateStrategy.isAssignableFrom(Column.class))
+            generateStrategy = null;
+        boolean isLock = (column == null ? false : column.lock());
+
+        boolean index = (column == null ? false : column.index());
+        boolean allowNull = (column == null ? true : column.allowNull());
+        DefaultValue defaultValue = (column == null ? null : column.defaultValue());
+
+        columnModel.setPrimaryKey(isPrimaryKey);
+        columnModel.setJavaType(type);
+        columnModel.setLength(length);
+        columnModel.setGenerateStrategy(generateStrategy);
+        columnModel.setLock(isLock);
+        columnModel.setAllowNull(allowNull);
+        columnModel.setDefaultValue(defaultValue);
+        columnModel.setIndex(index);
+        columnModel.convert();
     }
 }

@@ -319,10 +319,6 @@ public abstract class StringUtils {
         }
         String pathToUse = replace(path, WINDOWS_FOLDER_SEPARATOR, FOLDER_SEPARATOR);
 
-        // Strip prefix from path to analyze, to not treat it as part of the
-        // first path element. This is necessary to correctly parse paths like
-        // "file:core/../core/io/Resource.class", where the ".." should just
-        // strip the first "core" directory while keeping the "file:" prefix.
         int prefixIndex = pathToUse.indexOf(":");
         String prefix = "";
         if (prefixIndex != -1) {
@@ -341,22 +337,17 @@ public abstract class StringUtils {
         for (int i = pathArray.length - 1; i >= 0; i--) {
             String element = pathArray[i];
             if (CURRENT_PATH.equals(element)) {
-                // Points to current directory - drop it.
             } else if (TOP_PATH.equals(element)) {
-                // Registering top path found.
                 tops++;
             } else {
                 if (tops > 0) {
-                    // Merging path element with element corresponding to top path.
                     tops--;
                 } else {
-                    // Normal path element found.
                     pathElements.add(0, element);
                 }
             }
         }
 
-        // Remaining top paths need to be retained.
         for (int i = 0; i < tops; i++) {
             pathElements.add(0, TOP_PATH);
         }
@@ -374,10 +365,7 @@ public abstract class StringUtils {
         String country = (parts.length > 1 ? parts[1] : "");
         String variant = "";
         if (parts.length >= 2) {
-            // There is definitely a variant, and it is everything after the country
-            // code sans the separator between the country code and the variant.
             int endIndexOfCountryCode = localeString.indexOf(country) + country.length();
-            // Strip off any leading '_' and whitespace, what's left is the variant.
             variant = trimLeadingWhitespace(localeString.substring(endIndexOfCountryCode));
             if (variant.startsWith("_")) {
                 variant = trimLeadingCharacter(variant, '_');
@@ -706,5 +694,36 @@ public abstract class StringUtils {
             byteList.add(mixByte);
         }
         return byteList;
+    }
+
+    public static String beanFieldToMethod(String fieldName) {
+        char[] chars = fieldName.toCharArray();
+        if (chars.length == 1) {
+            return "get" + fieldName.toUpperCase();
+        } else {
+            if (chars[0] >= 'A' && chars[0] <= 'Z') {
+                return "get" + fieldName;
+            }
+            if (chars[0] >= 'a' && chars[0] <= 'z'
+                    && chars[1] >= 'A' && chars[1] <= 'Z') {
+                return "get" + fieldName;
+            } else {
+                return "get" + ("" + chars[0]).toUpperCase() + fieldName.substring(1, fieldName.length());
+            }
+        }
+    }
+
+    public static String beanMethodToField(String methodName) {
+        char[] chars = methodName.toCharArray();
+        if (chars.length == 4) {
+            return (chars[3] + "").toLowerCase();
+        } else {
+            if ((chars[3] >= 'A' && chars[3] <= 'Z' && chars[4] >= 'A' && chars[4] <= 'Z') ||
+                    (chars[3] >= 'a' && chars[3] <= 'z')) {
+                return methodName.substring(3, methodName.length());
+            } else {
+                return ("" + chars[3]).toUpperCase() + methodName.substring(3, methodName.length());
+            }
+        }
     }
 }
