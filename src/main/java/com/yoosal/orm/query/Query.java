@@ -169,12 +169,22 @@ public class Query {
         return this;
     }
 
+    /**
+     * 添加条件优先级 SQL表现为 (
+     *
+     * @return
+     */
     public Query addBeginPriority() {
         Wheres wheres = this.wheres.get(this.wheres.size() - 1);
         wheres.addBeginPriority();
         return this;
     }
 
+    /**
+     * 添加条件优先级 SQL表现为 )
+     *
+     * @return
+     */
     public Query addEndPriority() {
         Wheres wheres = this.wheres.get(this.wheres.size() - 1);
         wheres.addEndPriority();
