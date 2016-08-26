@@ -1,5 +1,8 @@
 package com.yoosal.orm.query;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * 单条查询语句中包含的所有条件,条件列表：
  * static final String operationEqual = "=";
@@ -20,10 +23,20 @@ public class Wheres {
         AND, OR
     }
 
+    /**
+     * 用来设置 OR 和 AND的优先级 SQl表现为括号 ()
+     */
+    public enum Priority {
+        BEGIN, END
+    }
+
     private Logic logic = Logic.AND;
     private String key;
     private Object value;
     private Operation operation = Operation.EQUAL;
+
+    private List<Priority> begins = new ArrayList<Priority>();
+    private List<Priority> ends = new ArrayList<Priority>();
 
     /**
      * in 操作符，判断某列是否包含
@@ -199,5 +212,21 @@ public class Wheres {
 
     public void setLogic(Logic logic) {
         this.logic = logic;
+    }
+
+    public void addBeginPriority() {
+        begins.add(Priority.BEGIN);
+    }
+
+    public void addEndPriority() {
+        begins.add(Priority.END);
+    }
+
+    public List<Priority> getBegins() {
+        return begins;
+    }
+
+    public List<Priority> getEnds() {
+        return ends;
     }
 }

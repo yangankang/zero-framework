@@ -340,13 +340,8 @@ public abstract class MiddleCreator implements SQLDialect {
         chain.setChain(tableSQLChain);
         chain.where();
 
-        for (int i = 0; i < wheres.size(); i++) {
-            Wheres whs = wheres.get(i);
-            if (i != 0) {
-                chain.setOperation(whs.getLogic());
-            }
-            selectWhereChain(joinModel.getTableModel(), joinModel.getTableAsName(), whs, chain, valuesForPrepared);
-        }
+        this.setWheres(joinModel.getTableModel(), wheres, joinModel.getTableAsName(), chain, valuesForPrepared);
+
         this.setJoinWheres(tableMapping, joinModel, chain, valuesForPrepared, true);
 
         valuesForPrepared.setSql(chain.toString());
@@ -390,18 +385,8 @@ public abstract class MiddleCreator implements SQLDialect {
         List<Wheres> wheres = query.getWheres();
         Object idValue = query.getIdValue();
         this.addIdToWheres(joinModel.getTableModel(), idValue, wheres);
-        if (wheres != null && wheres.size() > 0) {
-            chain.where();
-            for (int i = 0; i < wheres.size(); i++) {
-                Wheres wh = wheres.get(i);
-                if (i != 0) {
-                    chain.setOperation(wh.getLogic());
-                }
 
-                selectWhereChain(joinModel.getTableModel(), joinModel.getTableAsName(), wh, chain, valuesForPrepared);
-            }
-        }
-
+        this.setWheres(joinModel.getTableModel(), wheres, joinModel.getTableAsName(), chain, valuesForPrepared);
 
         this.setLimitAndOrder(query, joinModel, chain);
 
@@ -537,20 +522,43 @@ public abstract class MiddleCreator implements SQLDialect {
             chain.where();
             Object idValue = query.getIdValue();
             this.addIdToWheres(tableMapping, idValue, wheres);
-            Iterator<Wheres> wheresIterator = wheres.iterator();
-            boolean isFirst = true;
-            while (wheresIterator.hasNext()) {
-                Wheres whs = wheresIterator.next();
-                if (!isFirst) {
-                    chain.setOperation(whs.getLogic());
-                    isFirst = false;
-                }
-                selectWhereChain(tableMapping, null, whs, chain, valuesForPrepared);
-            }
+            this.setWheres(tableMapping, wheres, null, chain, valuesForPrepared);
         }
         valuesForPrepared.setSql(chain.toString());
         showSQL(valuesForPrepared.getSql());
         return valuesForPrepared;
+    }
+
+    private void setWheres(TableModel tableModel, List<Wheres> wheres, String tableAsName, SQLChain chain, ValuesForPrepared valuesForPrepared) {
+
+        if (wheres != null && wheres.size() > 0) {
+            chain.where();
+            for (int i = 0; i < wheres.size(); i++) {
+                Wheres wh = wheres.get(i);
+
+                List<Wheres.Priority> beginPriorities = wh.getBegins();
+                List<Wheres.Priority> endPriorities = wh.getEnds();
+                //添加开始的括号 (
+                if (beginPriorities != null && beginPriorities.size() > 0) {
+                    for (Wheres.Priority priority : beginPriorities) {
+                        chain.setBegin();
+                    }
+                }
+
+                //添加结束的括号 )
+                if (beginPriorities != null && endPriorities.size() > 0) {
+                    for (Wheres.Priority priority : endPriorities) {
+                        chain.setEnd();
+                    }
+                }
+
+                if (i != 0) {
+                    chain.setOperation(wh.getLogic());
+                }
+
+                selectWhereChain(tableModel, tableAsName, wh, chain, valuesForPrepared);
+            }
+        }
     }
 
     @Override

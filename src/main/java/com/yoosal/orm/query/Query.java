@@ -169,6 +169,18 @@ public class Query {
         return this;
     }
 
+    public Query addBeginPriority() {
+        Wheres wheres = this.wheres.get(this.wheres.size() - 1);
+        wheres.addBeginPriority();
+        return this;
+    }
+
+    public Query addEndPriority() {
+        Wheres wheres = this.wheres.get(this.wheres.size() - 1);
+        wheres.addEndPriority();
+        return this;
+    }
+
     public List<Join> getJoins() {
         return joins;
     }
