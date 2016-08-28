@@ -338,7 +338,6 @@ public abstract class MiddleCreator implements SQLDialect {
         }
         chain.from();
         chain.setChain(tableSQLChain);
-        chain.where();
 
         this.setWheres(joinModel.getTableModel(), wheres, joinModel.getTableAsName(), chain, valuesForPrepared);
 
@@ -519,7 +518,6 @@ public abstract class MiddleCreator implements SQLDialect {
 
         List<Wheres> wheres = query.getWheres();
         if (wheres != null && wheres.size() > 0) {
-            chain.where();
             Object idValue = query.getIdValue();
             this.addIdToWheres(tableMapping, idValue, wheres);
             this.setWheres(tableMapping, wheres, null, chain, valuesForPrepared);
