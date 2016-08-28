@@ -45,8 +45,9 @@ public class Wheres {
      * @param value
      * @return
      */
-    public static Wheres in(Object key, Object value) {
-        return new Wheres(key, value, Operation.IN);
+    public Wheres in(Object key, Object value) {
+        this.set(key, value, Operation.IN);
+        return this;
     }
 
     /**
@@ -56,8 +57,9 @@ public class Wheres {
      * @param value
      * @return
      */
-    public static Wheres equal(Object key, Object value) {
-        return new Wheres(key, value, Operation.EQUAL);
+    public Wheres equal(Object key, Object value) {
+        this.set(key, value, Operation.EQUAL);
+        return this;
     }
 
     /**
@@ -67,8 +69,9 @@ public class Wheres {
      * @param value
      * @return
      */
-    public static Wheres notEqual(Object key, Object value) {
-        return new Wheres(key, value, Operation.NOT_EQUAL);
+    public Wheres notEqual(Object key, Object value) {
+        this.set(key, value, Operation.NOT_EQUAL);
+        return this;
     }
 
     /**
@@ -78,8 +81,9 @@ public class Wheres {
      * @param value
      * @return
      */
-    public static Wheres gt(Object key, Object value) {
-        return new Wheres(key, value, Operation.GT);
+    public Wheres gt(Object key, Object value) {
+        this.set(key, value, Operation.GT);
+        return this;
     }
 
     /**
@@ -89,8 +93,9 @@ public class Wheres {
      * @param value
      * @return
      */
-    public static Wheres gte(Object key, Object value) {
-        return new Wheres(key, value, Operation.GT_EQUAL);
+    public Wheres gte(Object key, Object value) {
+        this.set(key, value, Operation.GT_EQUAL);
+        return this;
     }
 
     /**
@@ -100,8 +105,9 @@ public class Wheres {
      * @param value
      * @return
      */
-    public static Wheres lt(Object key, Object value) {
-        return new Wheres(key, value, Operation.LT);
+    public Wheres lt(Object key, Object value) {
+        this.set(key, value, Operation.LT);
+        return this;
     }
 
     /**
@@ -111,8 +117,9 @@ public class Wheres {
      * @param value
      * @return
      */
-    public static Wheres lte(Object key, Object value) {
-        return new Wheres(key, value, Operation.LT_EQUAL);
+    public Wheres lte(Object key, Object value) {
+        this.set(key, value, Operation.LT_EQUAL);
+        return this;
     }
 
     /**
@@ -122,8 +129,26 @@ public class Wheres {
      * @param value
      * @return
      */
-    public static Wheres like(Object key, Object value) {
-        return new Wheres(key, value, Operation.LIKE);
+    public Wheres like(Object key, Object value) {
+        this.set(key, value, Operation.LIKE);
+        return this;
+    }
+
+
+    public static Wheres or() {
+        Wheres wheres = new Wheres();
+        wheres.setLogic(Logic.OR);
+        return wheres;
+    }
+
+    public static Wheres and() {
+        Wheres wheres = new Wheres();
+        wheres.setLogic(Logic.AND);
+        return wheres;
+    }
+
+    public Wheres() {
+
     }
 
     public Wheres(Object key, Object value, Operation operation) {
@@ -149,6 +174,18 @@ public class Wheres {
         this.key = key;
         this.value = value;
         this.operation = Operation.EQUAL;
+    }
+
+    public void set(Object key, Object value) {
+        this.key = String.valueOf(key);
+        this.value = value;
+        this.operation = Operation.EQUAL;
+    }
+
+    public void set(Object key, Object value, Operation operation) {
+        this.key = String.valueOf(key);
+        this.value = value;
+        this.operation = operation;
     }
 
     public String getKey() {
@@ -214,11 +251,11 @@ public class Wheres {
         this.logic = logic;
     }
 
-    public void addBeginPriority() {
+    protected void addBeginPriority() {
         begins.add(Priority.BEGIN);
     }
 
-    public void addEndPriority() {
+    protected void addEndPriority() {
         begins.add(Priority.END);
     }
 

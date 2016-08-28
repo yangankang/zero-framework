@@ -45,6 +45,19 @@ public class Query {
         return query;
     }
 
+
+    public static Query priority(Class clazz, Wheres... wheres) {
+        Query query = new Query(clazz);
+        if (wheres.length > 1) {
+            wheres[0].addBeginPriority();
+            wheres[wheres.length - 1].addEndPriority();
+        }
+        for (Wheres wh : wheres) {
+            query.where(wh);
+        }
+        return query;
+    }
+
     public Query(Class clazz) {
         this.clazz = clazz;
     }
