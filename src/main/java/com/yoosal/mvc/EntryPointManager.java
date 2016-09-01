@@ -12,6 +12,7 @@ import com.yoosal.mvc.support.*;
 
 import javax.servlet.ServletContext;
 import java.io.IOException;
+import java.io.Writer;
 import java.util.*;
 
 /**
@@ -256,6 +257,17 @@ public class EntryPointManager {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+    public static void produceJavaScriptMapping(Writer out) throws IOException, ParseTemplateException {
+        JavaScriptMapping javaScriptMapping = new DefaultJavaScriptMapping();
+        javaScriptMapping.setMethodParses(SceneFactory.getControllersInfo());
+        javaScriptMapping.setAuthoritySupport(authoritySupport);
+        if (isCompressorJs()) {
+            javaScriptMapping.generateToStream(out, true);
+        } else {
+            javaScriptMapping.generateToStream(out, false);
         }
     }
 }

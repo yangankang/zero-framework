@@ -3,6 +3,8 @@ package com.yoosal.mvc.support;
 import com.yoosal.mvc.exception.ParseTemplateException;
 
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.Writer;
 import java.util.List;
 
 /**
@@ -18,4 +20,8 @@ public interface JavaScriptMapping {
     void generateToFile(String path, boolean isCompress) throws IOException, ParseTemplateException;
 
     void generateToFile(String path) throws ParseTemplateException, IOException;
+
+    void generateToStream(Writer out, boolean isCompress) throws ParseTemplateException, IOException;
+
+    void setAuthoritySupport(AuthoritySupport authoritySupport);
 }

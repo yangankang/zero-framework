@@ -19,8 +19,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.aspectj.weaver.tools.cache.SimpleCacheFactory.path;
+
 public class DefaultJavaScriptMapping implements JavaScriptMapping {
     private static final Logger logger = Logger.getLogger(DefaultJavaScriptMapping.class);
+    private AuthoritySupport authoritySupport;
     private List<ControllerMethodParse> methodParses;
     private String DEFAULT_TEMPLATE = "JavaScriptTemplate.js";
 
@@ -55,7 +58,14 @@ public class DefaultJavaScriptMapping implements JavaScriptMapping {
 
     private CInfo list2Info() {
         Map<String, List<CUnit>> map = new HashMap();
-        for (ControllerMethodParse methodParse : methodParses) {
+        List<ControllerMethodParse> parses = methodParses;
+        if (this.authoritySupport != null) {
+            parses = this.authoritySupport.canShowPrinter(parses);
+            if (parses == null) {
+                parses = methodParses;
+            }
+        }
+        for (ControllerMethodParse methodParse : parses) {
             List array = map.get(methodParse.getControllerName());
             if (array == null) {
                 array = new ArrayList();
@@ -100,6 +110,22 @@ public class DefaultJavaScriptMapping implements JavaScriptMapping {
         String js = this.parseTemplate();
         FileUtils.writeStringToFile(new File(path), js);
         develop(js, path);
+    }
+
+    @Override
+    public void generateToStream(Writer out, boolean isCompress) throws ParseTemplateException, IOException {
+        String js = this.parseTemplate();
+        try {
+            Class.forName("com.yahoo.platform.yui.compressor.JavaScriptCompressor");
+            YuiCompressorUtils.compress(js, out);
+        } catch (ClassNotFoundException e) {
+            out.append(js);
+        }
+    }
+
+    @Override
+    public void setAuthoritySupport(AuthoritySupport authoritySupport) {
+        this.authoritySupport = authoritySupport;
     }
 
     private void develop(String js, String path) throws IOException {
