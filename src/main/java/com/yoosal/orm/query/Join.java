@@ -90,8 +90,8 @@ public class Join {
         return joinName;
     }
 
-    public Join setJoinName(String joinName) {
-        this.joinName = joinName;
+    public Join setJoinName(Object joinName) {
+        this.joinName = String.valueOf(joinName);
         return this;
     }
 

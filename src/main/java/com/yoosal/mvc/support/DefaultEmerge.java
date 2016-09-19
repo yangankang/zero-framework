@@ -60,7 +60,7 @@ public class DefaultEmerge implements Emerge {
                     Map map = ModelObject.parseObject((String) object[0]);
                     return map;
                 } catch (Exception e) {
-                    throw new ClassCastException("request parameter case to " + s.getName() + " error.");
+                    throw new ClassCastException("request parameter case to " + s.getName() + " error by " + object[0]);
                 }
             } else {
 
