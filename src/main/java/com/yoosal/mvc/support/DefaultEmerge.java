@@ -9,9 +9,11 @@ import com.yoosal.mvc.convert.service.DefaultConversionService;
 import com.yoosal.orm.ModelObject;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.net.URLDecoder;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -46,10 +48,18 @@ public class DefaultEmerge implements Emerge {
                 || Date.class.isAssignableFrom(s)) {
             return conversionService.executeConversion(object[0], s);
         } else {
+            String obj = (String) object[0];
+            if (obj != null) {
+                try {
+                    obj = URLDecoder.decode(obj, "UTF-8");
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }
+            }
             if (Collection.class.isAssignableFrom(s)) {
                 //simple Implementation
                 try {
-                    List list = ModelObject.parseArray((String) object[0]);
+                    List list = ModelObject.parseArray(obj);
                     return list;
                 } catch (Exception e) {
                     throw new ClassCastException("action parameter case to " + s.getName() + " error.");
@@ -57,7 +67,7 @@ public class DefaultEmerge implements Emerge {
             } else if (Map.class.isAssignableFrom(s)) {
                 //simple Implementation
                 try {
-                    Map map = ModelObject.parseObject((String) object[0]);
+                    Map map = ModelObject.parseObject(obj);
                     return map;
                 } catch (Exception e) {
                     throw new ClassCastException("request parameter case to " + s.getName() + " error by " + object[0]);
@@ -65,7 +75,7 @@ public class DefaultEmerge implements Emerge {
             } else {
 
                 try {
-                    return JSON.toJavaObject(JSON.parseObject((String) object[0]), s);
+                    return JSON.toJavaObject(JSON.parseObject(obj), s);
                 } catch (JSONException e) {
                     return null;
                 }

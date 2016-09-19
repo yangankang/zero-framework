@@ -68,7 +68,7 @@ function __mvc_ajax_object(type, url, data, success, failed) {
             if (typeof d == 'object') {
                 d = JSON.stringify(d);
             }
-            dataStr = dataStr + "&" + i + "=" + d;
+            dataStr = dataStr + "&" + i + "=" + encodeURIComponent(d);
         }
         if (!dataStr || dataStr == "")return null;
         return dataStr.substring(1, dataStr.length);
