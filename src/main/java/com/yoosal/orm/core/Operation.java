@@ -10,6 +10,18 @@ import java.util.List;
  * 数据库基本操作的基类，直接面向开发者的接口
  */
 public interface Operation {
+
+    /**
+     * 使用
+     * Connection.TRANSACTION_NONE
+     * Connection.TRANSACTION_READ_UNCOMMITTED
+     * Connection.TRANSACTION_READ_COMMITTED
+     * Connection.TRANSACTION_REPEATABLE_READ
+     * Connection.TRANSACTION_SERIALIZABLE
+     * 作为参数
+     */
+    void setIsolation(int isolation) throws SQLException;
+
     /**
      * Transaction 的开始，
      */

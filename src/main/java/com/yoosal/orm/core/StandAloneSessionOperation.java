@@ -123,6 +123,11 @@ public class StandAloneSessionOperation implements SessionOperation {
     }
 
     @Override
+    public void setIsolation(int isolation) throws SQLException {
+        this.getConnection().setTransactionIsolation(isolation);
+    }
+
+    @Override
     public void begin() throws SQLException {
         this.getConnection().setAutoCommit(false);
     }

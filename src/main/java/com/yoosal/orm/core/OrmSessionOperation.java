@@ -51,6 +51,11 @@ public class OrmSessionOperation implements SessionOperation {
     }
 
     @Override
+    public void setIsolation(int isolation) throws SQLException {
+        sessionOperation.setIsolation(isolation);
+    }
+
+    @Override
     public void begin() throws SQLException {
         sessionOperation.begin();
     }

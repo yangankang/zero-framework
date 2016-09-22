@@ -13,6 +13,12 @@ public class SessionOperationManager implements Operation {
     private static DBMapping mapping = OperationManager.getMapping();
 
     @Override
+    public void setIsolation(int isolation) throws SQLException {
+        LocalSessionModel sessionModel = getOperation();
+        sessionModel.getSessionOperation().setIsolation(isolation);
+    }
+
+    @Override
     public void begin() throws SQLException {
         LocalSessionModel sessionModel = getOperation();
         sessionModel.getSessionOperation().begin();
