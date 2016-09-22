@@ -46,7 +46,11 @@ public class DefaultEmerge implements Emerge {
         if (ClassUtils.isPrimitiveOrWrapper(s)
                 || s.isAssignableFrom(String.class)
                 || Date.class.isAssignableFrom(s)) {
-            return conversionService.executeConversion(object[0], s);
+            String o = String.valueOf(object[0]);
+            if (object[0].equals("null") || object[0].equals("")) {
+                o = "0";
+            }
+            return conversionService.executeConversion(o, s);
         } else {
             String obj = (String) object[0];
             if (obj != null) {

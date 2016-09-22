@@ -204,13 +204,15 @@ public abstract class MiddleCreator implements SQLDialect {
             }
         }
 
-        chain.where();
-        while (wcIt.hasNext()) {
-            ColumnModel cm = wcIt.next();
-            valuesForPrepared.addValue(":" + cm.getJavaName(), object.get(cm.getJavaName()));
-            chain.setValue(cm.getColumnName()).and().setValue(":" + cm.getJavaName());
-            if (wcIt.hasNext()) {
-                chain.and();
+        if (wcIt.hasNext()) {
+            chain.where();
+            while (wcIt.hasNext()) {
+                ColumnModel cm = wcIt.next();
+                valuesForPrepared.addValue(":" + cm.getJavaName(), object.get(cm.getJavaName()));
+                chain.setValue(cm.getColumnName()).setEquals().setValue(":" + cm.getJavaName());
+                if (wcIt.hasNext()) {
+                    chain.and();
+                }
             }
         }
 
