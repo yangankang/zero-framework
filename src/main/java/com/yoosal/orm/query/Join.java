@@ -95,6 +95,11 @@ public class Join {
         return this;
     }
 
+    public Join setJoinName(String joinName) {
+        this.joinName = joinName;
+        return this;
+    }
+
     public Join setObjectClass(Class rightClass) {
         this.rightClass = rightClass;
         return this;
