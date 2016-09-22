@@ -2,6 +2,8 @@ package com.yoosal.orm.dialect;
 
 import com.yoosal.common.Logger;
 import com.yoosal.common.StringUtils;
+import com.yoosal.json.JSONArray;
+import com.yoosal.json.JSONObject;
 import com.yoosal.orm.ModelObject;
 import com.yoosal.orm.core.Batch;
 import com.yoosal.orm.exception.SQLDialectException;
@@ -136,7 +138,7 @@ public abstract class MiddleCreator implements SQLDialect {
         String sql = chain.toString();
         valuesForPrepared.setSql(sql);
 
-        showSQL(valuesForPrepared.getSql());
+        showSQL(valuesForPrepared.getSql(), valuesForPrepared);
         return valuesForPrepared;
     }
 
@@ -217,7 +219,7 @@ public abstract class MiddleCreator implements SQLDialect {
         }
 
         valuesForPrepared.setSql(chain.toString());
-        showSQL(valuesForPrepared.getSql());
+        showSQL(valuesForPrepared.getSql(), valuesForPrepared);
 
         return valuesForPrepared;
     }
@@ -225,6 +227,17 @@ public abstract class MiddleCreator implements SQLDialect {
     protected void showSQL(String sql) {
         if (this.isShowSQL) {
             logger.info(sql);
+        }
+    }
+
+    protected void showSQL(String sql, ValuesForPrepared valuesForPrepared) {
+        if (this.isShowSQL) {
+            try {
+                logger.info(sql);
+                logger.info("Parameter:" + JSONObject.toJSONString(valuesForPrepared.getValues()));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -261,7 +274,7 @@ public abstract class MiddleCreator implements SQLDialect {
             }
         }
         valuesForPrepared.setSql(chain.toString());
-        showSQL(valuesForPrepared.getSql());
+        showSQL(valuesForPrepared.getSql(), valuesForPrepared);
 
         return valuesForPrepared;
     }
@@ -346,7 +359,7 @@ public abstract class MiddleCreator implements SQLDialect {
         this.setJoinWheres(tableMapping, joinModel, chain, valuesForPrepared, true);
 
         valuesForPrepared.setSql(chain.toString());
-        showSQL(valuesForPrepared.getSql());
+        showSQL(valuesForPrepared.getSql(), valuesForPrepared);
         return valuesForPrepared;
     }
 
@@ -393,7 +406,7 @@ public abstract class MiddleCreator implements SQLDialect {
 
         String sql = chain.toString();
         valuesForPrepared.setSql(sql);
-        showSQL(valuesForPrepared.getSql());
+        showSQL(valuesForPrepared.getSql(), valuesForPrepared);
         return valuesForPrepared;
     }
 
@@ -525,7 +538,7 @@ public abstract class MiddleCreator implements SQLDialect {
             this.setWheres(tableMapping, wheres, null, chain, valuesForPrepared);
         }
         valuesForPrepared.setSql(chain.toString());
-        showSQL(valuesForPrepared.getSql());
+        showSQL(valuesForPrepared.getSql(), valuesForPrepared);
         return valuesForPrepared;
     }
 
