@@ -11,6 +11,14 @@ import java.util.List;
  */
 public interface Operation {
 
+    enum Isolation {
+        TRANSACTION_NONE,
+        TRANSACTION_READ_UNCOMMITTED,
+        TRANSACTION_READ_COMMITTED,
+        TRANSACTION_REPEATABLE_READ,
+        TRANSACTION_SERIALIZABLE
+    }
+
     /**
      * 使用
      * Connection.TRANSACTION_NONE
@@ -20,7 +28,7 @@ public interface Operation {
      * Connection.TRANSACTION_SERIALIZABLE
      * 作为参数
      */
-    void setIsolation(int isolation) throws SQLException;
+    void setIsolation(Isolation isolation) throws SQLException;
 
     /**
      * Transaction 的开始，

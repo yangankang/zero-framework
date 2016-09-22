@@ -123,8 +123,24 @@ public class StandAloneSessionOperation implements SessionOperation {
     }
 
     @Override
-    public void setIsolation(int isolation) throws SQLException {
-        this.getConnection().setTransactionIsolation(isolation);
+    public void setIsolation(Isolation isolation) throws SQLException {
+        int c = 0;
+        if (isolation.equals(Isolation.TRANSACTION_NONE)) {
+            c = Connection.TRANSACTION_NONE;
+        }
+        if (isolation.equals(Isolation.TRANSACTION_READ_COMMITTED)) {
+            c = Connection.TRANSACTION_READ_COMMITTED;
+        }
+        if (isolation.equals(Isolation.TRANSACTION_READ_UNCOMMITTED)) {
+            c = Connection.TRANSACTION_READ_UNCOMMITTED;
+        }
+        if (isolation.equals(Isolation.TRANSACTION_REPEATABLE_READ)) {
+            c = Connection.TRANSACTION_REPEATABLE_READ;
+        }
+        if (isolation.equals(Isolation.TRANSACTION_SERIALIZABLE)) {
+            c = Connection.TRANSACTION_SERIALIZABLE;
+        }
+        this.getConnection().setTransactionIsolation(c);
     }
 
     @Override
