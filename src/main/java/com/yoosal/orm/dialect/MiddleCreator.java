@@ -25,8 +25,8 @@ public abstract class MiddleCreator implements SQLDialect {
         typesMapping.put(char.class, "CHAR");
         typesMapping.put(Integer.class, "INT");
         typesMapping.put(int.class, "INT");
-        typesMapping.put(Date.class, "TIMESTAMP");
-        typesMapping.put(java.sql.Date.class, "TIMESTAMP");
+        typesMapping.put(Date.class, "DATETIME");
+        typesMapping.put(java.sql.Date.class, "DATETIME");
         typesMapping.put(Short.class, "SMALLINT");
         typesMapping.put(short.class, "SMALLINT");
         typesMapping.put(Byte.class, "TINYINT");
