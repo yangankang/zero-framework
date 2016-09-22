@@ -187,7 +187,7 @@ public abstract class MiddleCreator implements SQLDialect {
         List<ColumnModel> columnModels = getValidateColumn(tableMapping, object, whereColumnModels);
 
         if (whereColumnModels.size() <= 0) {
-            throw new SQLDialectException("update sql no where statement");
+            logger.debug("update sql no where statement");
         }
 
         SQLChain chain = new SQLChain();
