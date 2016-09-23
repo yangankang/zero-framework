@@ -86,6 +86,9 @@ public class Join {
     public String getJoinName() {
         if (StringUtils.isBlank(joinName)) {
             joinName = rightClass.getSimpleName();
+            if (joinName.startsWith("Table")) {
+                joinName = joinName.replaceFirst("Table", "");
+            }
         }
         return joinName;
     }
