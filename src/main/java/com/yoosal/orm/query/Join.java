@@ -53,6 +53,14 @@ public class Join {
         return join;
     }
 
+    public static String toJoinName(Class clazz) {
+        String joinName = clazz.getSimpleName();
+        if (joinName.startsWith("Table")) {
+            joinName = joinName.replaceFirst("Table", "");
+        }
+        return joinName;
+    }
+
     public Join(Class rightClass) {
         this.rightClass = rightClass;
     }
