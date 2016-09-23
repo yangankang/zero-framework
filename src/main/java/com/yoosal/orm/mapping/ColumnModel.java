@@ -25,6 +25,8 @@ public class ColumnModel extends AbstractModelCheck {
     private DefaultValue defaultValue;
     private String indexName;
 
+    private ColumnModel previousColumnModel;
+
     public boolean isIndex() {
         return isIndex;
     }
@@ -165,5 +167,13 @@ public class ColumnModel extends AbstractModelCheck {
             return true;
         }
         return false;
+    }
+
+    public ColumnModel getPreviousColumnModel() {
+        return previousColumnModel;
+    }
+
+    public void setPreviousColumnModel(ColumnModel previousColumnModel) {
+        this.previousColumnModel = previousColumnModel;
     }
 }

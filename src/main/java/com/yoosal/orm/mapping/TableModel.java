@@ -65,6 +65,9 @@ public class TableModel extends AbstractModelCheck {
         if (this.mappingColumnModels == null) {
             this.mappingColumnModels = new ArrayList<ColumnModel>();
         }
+        if (this.mappingColumnModels.size() > 0) {
+            columnModel.setPreviousColumnModel(this.mappingColumnModels.get(this.mappingColumnModels.size() - 1));
+        }
         this.mappingColumnModels.add(columnModel);
     }
 

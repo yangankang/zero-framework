@@ -66,7 +66,7 @@ public abstract class MiddleCreator implements SQLDialect {
         SQLChain chain = new SQLChain();
         chain.alter().table().setValue(tableModel.getDbTableName());
         for (ColumnModel cm : existColumns) {
-            chain.add().matchColumn(cm, this, false, true);
+            chain.add().matchColumn(cm, this, false, true, true);
         }
         chain.removeLastCommand();
         String sql = chain.toString();
@@ -84,7 +84,7 @@ public abstract class MiddleCreator implements SQLDialect {
         List<String> key = new ArrayList<String>();
         List<String> index = new ArrayList<String>();
         for (ColumnModel cm : columnModelList) {
-            chain.matchColumn(cm, this, false, false);
+            chain.matchColumn(cm, this, false, false, false);
             if (cm.isPrimaryKey()) {
                 pk.add(cm.getColumnName());
             }

@@ -21,7 +21,7 @@ public class SQLChain {
         CREATE, TABLE, IF, NOT, EXISTS, PRIMARY, KEY, AUTO_INCREMENT, NULL, DEFAULT,
         INDEX, ALTER, ADD, INSERT, INTO, VALUES, UPDATE, SET, WHERE, AND, OR, ENGINE,
         CHARSET, IN, LIKE, BY, ORDER, ASC, DESC, LIMIT, DELETE, FROM, SELECT, COUNT,
-        ON, AS, LEFT, JOIN
+        ON, AS, LEFT, JOIN, FIRST, AFTER
     }
 
     private List commands = new ArrayList();
@@ -302,6 +302,16 @@ public class SQLChain {
         return this;
     }
 
+    public SQLChain first() {
+        commands.add(Command.FIRST);
+        return this;
+    }
+
+    public SQLChain after() {
+        commands.add(Command.AFTER);
+        return this;
+    }
+
     public SQLChain setSplit() {
         commands.add(",");
         return this;
@@ -317,7 +327,7 @@ public class SQLChain {
         return this;
     }
 
-    public SQLChain matchColumn(ColumnModel cm, SQLDialect dialect, boolean isLast, boolean matchKey) {
+    public SQLChain matchColumn(ColumnModel cm, SQLDialect dialect, boolean isLast, boolean matchKey, boolean sequence) {
         long len = cm.getLength();
         String columnName = cm.getColumnName();
         Class clazz = cm.getJavaType();
@@ -364,6 +374,15 @@ public class SQLChain {
             }
             if (clazz.equals(String.class)) {
                 this.defaultCommand().setMark().setValue(defaultValue.stringValue()).setMark();
+            }
+        }
+
+        if (sequence) {
+            ColumnModel previous = cm.getPreviousColumnModel();
+            if (previous == null) {
+                this.first();
+            } else {
+                this.after().setValue(previous.getColumnName());
             }
         }
 
