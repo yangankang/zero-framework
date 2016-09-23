@@ -117,8 +117,10 @@ public class SessionOperationManager implements Operation {
     public void commit() throws SQLException {
         try {
             LocalSessionModel sessionModel = getOperation();
-            sessionModel.getSessionOperation().commit();
             sessionModel.setIsBegin(false);
+            if (sessionModel.canCommit()) {
+                sessionModel.getSessionOperation().commit();
+            }
         } catch (SQLException e) {
             throw e;
         } finally {
@@ -130,7 +132,9 @@ public class SessionOperationManager implements Operation {
     public void rollback() {
         try {
             LocalSessionModel sessionModel = getOperation();
-            sessionModel.getSessionOperation().rollback();
+            if (sessionModel.canCommit()) {
+                sessionModel.getSessionOperation().rollback();
+            }
             sessionModel.setIsBegin(false);
         } finally {
             this.close();

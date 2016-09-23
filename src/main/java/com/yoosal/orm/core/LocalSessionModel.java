@@ -3,6 +3,7 @@ package com.yoosal.orm.core;
 public class LocalSessionModel {
     private boolean isBegin = false;
     private SessionOperation sessionOperation = null;
+    private int count = 0;
 
     public LocalSessionModel(boolean isBegin, SessionOperation sessionOperation) {
         this.isBegin = isBegin;
@@ -18,6 +19,14 @@ public class LocalSessionModel {
     }
 
     public void setIsBegin(boolean isBegin) {
+        if (isBegin) {
+            count++;
+        } else {
+            count--;
+            if (count < 0) {
+                count = 0;
+            }
+        }
         this.isBegin = isBegin;
     }
 
@@ -30,9 +39,17 @@ public class LocalSessionModel {
     }
 
     public void close(ThreadLocal<LocalSessionModel> threadLocal) {
-        if (!isBegin) {
+        if (!isBegin && count <= 0) {
             sessionOperation.close();
             threadLocal.set(null);
+        }
+    }
+
+    public boolean canCommit() {
+        if (!isBegin && count <= 0) {
+            return true;
+        } else {
+            return false;
         }
     }
 }

@@ -146,6 +146,7 @@ public class StandAloneSessionOperation implements SessionOperation {
     @Override
     public void begin() throws SQLException {
         this.getConnection().setAutoCommit(false);
+        logger.debug("开启事物");
     }
 
     @Override
@@ -428,6 +429,7 @@ public class StandAloneSessionOperation implements SessionOperation {
     public void commit() throws SQLException {
         connection.commit();
         connection.setAutoCommit(true);
+        logger.debug("提交事物");
     }
 
     @Override
@@ -437,6 +439,7 @@ public class StandAloneSessionOperation implements SessionOperation {
             if (!connection.getAutoCommit()) {
                 connection.rollback();
                 connection.setAutoCommit(true);
+                logger.debug("回滚事物");
             }
         } catch (SQLException e) {
             if (connection != null) {
