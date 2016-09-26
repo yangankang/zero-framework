@@ -4,6 +4,7 @@ import com.yoosal.orm.ModelObject;
 import com.yoosal.orm.OrmFactory;
 import com.yoosal.orm.core.SessionOperationManager;
 import com.yoosal.orm.query.Query;
+import com.yoosal.orm.transaction.Transaction;
 import org.junit.Test;
 import test.com.yoosal.orm.table.TableStudent;
 
@@ -52,16 +53,18 @@ public class TestORMConcurrent {
                 public String call() throws Exception {
                     String getName = "" + Math.random();
                     ModelObject object = new ModelObject();
+                    Transaction transaction = sceneOperation.createTransaction();
                     try {
-                        sceneOperation.begin();
+                        transaction.begin();
                         object = new ModelObject();
                         object.setObjectClass(TableStudent.class);
                         object.put(TableStudent.nameForAccount, getName);
                         object.put(TableStudent.age, 20);
                         sceneOperation.save(object);
-                        sceneOperation.commit();
+                        transaction.commit();
                     } catch (Exception e) {
-                        sceneOperation.rollback();
+                        e.printStackTrace();
+                        transaction.rollback();
                     }
 
                     ModelObject getObj = sceneOperation.query(Query.query(TableStudent.class).id(object.get(TableStudent.idColumn)));
@@ -69,6 +72,8 @@ public class TestORMConcurrent {
                     } else {
                         throw new Exception("not equal");
                     }
+
+                    TestORMThing.add(sceneOperation);
                     return getName;
                 }
             };

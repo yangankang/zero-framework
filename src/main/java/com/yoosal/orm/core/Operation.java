@@ -2,6 +2,7 @@ package com.yoosal.orm.core;
 
 import com.yoosal.orm.ModelObject;
 import com.yoosal.orm.query.Query;
+import com.yoosal.orm.transaction.Transaction;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -11,29 +12,11 @@ import java.util.List;
  */
 public interface Operation {
 
-    enum Isolation {
-        TRANSACTION_NONE,
-        TRANSACTION_READ_UNCOMMITTED,
-        TRANSACTION_READ_COMMITTED,
-        TRANSACTION_REPEATABLE_READ,
-        TRANSACTION_SERIALIZABLE
-    }
+    Transaction beginTransaction() throws SQLException;
 
-    /**
-     * 使用
-     * Connection.TRANSACTION_NONE
-     * Connection.TRANSACTION_READ_UNCOMMITTED
-     * Connection.TRANSACTION_READ_COMMITTED
-     * Connection.TRANSACTION_REPEATABLE_READ
-     * Connection.TRANSACTION_SERIALIZABLE
-     * 作为参数
-     */
-    void setIsolation(Isolation isolation) throws SQLException;
+    Transaction createTransaction();
 
-    /**
-     * Transaction 的开始，
-     */
-    void begin() throws SQLException;
+    boolean isTransacting();
 
     ModelObject save(ModelObject object);
 
@@ -48,11 +31,4 @@ public interface Operation {
     ModelObject query(Query query);
 
     long count(Query query);
-
-    /**
-     * 提交事务
-     */
-    void commit() throws SQLException;
-
-    void rollback();
 }

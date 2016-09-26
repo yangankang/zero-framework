@@ -14,6 +14,9 @@ import com.yoosal.orm.mapping.TableModel;
 import com.yoosal.orm.query.Join;
 import com.yoosal.orm.query.Query;
 import com.yoosal.orm.query.Wheres;
+import com.yoosal.orm.transaction.StandAloneTransaction;
+import com.yoosal.orm.transaction.Transaction;
+import com.yoosal.orm.transaction.TransactionManger;
 
 import javax.sql.DataSource;
 import java.sql.*;
@@ -123,30 +126,30 @@ public class StandAloneSessionOperation implements SessionOperation {
     }
 
     @Override
-    public void setIsolation(Isolation isolation) throws SQLException {
-        int c = 0;
-        if (isolation.equals(Isolation.TRANSACTION_NONE)) {
-            c = Connection.TRANSACTION_NONE;
-        }
-        if (isolation.equals(Isolation.TRANSACTION_READ_COMMITTED)) {
-            c = Connection.TRANSACTION_READ_COMMITTED;
-        }
-        if (isolation.equals(Isolation.TRANSACTION_READ_UNCOMMITTED)) {
-            c = Connection.TRANSACTION_READ_UNCOMMITTED;
-        }
-        if (isolation.equals(Isolation.TRANSACTION_REPEATABLE_READ)) {
-            c = Connection.TRANSACTION_REPEATABLE_READ;
-        }
-        if (isolation.equals(Isolation.TRANSACTION_SERIALIZABLE)) {
-            c = Connection.TRANSACTION_SERIALIZABLE;
-        }
-        this.getConnection().setTransactionIsolation(c);
+    public Transaction beginTransaction() throws SQLException {
+        return TransactionManger.getStandAloneTransaction(this, this.getConnection());
     }
 
     @Override
-    public void begin() throws SQLException {
-        this.getConnection().setAutoCommit(false);
-        logger.debug("开启事物");
+    public Transaction createTransaction() {
+        Transaction transaction = null;
+        try {
+            transaction = TransactionManger.getStandAloneTransaction(this, this.getConnection());
+        } catch (SQLException e) {
+            transaction = new StandAloneTransaction();
+            e.printStackTrace();
+        }
+
+        return transaction;
+    }
+
+    @Override
+    public boolean isTransacting() {
+        try {
+            return !getConnection().getAutoCommit();
+        } catch (SQLException e) {
+        }
+        return false;
     }
 
     @Override
@@ -423,33 +426,5 @@ public class StandAloneSessionOperation implements SessionOperation {
             close(statement);
         }
         return count;
-    }
-
-    @Override
-    public void commit() throws SQLException {
-        connection.commit();
-        connection.setAutoCommit(true);
-        logger.debug("提交事物");
-    }
-
-    @Override
-    public void rollback() {
-        try {
-            connection = getConnection();
-            if (!connection.getAutoCommit()) {
-                connection.rollback();
-                connection.setAutoCommit(true);
-                logger.debug("回滚事物");
-            }
-        } catch (SQLException e) {
-            if (connection != null) {
-                try {
-                    connection.setAutoCommit(true);
-                } catch (SQLException e1) {
-                    e1.printStackTrace();
-                }
-            }
-            throw new DatabaseOperationException("rollback throw", e);
-        }
     }
 }

@@ -4,6 +4,7 @@ import com.yoosal.orm.ModelObject;
 import com.yoosal.orm.OperationManager;
 import com.yoosal.orm.mapping.DBMapping;
 import com.yoosal.orm.query.Query;
+import com.yoosal.orm.transaction.Transaction;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -11,19 +12,6 @@ import java.util.List;
 public class SessionOperationManager implements Operation {
     public static ThreadLocal<LocalSessionModel> threadLocal = new ThreadLocal();
     private static DBMapping mapping = OperationManager.getMapping();
-
-    @Override
-    public void setIsolation(Isolation isolation) throws SQLException {
-        LocalSessionModel sessionModel = getOperation();
-        sessionModel.getSessionOperation().setIsolation(isolation);
-    }
-
-    @Override
-    public void begin() throws SQLException {
-        LocalSessionModel sessionModel = getOperation();
-        sessionModel.getSessionOperation().begin();
-        sessionModel.setIsBegin(true);
-    }
 
     private LocalSessionModel getOperation() {
         try {
@@ -41,6 +29,34 @@ public class SessionOperationManager implements Operation {
             e.printStackTrace();
         }
         return null;
+    }
+
+    @Override
+    public Transaction beginTransaction() throws SQLException {
+        Transaction transaction = getOperation().getSessionOperation().beginTransaction();
+        setTransactionCallback(transaction);
+        return transaction;
+    }
+
+    @Override
+    public Transaction createTransaction() {
+        Transaction transaction = getOperation().getSessionOperation().createTransaction();
+        setTransactionCallback(transaction);
+        return transaction;
+    }
+
+    private void setTransactionCallback(Transaction transaction) {
+        transaction.setCallback(new Transaction.CRCallback() {
+            @Override
+            public void call() {
+                close();
+            }
+        });
+    }
+
+    @Override
+    public boolean isTransacting() {
+        return getOperation().getSessionOperation().isTransacting();
     }
 
     @Override
@@ -108,34 +124,6 @@ public class SessionOperationManager implements Operation {
         try {
             LocalSessionModel sessionModel = getOperation();
             return sessionModel.getSessionOperation().count(query);
-        } finally {
-            this.close();
-        }
-    }
-
-    @Override
-    public void commit() throws SQLException {
-        try {
-            LocalSessionModel sessionModel = getOperation();
-            sessionModel.setIsBegin(false);
-            if (sessionModel.canCommit()) {
-                sessionModel.getSessionOperation().commit();
-            }
-        } catch (SQLException e) {
-            throw e;
-        } finally {
-            this.close();
-        }
-    }
-
-    @Override
-    public void rollback() {
-        try {
-            LocalSessionModel sessionModel = getOperation();
-            if (sessionModel.canCommit()) {
-                sessionModel.getSessionOperation().rollback();
-            }
-            sessionModel.setIsBegin(false);
         } finally {
             this.close();
         }

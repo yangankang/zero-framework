@@ -5,6 +5,7 @@ import com.yoosal.orm.ModelObject;
 import com.yoosal.orm.OperationManager;
 import com.yoosal.orm.mapping.DBMapping;
 import com.yoosal.orm.query.Query;
+import com.yoosal.orm.transaction.Transaction;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -51,13 +52,18 @@ public class OrmSessionOperation implements SessionOperation {
     }
 
     @Override
-    public void setIsolation(Isolation isolation) throws SQLException {
-        sessionOperation.setIsolation(isolation);
+    public Transaction beginTransaction() throws SQLException {
+        return sessionOperation.beginTransaction();
     }
 
     @Override
-    public void begin() throws SQLException {
-        sessionOperation.begin();
+    public Transaction createTransaction() {
+        return sessionOperation.createTransaction();
+    }
+
+    @Override
+    public boolean isTransacting() {
+        return sessionOperation.isTransacting();
     }
 
     @Override
@@ -93,15 +99,5 @@ public class OrmSessionOperation implements SessionOperation {
     @Override
     public long count(Query query) {
         return sessionOperation.count(query);
-    }
-
-    @Override
-    public void commit() throws SQLException {
-        sessionOperation.commit();
-    }
-
-    @Override
-    public void rollback() {
-        sessionOperation.rollback();
     }
 }
