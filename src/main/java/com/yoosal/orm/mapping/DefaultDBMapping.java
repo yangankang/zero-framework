@@ -104,11 +104,12 @@ public class DefaultDBMapping implements DBMapping {
                 String tableName = tableResultSet.getString("TABLE_NAME");
                 tableNames.add(tableName.toLowerCase());
             }
-
+            StringBuilder logs = new StringBuilder();
+            long time = System.currentTimeMillis();
             for (TableModel tableModel : tableModels) {
                 if (tableNames.contains(tableModel.getDbTableName().toLowerCase())) {
 
-                    logger.info("Doing Mapping : " + tableModel.getDbTableName());
+                    logs.append(tableModel.getDbTableName() + ",");
 
                     ResultSet columnResultSet = databaseMetaData.getColumns(connection.getCatalog(), null, tableModel.getDbTableName(), null);
                     List<ColumnModel> columnModels = tableModel.getMappingColumnModels();
@@ -157,6 +158,7 @@ public class DefaultDBMapping implements DBMapping {
                 }
             }
             connection.close();
+            logger.info("Doing Mapping : [" + logs + "] used time : " + ((System.currentTimeMillis() - time) / 1000) + "s");
         } finally {
             ccs(connection, null);
         }
