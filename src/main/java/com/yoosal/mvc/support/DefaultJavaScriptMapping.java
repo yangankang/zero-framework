@@ -143,14 +143,12 @@ public class DefaultJavaScriptMapping implements JavaScriptMapping {
         if (StringUtils.isNotBlank(developPath)) {
 
             File file = new File(developPath);
-            if (!file.exists()) {
-                logger.warn("is develop env but DevelopWritePath not exist");
-            } else {
-                if (StringUtils.isNotBlank(developPath)) {
-                    FileUtils.writeStringToFile(new File(developPath), js);
-                }
-                logger.info("is develop env js write path:" + developPath);
+            if (!file.exists() && file.isFile()) {
+                file.createNewFile();
             }
+
+            FileUtils.writeStringToFile(new File(developPath), js);
+            logger.info("is develop env js write path:" + developPath);
         }
     }
 
