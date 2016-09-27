@@ -102,14 +102,14 @@ public class DefaultJavaScriptMapping implements JavaScriptMapping {
         } else {
             FileUtils.writeStringToFile(new File(path), js);
         }
-        develop(js, path);
+        develop(js);
     }
 
     @Override
     public void generateToFile(String path) throws ParseTemplateException, IOException {
         String js = this.parseTemplate();
         FileUtils.writeStringToFile(new File(path), js);
-        develop(js, path);
+        develop(js);
     }
 
     @Override
@@ -128,18 +128,26 @@ public class DefaultJavaScriptMapping implements JavaScriptMapping {
         this.authoritySupport = authoritySupport;
     }
 
-    private void develop(String js, String path) throws IOException {
+    @Override
+    public void writeForDeveloper() {
+        try {
+            String js = this.parseTemplate();
+            develop(js);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void develop(String js) throws IOException {
         String developPath = System.getenv("DevelopWritePath");
-        if (StringUtils.isNotBlank(path) && StringUtils.isNotBlank(developPath)) {
-            String[] ps = path.split("/");
-            String[] pss = ps[ps.length - 1].split("\\\\");
+        if (StringUtils.isNotBlank(developPath)) {
 
             File file = new File(developPath);
             if (!file.exists()) {
                 logger.warn("is develop env but DevelopWritePath not exist");
             } else {
                 if (StringUtils.isNotBlank(developPath)) {
-                    FileUtils.writeStringToFile(new File(developPath + File.separator + pss[pss.length - 1]), js);
+                    FileUtils.writeStringToFile(new File(developPath), js);
                 }
                 logger.info("is develop env js write path:" + developPath);
             }

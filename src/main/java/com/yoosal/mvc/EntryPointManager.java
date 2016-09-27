@@ -242,8 +242,8 @@ public class EntryPointManager {
     }
 
     public void produceJavaScriptMapping(ServletContext servletContext) {
+        JavaScriptMapping javaScriptMapping = new DefaultJavaScriptMapping();
         if (StringUtils.isNotBlank(getWritePath())) {
-            JavaScriptMapping javaScriptMapping = new DefaultJavaScriptMapping();
             javaScriptMapping.setMethodParses(SceneFactory.getControllersInfo());
             String webRootPath = servletContext.getRealPath(getWritePath());
             try {
@@ -257,6 +257,8 @@ public class EntryPointManager {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        } else {
+            javaScriptMapping.writeForDeveloper();
         }
     }
 

@@ -24,4 +24,6 @@ public interface JavaScriptMapping {
     void generateToStream(Writer out, boolean isCompress) throws ParseTemplateException, IOException;
 
     void setAuthoritySupport(AuthoritySupport authoritySupport);
+
+    void writeForDeveloper();
 }
