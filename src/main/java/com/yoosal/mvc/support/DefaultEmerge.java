@@ -2,6 +2,7 @@ package com.yoosal.mvc.support;
 
 import com.yoosal.asm.*;
 import com.yoosal.common.ClassUtils;
+import com.yoosal.common.NumberUtils;
 import com.yoosal.json.JSON;
 import com.yoosal.json.JSONException;
 import com.yoosal.mvc.convert.ConversionService;
@@ -47,8 +48,10 @@ public class DefaultEmerge implements Emerge {
                 || s.isAssignableFrom(String.class)
                 || Date.class.isAssignableFrom(s)) {
             String o = String.valueOf(object[0]);
-            if (object[0].equals("null") || object[0].equals("")) {
-                o = "0";
+            if (ClassUtils.isNumberClass(s)) {
+                if (object[0].equals("null") || object[0].equals("")) {
+                    o = "0";
+                }
             }
             return conversionService.executeConversion(o, s);
         } else {
