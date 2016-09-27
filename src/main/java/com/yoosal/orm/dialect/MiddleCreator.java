@@ -63,7 +63,7 @@ public abstract class MiddleCreator implements SQLDialect {
 
     @Override
     public String addColumn(TableModel tableModel, List<ColumnModel> existColumns) {
-        SQLChain chain = new SQLChain();
+        SQLChain chain = new SQLChain(this.getEnumType());
         chain.alter().table().setValue(tableModel.getDbTableName());
         for (ColumnModel cm : existColumns) {
             chain.add().matchColumn(cm, this, false, true, true);
@@ -78,7 +78,7 @@ public abstract class MiddleCreator implements SQLDialect {
     public String createTable(TableModel tableModel) {
         List<ColumnModel> columnModelList = tableModel.getMappingColumnModels();
 
-        SQLChain chain = new SQLChain();
+        SQLChain chain = new SQLChain(this.getEnumType());
         chain.create().table().ifCommand().not().exists().setValue(tableModel.getDbTableName()).setBegin();
         List<String> pk = new ArrayList<String>();
         List<String> key = new ArrayList<String>();
@@ -120,7 +120,7 @@ public abstract class MiddleCreator implements SQLDialect {
         ValuesForPrepared valuesForPrepared = new ValuesForPrepared();
         List<ColumnModel> columnModels = getValidateColumn(tableMapping, object, null);
 
-        SQLChain chain = new SQLChain();
+        SQLChain chain = new SQLChain(this.getEnumType());
         chain.insert().into().setValue(tableMapping.getDbTableName());
 
         List key = new ArrayList();
@@ -192,7 +192,7 @@ public abstract class MiddleCreator implements SQLDialect {
             logger.debug("update sql no where statement");
         }
 
-        SQLChain chain = new SQLChain();
+        SQLChain chain = new SQLChain(this.getEnumType());
         chain.update().setValue(tableMapping.getDbTableName()).set();
 
         Iterator<ColumnModel> cmIt = columnModels.iterator();
@@ -253,7 +253,7 @@ public abstract class MiddleCreator implements SQLDialect {
         for (Object object : batch.getWhereColumns()) {
             whereColumnModels.add(tableMapping.getColumnByJavaName(String.valueOf(object)));
         }
-        SQLChain chain = new SQLChain();
+        SQLChain chain = new SQLChain(this.getEnumType());
         chain.update().setValue(tableMapping.getDbTableName()).set();
 
         Iterator<ColumnModel> cmIt = columnModels.iterator();
@@ -328,7 +328,7 @@ public abstract class MiddleCreator implements SQLDialect {
     @Override
     public ValuesForPrepared prepareDelete(DBMapping tableMapping, Query query) {
         ValuesForPrepared valuesForPrepared = new ValuesForPrepared();
-        SQLChain chain = new SQLChain();
+        SQLChain chain = new SQLChain(this.getEnumType());
         CreatorJoinModel joinModel = this.getJoinModel(tableMapping, query, false);
         List<CreatorJoinModel> allJoinModel = joinModel.getSelectColumns();
 
@@ -370,7 +370,7 @@ public abstract class MiddleCreator implements SQLDialect {
         ValuesForPrepared valuesForPrepared = new ValuesForPrepared();
         valuesForPrepared.setModel(joinModel);
 
-        SQLChain chain = new SQLChain();
+        SQLChain chain = new SQLChain(this.getEnumType());
         chain.select();
         if (allJoinModel != null) {
             Iterator<CreatorJoinModel> iterator = allJoinModel.iterator();
@@ -528,7 +528,7 @@ public abstract class MiddleCreator implements SQLDialect {
     @Override
     public ValuesForPrepared prepareSelectCount(TableModel tableMapping, Query query) {
         ValuesForPrepared valuesForPrepared = new ValuesForPrepared();
-        SQLChain chain = new SQLChain();
+        SQLChain chain = new SQLChain(this.getEnumType());
         chain.select().count().setBegin().setALL().setEnd().from().setValue(tableMapping.getDbTableName());
 
         List<Wheres> wheres = query.getWheres();

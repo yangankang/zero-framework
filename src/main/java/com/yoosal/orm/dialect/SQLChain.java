@@ -1,6 +1,8 @@
 package com.yoosal.orm.dialect;
 
+import com.yoosal.common.StringUtils;
 import com.yoosal.orm.annotation.DefaultValue;
+import com.yoosal.orm.core.DataSourceManager;
 import com.yoosal.orm.mapping.ColumnModel;
 import com.yoosal.orm.query.OrderBy;
 import com.yoosal.orm.query.Wheres;
@@ -9,6 +11,16 @@ import java.util.*;
 
 public class SQLChain {
     private static final int DEFAULT_LENGTH = 255;
+
+    private DataSourceManager.SupportList type;
+
+    public SQLChain() {
+
+    }
+
+    public SQLChain(DataSourceManager.SupportList type) {
+        this.type = type;
+    }
 
     public SQLChain setChain(SQLChain chain) {
         if (chain != null) {
@@ -21,7 +33,7 @@ public class SQLChain {
         CREATE, TABLE, IF, NOT, EXISTS, PRIMARY, KEY, AUTO_INCREMENT, NULL, DEFAULT,
         INDEX, ALTER, ADD, INSERT, INTO, VALUES, UPDATE, SET, WHERE, AND, OR, ENGINE,
         CHARSET, IN, LIKE, BY, ORDER, ASC, DESC, LIMIT, DELETE, FROM, SELECT, COUNT,
-        ON, AS, LEFT, JOIN, FIRST, AFTER
+        ON, AS, LEFT, JOIN, FIRST, AFTER, COMMENT
     }
 
     private List commands = new ArrayList();
@@ -189,6 +201,11 @@ public class SQLChain {
 
     public SQLChain as() {
         commands.add(Command.AS);
+        return this;
+    }
+
+    public SQLChain comment() {
+        commands.add(Command.COMMENT);
         return this;
     }
 
@@ -377,6 +394,16 @@ public class SQLChain {
             }
         }
 
+        /**
+         * 添加注释
+         */
+        if (StringUtils.isNotBlank(cm.getComment())) {
+            this.comment().setMark().setValue(cm.getComment()).setMark();
+        }
+
+        /**
+         * 添加字段时，字段的顺序，比如是id之后还是之前
+         */
         if (sequence) {
             ColumnModel previous = cm.getPreviousColumnModel();
             if (previous == null) {

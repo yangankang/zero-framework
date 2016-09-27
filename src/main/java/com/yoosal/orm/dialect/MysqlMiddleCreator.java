@@ -22,6 +22,11 @@ public class MysqlMiddleCreator extends MiddleCreator {
     }
 
     @Override
+    public DataSourceManager.SupportList getEnumType() {
+        return DataSourceManager.SupportList.MYSQL;
+    }
+
+    @Override
     public void setEngine(SQLChain chain) {
         //"ENGINE = InnoDB DEFAULT CHARSET utf8;"
         chain.engine().setEquals().setValue("InnoDB").defaultCommand().charset().setValue("utf8");

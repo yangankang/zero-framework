@@ -11,8 +11,10 @@ public enum TableStudent {
     idColumn,
     @Column(index = true)
     nameForAccount,
-    @Column(type = Integer.class)
+    @Column(type = Integer.class,comment = "学生年龄")
     age,
     @Column(type = Integer.class, allowNull = false, defaultValue = @DefaultValue(intValue = 1))
-    sex
+    sex,
+    @Column(comment = "增加字段测试")
+    b
 }

@@ -10,6 +10,8 @@ public @interface Column {
 
     Class type() default String.class;
 
+    String comment() default "";
+
     long length() default 0;
 
     boolean key() default false;

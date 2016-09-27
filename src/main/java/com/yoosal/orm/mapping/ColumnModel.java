@@ -24,6 +24,7 @@ public class ColumnModel extends AbstractModelCheck {
     private boolean isAllowNull = true;
     private DefaultValue defaultValue;
     private String indexName;
+    private String comment;
 
     private ColumnModel previousColumnModel;
 
@@ -155,6 +156,14 @@ public class ColumnModel extends AbstractModelCheck {
     @Override
     protected String getName() {
         return this.javaName;
+    }
+
+    public String getComment() {
+        return comment;
+    }
+
+    public void setComment(String comment) {
+        this.comment = comment;
     }
 
     @Override

@@ -2,11 +2,11 @@ package com.yoosal.orm.dialect;
 
 import com.yoosal.orm.ModelObject;
 import com.yoosal.orm.core.Batch;
+import com.yoosal.orm.core.DataSourceManager;
 import com.yoosal.orm.mapping.ColumnModel;
 import com.yoosal.orm.mapping.DBMapping;
 import com.yoosal.orm.mapping.TableModel;
 import com.yoosal.orm.query.Query;
-import com.yoosal.orm.query.Wheres;
 
 import java.util.List;
 
@@ -31,6 +31,8 @@ public interface SQLDialect {
      * @return
      */
     String getDBType();
+
+    DataSourceManager.SupportList getEnumType();
 
     /**
      * 为PreparedStatement提供数据

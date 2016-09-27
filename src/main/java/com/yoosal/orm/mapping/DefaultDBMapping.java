@@ -295,9 +295,11 @@ public class DefaultDBMapping implements DBMapping {
         boolean index = (column == null ? false : column.index());
         boolean allowNull = (column == null ? true : column.allowNull());
         DefaultValue defaultValue = (column == null ? null : column.defaultValue());
+        String comment = column.comment();
 
         columnModel.setPrimaryKey(isPrimaryKey);
         columnModel.setJavaType(type);
+        columnModel.setComment(comment);
         columnModel.setLength(length);
         columnModel.setGenerateStrategy(generateStrategy);
         columnModel.setLock(isLock);
