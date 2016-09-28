@@ -56,7 +56,7 @@ public abstract class AbstractSceneSupport implements SceneSupport {
             } else {
                 String catchString = EntryPointManager.getCatchString();
                 if (StringUtils.isNotBlank(catchString)) {
-                    return catchString.replaceAll("[ex]", e.getClass().getSimpleName())
+                    return catchString.replaceAll("[ex]", e.getCause().getClass().getSimpleName())
                             .replaceAll("[msg]", e.getMessage());
                 } else {
                     throw new SceneInvokeException("invoke method failed", e);

@@ -1,29 +1,27 @@
 package com.yoosal.mvc.support;
 
 import com.yoosal.asm.*;
+import com.yoosal.asm.Type;
 import com.yoosal.common.ClassUtils;
 import com.yoosal.common.NumberUtils;
+import com.yoosal.common.StringUtils;
 import com.yoosal.json.JSON;
 import com.yoosal.json.JSONException;
+import com.yoosal.json.JSONObject;
 import com.yoosal.mvc.convert.ConversionService;
 import com.yoosal.mvc.convert.service.DefaultConversionService;
 import com.yoosal.orm.ModelObject;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Array;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
+import java.lang.reflect.*;
 import java.net.URLDecoder;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class DefaultEmerge implements Emerge {
     private ConversionService conversionService = new DefaultConversionService();
 
-    public Object getStringToObject(Class s, Object[] object, Map<Class, Object> penetrate) throws ClassNotFoundException {
+    public Object getStringToObject(Class s, java.lang.reflect.Type type, Object[] object, Map<Class, Object> penetrate) throws ClassNotFoundException {
 
         for (Class key : penetrate.keySet()) {
             if (s.isAssignableFrom(key)) {
@@ -38,7 +36,7 @@ public class DefaultEmerge implements Emerge {
             Object arrayObj = Array.newInstance(typeLoader, object.length);
             int i = 0;
             for (Object o : object) {
-                Object robject = this.getStringToObject(typeLoader, new Object[]{o}, penetrate);
+                Object robject = this.getStringToObject(typeLoader, type, new Object[]{o}, penetrate);
                 Array.set(arrayObj, i, robject);
                 i++;
             }
@@ -66,7 +64,7 @@ public class DefaultEmerge implements Emerge {
             if (Collection.class.isAssignableFrom(s)) {
                 //simple Implementation
                 try {
-                    List list = ModelObject.parseArray(obj);
+                    List list = objToList(obj, type);
                     return list;
                 } catch (Exception e) {
                     throw new ClassCastException("action parameter case to " + s.getName() + " error.");
@@ -74,7 +72,7 @@ public class DefaultEmerge implements Emerge {
             } else if (Map.class.isAssignableFrom(s)) {
                 //simple Implementation
                 try {
-                    Map map = ModelObject.parseObject(obj);
+                    Map map = objToMap(obj, type);
                     return map;
                 } catch (Exception e) {
                     throw new ClassCastException("request parameter case to " + s.getName() + " error by " + object[0]);
@@ -90,14 +88,67 @@ public class DefaultEmerge implements Emerge {
         }
     }
 
+    private List objToList(String obj, java.lang.reflect.Type type) {
+        List list = ModelObject.parseArray(obj);
+        if (type instanceof ParameterizedType) {
+            if (!type.getClass().isAssignableFrom(Map.class)) {
+                List l = new ArrayList();
+                for (Object object : list) {
+                    java.lang.reflect.Type[] params = ((ParameterizedType) type).getActualTypeArguments();
+                    l.add(this.objToJavaObject((Class) params[0], object));
+                }
+                if (l.size() > 0) {
+                    list = l;
+                }
+            }
+        }
+        return list;
+    }
+
+    private Map objToMap(String obj, java.lang.reflect.Type type) {
+        Map map = ModelObject.parseObject(obj);
+        if (type instanceof ParameterizedType) {
+            java.lang.reflect.Type[] params = ((ParameterizedType) type).getActualTypeArguments();
+
+            if (params.length > 0) {
+                Map nm = new HashMap();
+                for (Object o : map.entrySet()) {
+                    Map.Entry entry = (Map.Entry) o;
+                    nm.put(this.objToJavaObject((Class) params[0], entry.getKey()),
+                            this.objToJavaObject((Class) params[1], entry.getValue()));
+                }
+                map = nm;
+            }
+        }
+
+        return map;
+    }
+
+    private Object objToJavaObject(Class s, Object object) {
+        if (ClassUtils.isPrimitiveOrWrapper(s)
+                || s.isAssignableFrom(String.class)
+                || Date.class.isAssignableFrom(s)) {
+            String o = String.valueOf(object);
+            if (ClassUtils.isNumberClass(s)) {
+                if (StringUtils.isBlank(o)) {
+                    o = "0";
+                }
+            }
+            return conversionService.executeConversion(o, s);
+        } else {
+            return JSONObject.toJavaObject((JSON) object, s);
+        }
+    }
+
     @Override
     public Object[] getAssignment(String[] javaMethodParamNames, Method method, Map<String, String[]> paramFromRequest, Map<Class, Object> penetrate) throws ClassNotFoundException {
         Class[] types = method.getParameterTypes();
+        java.lang.reflect.Type[] genericParameterTypes = method.getGenericParameterTypes();
         Object[] objects = new Object[types.length];
-        int i = 0;
-        for (Class o : types) {
-            objects[i] = getStringToObject(o, paramFromRequest.get(javaMethodParamNames[i]), penetrate);
-            i++;
+
+        for (int i = 0; i < types.length; i++) {
+            Class o = types[i];
+            objects[i] = getStringToObject(o, genericParameterTypes[i], paramFromRequest.get(javaMethodParamNames[i]), penetrate);
         }
         return objects;
     }
