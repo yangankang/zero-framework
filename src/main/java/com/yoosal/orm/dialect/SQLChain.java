@@ -386,10 +386,13 @@ public class SQLChain {
         }
 
         if (defaultValue != null && defaultValue.enable()) {
-            if (clazz.equals(Integer.class)) {
+            if (clazz.equals(Integer.class)
+                    || clazz.equals(int.class)) {
                 this.defaultCommand().setValue(defaultValue.intValue());
             }
-            if (clazz.equals(String.class)) {
+            if (clazz.equals(String.class)
+                    || clazz.equals(char.class)
+                    || clazz.equals(Character.class)) {
                 this.defaultCommand().setMark().setValue(defaultValue.stringValue()).setMark();
             }
         }
