@@ -1,5 +1,6 @@
 package com.yoosal.orm.dialect;
 
+import com.yoosal.common.ClassUtils;
 import com.yoosal.common.StringUtils;
 import com.yoosal.orm.annotation.DefaultValue;
 import com.yoosal.orm.core.DataSourceManager;
@@ -386,8 +387,7 @@ public class SQLChain {
         }
 
         if (defaultValue != null && defaultValue.enable()) {
-            if (clazz.equals(Integer.class)
-                    || clazz.equals(int.class)) {
+            if (ClassUtils.isNumberClass(clazz)) {
                 this.defaultCommand().setValue(defaultValue.intValue());
             }
             if (clazz.equals(String.class)

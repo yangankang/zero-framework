@@ -6,6 +6,8 @@ public class StringToBoolean extends com.yoosal.mvc.convert.converters.StringToO
 
     private static final String VALUE_FALSE = "false";
 
+    private static final String VALUE_FALSE_NUMBER = "0";
+
     private String trueString;
 
     private String falseString;
@@ -29,6 +31,10 @@ public class StringToBoolean extends com.yoosal.mvc.convert.converters.StringToO
             return Boolean.TRUE;
         } else if (falseString == null && string.equals(VALUE_FALSE)) {
             return Boolean.FALSE;
+        } else if (falseString == null && string.equals(VALUE_FALSE_NUMBER)) {
+            return Boolean.FALSE;
+        } else if (falseString == null && !string.equals(VALUE_FALSE_NUMBER)) {
+            return Boolean.TRUE;
         } else {
             throw new IllegalArgumentException("Invalid boolean value [" + string + "]");
         }

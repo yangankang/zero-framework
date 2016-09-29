@@ -605,10 +605,14 @@ public abstract class ClassUtils {
                 clazz.isAssignableFrom(long.class) ||
                 clazz.isAssignableFrom(float.class) ||
                 clazz.isAssignableFrom(double.class) ||
+                clazz.isAssignableFrom(short.class) ||
+                clazz.isAssignableFrom(byte.class) ||
                 clazz.isAssignableFrom(Integer.class) ||
                 clazz.isAssignableFrom(Long.class) ||
                 clazz.isAssignableFrom(Float.class) ||
-                clazz.isAssignableFrom(Double.class)) {
+                clazz.isAssignableFrom(Double.class) ||
+                clazz.isAssignableFrom(Short.class) ||
+                clazz.isAssignableFrom(Byte.class)) {
             return true;
         }
         return false;
