@@ -460,7 +460,7 @@ public abstract class MiddleCreator implements SQLDialect {
                         if (leftm == null) {
                             throw new SQLDialectException("current query not find table " + join.getSourceObjectClass().getSimpleName());
                         }
-                        chain.setValue(joinModel.getModelByTableModel(leftm).getTableAsName() + "." + rightcm.getColumnName())
+                        chain.setValue(joinModel.getModelByTableModel(leftm).getTableAsName() + "." + leftcm.getColumnName())
                                 .setValue(wh.getOperation())
                                 .setValue(":" + vc);
                     }

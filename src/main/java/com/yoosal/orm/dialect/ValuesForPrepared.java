@@ -12,12 +12,13 @@ public class ValuesForPrepared {
     private CreatorJoinModel model;
 
     public String getSql() {
+        String replaceSQL = sql;
         String[] strings = getKeys();
         for (int i = 0; i < strings.length; i++) {
             String s = strings[i];
-            sql = sql.replaceFirst(":" + s, "?");
+            replaceSQL = replaceSQL.replaceFirst(":" + s, "?");
         }
-        return sql;
+        return replaceSQL;
     }
 
     public void setPrepared(PreparedStatement statement) throws SQLException {
@@ -84,7 +85,8 @@ public class ValuesForPrepared {
                             (chars[i] >= 'A' && chars[i] <= 'Z')
                             || chars[i] == '_'
                             || chars[i] == '.'
-                            || Character.isDigit(chars[i])) {
+                            || Character.isDigit(chars[i])
+                            || chars[i] == '#') {
                         sb.append(chars[i]);
                     } else {
                         break;
