@@ -1,6 +1,7 @@
 package com.yoosal.orm.dialect;
 
 import com.yoosal.orm.ModelObject;
+import org.apache.commons.collections.map.HashedMap;
 
 import java.sql.*;
 import java.util.*;
@@ -51,6 +52,15 @@ public class ValuesForPrepared {
 
     public Map<String, Object> getValues() {
         return values;
+    }
+
+    public Map<String, Object> getKeyValues() {
+        getKeys();
+        Map<String, Object> m = new HashedMap();
+        for (String k : keys) {
+            m.put(k, values.get(k));
+        }
+        return m;
     }
 
     public void addValue(String key, Object value) {
