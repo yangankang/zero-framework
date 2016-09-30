@@ -58,7 +58,7 @@ public class ValuesForPrepared {
         getKeys();
         Map<String, Object> m = new HashedMap();
         for (String k : keys) {
-            m.put(k, values.get(k));
+            m.put(k, values.get(":" + k));
         }
         return m;
     }
