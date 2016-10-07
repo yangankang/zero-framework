@@ -62,6 +62,9 @@ public class Query {
         this.clazz = clazz;
     }
 
+    public Query() {
+    }
+
     public Query(Class clazz, String dataSourceName) {
         this.clazz = clazz;
         this.dataSourceName = dataSourceName;
