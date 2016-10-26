@@ -57,7 +57,7 @@ public class EntryPointManager {
     static final String KEY_AUTH_CLASS = "mvc.auth.class";
     static final String KEY_API_CATCH_STRING = "mvc.api.catchFormat";
     static final String KEY_API_CATCH_CLASS = "mvc.api.catchClass";
-    static final String KEY_EVENT_REQUEST_CLASS = "mvc.api.catchClass";
+    static final String KEY_EVENT_REQUEST_CLASS = "mvc.event.requestEvent";
 
 
     private static final FrameworkScanClass frameworkScanClass = new DefaultFrameworkScanClass();

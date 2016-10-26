@@ -40,8 +40,15 @@ public abstract class AbstractSceneSupport implements SceneSupport {
             requestEvent.setBefore(true);
             requestEvent.setController(this.controllerClassSupport.getClazz().getSimpleName());
             requestEvent.setMethod(this.controllerClassSupport.getMethodName());
-            requestEvent.setRequest((HttpServletRequest) this.getPenetrate().get(HttpServletRequest.class.getClass()));
-            publicEventContext.fireCEvent(requestEvent);
+            Map penetrates = this.getPenetrate();
+            if (penetrates != null) {
+                requestEvent.setRequest((HttpServletRequest) this.getPenetrate().get(HttpServletRequest.class));
+            }
+            try {
+                publicEventContext.fireCEvent(requestEvent);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         try {
             //执行之前检查一下用户自定义的权限是否可执行
@@ -78,7 +85,11 @@ public abstract class AbstractSceneSupport implements SceneSupport {
         } finally {
             if (publicEventContext != null) {
                 requestEvent.setBefore(false);
-                publicEventContext.fireCEvent(requestEvent);
+                try {
+                    publicEventContext.fireCEvent(requestEvent);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
     }

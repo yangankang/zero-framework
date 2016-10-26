@@ -18,6 +18,9 @@ public class HttpSceneSupport extends AbstractSceneSupport {
         this.params = request.getParameterMap();
         penetrate.put(request.getClass(), request);
         penetrate.put(response.getClass(), response);
+
+        penetrate.put(HttpServletRequest.class, request);
+        penetrate.put(HttpServletResponse.class, response);
     }
 
     @Override
