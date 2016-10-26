@@ -3,9 +3,13 @@ package com.yoosal.mvc;
 import com.yoosal.common.ClassUtils;
 import com.yoosal.common.CollectionUtils;
 import com.yoosal.common.StringUtils;
+import com.yoosal.common.event.DefaultEventContext;
+import com.yoosal.common.event.PublicEventContext;
+import com.yoosal.common.event.EventOccurListener;
 import com.yoosal.common.scan.DefaultFrameworkScanClass;
 import com.yoosal.common.scan.FrameworkScanClass;
 import com.yoosal.mvc.annotation.APIController;
+import com.yoosal.mvc.event.MVCEventType;
 import com.yoosal.mvc.exception.MvcNotFoundConfigException;
 import com.yoosal.mvc.exception.ParseTemplateException;
 import com.yoosal.mvc.support.*;
@@ -53,9 +57,11 @@ public class EntryPointManager {
     static final String KEY_AUTH_CLASS = "mvc.auth.class";
     static final String KEY_API_CATCH_STRING = "mvc.api.catchFormat";
     static final String KEY_API_CATCH_CLASS = "mvc.api.catchClass";
+    static final String KEY_EVENT_REQUEST_CLASS = "mvc.api.catchClass";
 
 
-    private static FrameworkScanClass frameworkScanClass = new DefaultFrameworkScanClass();
+    private static final FrameworkScanClass frameworkScanClass = new DefaultFrameworkScanClass();
+    private static final PublicEventContext eventContext = new DefaultEventContext();
     private static ViewResolver viewResolver = null;
     private static AuthoritySupport authoritySupport = null;
 
@@ -77,6 +83,7 @@ public class EntryPointManager {
         if (authClass != null) {
             this.setAuthoritySupport((AuthoritySupport) Class.forName(authClass).newInstance());
         }
+        this.setListenterFromProperties(prop);
     }
 
     public void setAuthoritySupport(AuthoritySupport authoritySupport) {
@@ -97,6 +104,13 @@ public class EntryPointManager {
             }
         }
         classesInstanceFromProperties = classes;
+    }
+
+    private void setListenterFromProperties(Properties prop) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
+        String cls = prop.getProperty(KEY_EVENT_REQUEST_CLASS);
+        if (StringUtils.isNotBlank(cls)) {
+            this.addRequestListener((EventOccurListener) Class.forName(cls).newInstance());
+        }
     }
 
     public void setClassesInstanceFromProperties(Set set) {
@@ -199,6 +213,7 @@ public class EntryPointManager {
     public static ViewResolver getViewResolver() {
         if (viewResolver == null) {
             viewResolver = new NormalViewResolver();
+            viewResolver.setEventContext(eventContext);
         }
         return viewResolver;
     }
@@ -271,5 +286,13 @@ public class EntryPointManager {
         } else {
             javaScriptMapping.generateToStream(out, false);
         }
+    }
+
+    public void addRequestListener(EventOccurListener listener) {
+        eventContext.addListener(MVCEventType.REQUEST_EVERY_TIME, listener);
+    }
+
+    public static PublicEventContext getEventContext() {
+        return eventContext;
     }
 }

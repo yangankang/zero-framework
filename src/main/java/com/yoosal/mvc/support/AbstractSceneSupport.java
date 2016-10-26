@@ -2,17 +2,21 @@ package com.yoosal.mvc.support;
 
 import com.yoosal.common.ClassUtils;
 import com.yoosal.common.StringUtils;
+import com.yoosal.common.event.PublicEventContext;
 import com.yoosal.json.JSON;
 import com.yoosal.json.serializer.SerializerFeature;
 import com.yoosal.mvc.EntryPointManager;
+import com.yoosal.mvc.event.RequestEvent;
 import com.yoosal.mvc.exception.SceneInvokeException;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 
 public abstract class AbstractSceneSupport implements SceneSupport {
     private static final Emerge emerge = new DefaultEmerge();
     private ControllerMethodParse controllerClassSupport;
     private CatchFormat catchFormat = null;
+    private PublicEventContext publicEventContext = null;
 
     public AbstractSceneSupport(ControllerMethodParse controllerClassSupport) {
         this.controllerClassSupport = controllerClassSupport;
@@ -30,6 +34,15 @@ public abstract class AbstractSceneSupport implements SceneSupport {
 
     @Override
     public Object invoke() throws SceneInvokeException {
+        RequestEvent requestEvent = null;
+        if (publicEventContext != null) {
+            requestEvent = new RequestEvent(publicEventContext);
+            requestEvent.setBefore(true);
+            requestEvent.setController(this.controllerClassSupport.getClazz().getSimpleName());
+            requestEvent.setMethod(this.controllerClassSupport.getMethodName());
+            requestEvent.setRequest((HttpServletRequest) this.getPenetrate().get(HttpServletRequest.class.getClass()));
+            publicEventContext.fireCEvent(requestEvent);
+        }
         try {
             //执行之前检查一下用户自定义的权限是否可执行
             AuthoritySupport authoritySupport = EntryPointManager.getAuthoritySupport();
@@ -62,12 +75,22 @@ public abstract class AbstractSceneSupport implements SceneSupport {
                     throw new SceneInvokeException("invoke method failed", e);
                 }
             }
+        } finally {
+            if (publicEventContext != null) {
+                requestEvent.setBefore(false);
+                publicEventContext.fireCEvent(requestEvent);
+            }
         }
     }
 
     @Override
     public void setControllerClassSupport(ControllerMethodParse controllerClassSupport) {
         this.controllerClassSupport = controllerClassSupport;
+    }
+
+    @Override
+    public void setEventContext(PublicEventContext publicEventContext) {
+        this.publicEventContext = publicEventContext;
     }
 
     @Override

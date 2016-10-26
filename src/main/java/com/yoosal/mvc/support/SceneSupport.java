@@ -1,5 +1,6 @@
 package com.yoosal.mvc.support;
 
+import com.yoosal.common.event.PublicEventContext;
 import com.yoosal.mvc.exception.SceneInvokeException;
 
 /**
@@ -17,4 +18,6 @@ public interface SceneSupport {
     void addParam(String key, String[] values);
 
     void addParam(Class clazz, Object obj);
+
+    void setEventContext(PublicEventContext publicEventContext);
 }

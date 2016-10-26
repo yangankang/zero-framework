@@ -1,5 +1,6 @@
 package com.yoosal.mvc.support;
 
+import com.yoosal.common.event.PublicEventContext;
 import com.yoosal.mvc.EntryPointManager;
 import com.yoosal.mvc.SceneFactory;
 import com.yoosal.mvc.exception.SceneInvokeException;
@@ -12,6 +13,9 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 public class NormalViewResolver implements ViewResolver {
+
+    private PublicEventContext publicEventContext;
+
     @Override
     public void resolver(HttpServletRequest request, HttpServletResponse response) throws SceneInvokeException, ViewResolverException {
         String[] classAndMethodName = this.getClassAndMethodName(request);
@@ -23,8 +27,14 @@ public class NormalViewResolver implements ViewResolver {
         sceneView.setRequest(request);
         sceneView.setResponse(response);
         sceneSupport.addParam(SceneView.class, sceneView);
+        sceneSupport.setEventContext(this.publicEventContext);
         Object o = sceneSupport.invoke();
         this.resolverInvoke(request, response, sceneSupport, o);
+    }
+
+    @Override
+    public void setEventContext(PublicEventContext publicEventContext) {
+        this.publicEventContext = publicEventContext;
     }
 
     private String[] getClassAndMethodName(HttpServletRequest request) {

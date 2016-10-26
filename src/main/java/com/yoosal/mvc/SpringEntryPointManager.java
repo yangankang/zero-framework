@@ -1,6 +1,8 @@
 package com.yoosal.mvc;
 
+import com.yoosal.common.event.EventOccurListener;
 import com.yoosal.mvc.annotation.APIController;
+import com.yoosal.mvc.event.RequestEventListener;
 import com.yoosal.mvc.support.AuthoritySupport;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.DisposableBean;
@@ -36,11 +38,18 @@ public class SpringEntryPointManager extends EntryPointManager implements Initia
     private AuthoritySupport authoritySupport;
     private String catchFormat;
     private String catchClass;
+    private RequestEventListener requestEventListener;
 
     @Override
     public void setAuthoritySupport(AuthoritySupport authoritySupport) {
         this.authoritySupport = authoritySupport;
         super.setAuthoritySupport(authoritySupport);
+    }
+
+    public void setRequestEvent(RequestEventListener requestEventListener) {
+        this.requestEventListener = requestEventListener;
+        this.setProperty(EntryPointManager.KEY_EVENT_REQUEST_CLASS, requestEventListener.getClass().getName());
+        this.setRequestEvent(requestEventListener);
     }
 
     public void setWritePath(String writePath) {
