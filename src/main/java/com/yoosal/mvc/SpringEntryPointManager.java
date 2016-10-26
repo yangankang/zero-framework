@@ -49,7 +49,7 @@ public class SpringEntryPointManager extends EntryPointManager implements Initia
     public void setRequestEvent(RequestEventListener requestEventListener) {
         this.requestEventListener = requestEventListener;
         this.setProperty(EntryPointManager.KEY_EVENT_REQUEST_CLASS, requestEventListener.getClass().getName());
-        this.setRequestEvent(requestEventListener);
+        super.addRequestListener(requestEventListener);
     }
 
     public void setWritePath(String writePath) {
