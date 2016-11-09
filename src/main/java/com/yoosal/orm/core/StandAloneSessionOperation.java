@@ -372,7 +372,7 @@ public class StandAloneSessionOperation implements SessionOperation {
     private List<ModelObject> distinct(List<ModelObject> objects, TableModel tableModel) {
         List<ColumnModel> models = tableModel.getMappingPrimaryKeyColumnModels();
         List<ModelObject> arrayNewObjects = new ArrayList<ModelObject>();
-        Map<String, ModelObject> hashMap = new HashMap<String, ModelObject>();
+        Map<String, ModelObject> hashMap = new LinkedHashMap<String, ModelObject>();
         for (ModelObject object : objects) {
             StringBuffer buffer = new StringBuffer();
             if (models != null) {
