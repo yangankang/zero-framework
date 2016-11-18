@@ -219,6 +219,24 @@ public class StandAloneSessionOperation implements SessionOperation {
     }
 
     @Override
+    public void update(ModelObject editor, ModelObject criteria) {
+        PreparedStatement statement = null;
+        try {
+            connection = getConnection();
+            SQLDialect sqlDialect = getDialect(connection);
+            TableModel tableModel = dbMapping.getTableMapping(editor.getObjectClass());
+            ValuesForPrepared valuesForPrepared = sqlDialect.prepareUpdate(tableModel, editor, criteria);
+            statement = connection.prepareStatement(valuesForPrepared.getSql());
+            valuesForPrepared.setPrepared(statement);
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            throw new DatabaseOperationException("update throw", e);
+        } finally {
+            close(statement);
+        }
+    }
+
+    @Override
     public void updates(Batch batch) {
         PreparedStatement statement = null;
         try {

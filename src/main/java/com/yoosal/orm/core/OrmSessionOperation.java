@@ -77,6 +77,11 @@ public class OrmSessionOperation implements SessionOperation {
     }
 
     @Override
+    public void update(ModelObject editor, ModelObject criteria) {
+        sessionOperation.update(editor, criteria);
+    }
+
+    @Override
     public void updates(Batch batch) {
         sessionOperation.updates(batch);
     }

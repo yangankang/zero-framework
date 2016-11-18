@@ -80,6 +80,16 @@ public class SessionOperationManager implements Operation {
     }
 
     @Override
+    public void update(ModelObject editor, ModelObject criteria) {
+        try {
+            LocalSessionModel sessionModel = getOperation();
+            sessionModel.getSessionOperation().update(editor, criteria);
+        } finally {
+            this.close();
+        }
+    }
+
+    @Override
     public void updates(Batch batch) {
         try {
             LocalSessionModel sessionModel = getOperation();

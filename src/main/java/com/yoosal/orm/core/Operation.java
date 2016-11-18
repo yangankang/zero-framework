@@ -22,6 +22,8 @@ public interface Operation {
 
     void update(ModelObject object);
 
+    void update(ModelObject editor, ModelObject criteria);
+
     void updates(Batch batch);
 
     void remove(Query query);

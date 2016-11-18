@@ -23,16 +23,6 @@ public class ModelObject extends JSONObject {
     private static final ConversionService conversionService = new DefaultConversionService();
     private Class objectClass;
     private String dataSourceName;
-    /**
-     * 单条更新时，这个数组表示当前列不作为where条件而是update的set需要的列，一般更新一个对象会以主键作为
-     * 更新where条件，但是如果有多列主键需要更新其中一列或者多列，则用此数组排除
-     */
-    private Object[] updateColumn;
-    /**
-     * 单条更新时，表示当前对象更新时需要的where条件的字段列表
-     */
-    private Object[] whereColumn;
-
     public static ModelObject instance(Class clazz) {
         return new ModelObject(clazz);
     }
@@ -79,22 +69,6 @@ public class ModelObject extends JSONObject {
 
     public Join getJoin() {
         return new Join(objectClass, dataSourceName);
-    }
-
-    public Object[] getUpdateColumn() {
-        return updateColumn;
-    }
-
-    public void setUpdateColumn(Object... updateColumn) {
-        this.updateColumn = updateColumn;
-    }
-
-    public Object[] getWhereColumn() {
-        return whereColumn;
-    }
-
-    public void setWhereColumn(Object... whereColumn) {
-        this.whereColumn = whereColumn;
     }
 
     @Override

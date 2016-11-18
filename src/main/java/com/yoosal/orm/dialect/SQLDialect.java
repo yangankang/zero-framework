@@ -45,6 +45,16 @@ public interface SQLDialect {
 
     ValuesForPrepared prepareUpdate(TableModel tableMapping, ModelObject object);
 
+    /**
+     * 这个只是单纯的修改的值和条件值
+     *
+     * @param tableModel
+     * @param editor
+     * @param criteria
+     * @return
+     */
+    ValuesForPrepared prepareUpdate(TableModel tableModel, ModelObject editor, ModelObject criteria);
+
     ValuesForPrepared prepareUpdateBatch(TableModel tableMapping, Batch batch);
 
     ValuesForPrepared prepareDelete(DBMapping tableMapping, Query query);
@@ -54,4 +64,5 @@ public interface SQLDialect {
     ValuesForPrepared prepareSelectCount(TableModel tableMapping, Query query);
 
     void setShowSQL(boolean isShowSQL);
+
 }

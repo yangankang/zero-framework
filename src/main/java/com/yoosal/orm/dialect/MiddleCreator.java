@@ -156,23 +156,14 @@ public abstract class MiddleCreator implements SQLDialect {
     private List<ColumnModel> getValidateColumn(TableModel tableMapping, ModelObject object, List<ColumnModel> whereColumns) {
         List<ColumnModel> columnModels = new ArrayList<ColumnModel>();
         object.clearNull();
-        Object[] ucs = object.getUpdateColumn();    //主键作为修改内容的数组
-        Object[] wcs = object.getWhereColumn();     //作为修改条件的数组
+
         for (ColumnModel cm : tableMapping.getMappingColumnModels()) {
             if (object.containsKey(cm.getJavaName())) {
                 if (whereColumns != null) {
-                    if (contains(wcs, cm)) {
-                        whereColumns.add(cm);
+                    if (!cm.isPrimaryKey()) {
+                        columnModels.add(cm);
                     } else {
-                        if (!cm.isPrimaryKey()) {
-                            columnModels.add(cm);
-                        } else {
-                            if (contains(ucs, cm)) {
-                                columnModels.add(cm);
-                            } else {
-                                whereColumns.add(cm);
-                            }
-                        }
+                        whereColumns.add(cm);
                     }
                 } else {
                     columnModels.add(cm);
@@ -184,9 +175,15 @@ public abstract class MiddleCreator implements SQLDialect {
 
     @Override
     public ValuesForPrepared prepareUpdate(TableModel tableMapping, ModelObject object) {
-        ValuesForPrepared valuesForPrepared = new ValuesForPrepared();
         List<ColumnModel> whereColumnModels = new ArrayList<ColumnModel>();
         List<ColumnModel> columnModels = getValidateColumn(tableMapping, object, whereColumnModels);
+
+        return prepareUpdate(tableMapping, columnModels, whereColumnModels, object, object);
+    }
+
+    private ValuesForPrepared prepareUpdate(TableModel tableMapping, List<ColumnModel> columnModels,
+                                            List<ColumnModel> whereColumnModels, ModelObject editor, ModelObject criteria) {
+        ValuesForPrepared valuesForPrepared = new ValuesForPrepared();
 
         if (whereColumnModels.size() <= 0) {
             logger.debug("update sql no where statement");
@@ -199,7 +196,7 @@ public abstract class MiddleCreator implements SQLDialect {
         Iterator<ColumnModel> wcIt = whereColumnModels.iterator();
         while (cmIt.hasNext()) {
             ColumnModel cm = cmIt.next();
-            valuesForPrepared.addValue(":" + cm.getJavaName(), object.get(cm.getJavaName()));
+            valuesForPrepared.addValue(":" + cm.getJavaName(), editor.get(cm.getJavaName()));
             chain.setValue(cm.getColumnName()).setEquals().setValue(":" + cm.getJavaName());
             if (cmIt.hasNext()) {
                 chain.setSplit();
@@ -210,7 +207,7 @@ public abstract class MiddleCreator implements SQLDialect {
             chain.where();
             while (wcIt.hasNext()) {
                 ColumnModel cm = wcIt.next();
-                valuesForPrepared.addValue(":" + cm.getJavaName(), object.get(cm.getJavaName()));
+                valuesForPrepared.addValue(":" + cm.getJavaName(), criteria.get(cm.getJavaName()));
                 chain.setValue(cm.getColumnName()).setEquals().setValue(":" + cm.getJavaName());
                 if (wcIt.hasNext()) {
                     chain.and();
@@ -220,8 +217,29 @@ public abstract class MiddleCreator implements SQLDialect {
 
         valuesForPrepared.setSql(chain.toString());
         showSQL(valuesForPrepared.getSql(), valuesForPrepared);
-
         return valuesForPrepared;
+    }
+
+    @Override
+    public ValuesForPrepared prepareUpdate(TableModel tableModel, ModelObject editor, ModelObject criteria) {
+        SQLChain chain = new SQLChain(this.getEnumType());
+        chain.update().setValue(tableModel.getDbTableName()).set();
+
+        List<ColumnModel> columnModels = new ArrayList<ColumnModel>();
+        List<ColumnModel> whereColumnModels = new ArrayList<ColumnModel>();
+        for (ColumnModel cm : tableModel.getMappingColumnModels()) {
+            if (editor.containsKey(cm.getJavaName())) {
+                columnModels.add(cm);
+            }
+        }
+
+        for (ColumnModel cm : tableModel.getMappingColumnModels()) {
+            if (criteria.containsKey(cm.getJavaName())) {
+                whereColumnModels.add(cm);
+            }
+        }
+
+        return prepareUpdate(tableModel, columnModels, whereColumnModels, editor, criteria);
     }
 
     protected void showSQL(String sql) {

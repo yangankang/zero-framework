@@ -60,6 +60,9 @@ public class TestOrm {
 
         System.out.println(object.getString(TableStudent.idColumn));
 
+        object.put(TableStudent.nameForAccount, "yak123");
+        sceneOperation.update(object);
+
         ModelObject objects = sceneOperation.query(Query.query(TableStudent.class).id(object.getString(TableStudent.idColumn)));
         System.out.println(JSON.toJSONString(objects));
     }
