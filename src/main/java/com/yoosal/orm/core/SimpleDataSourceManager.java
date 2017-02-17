@@ -151,7 +151,7 @@ public class SimpleDataSourceManager implements DataSourceManager {
             groupDataSources.add(groupDataSource);
             DataSource dataSource = (DataSource) object;
             masterDataSource = dataSource;
-            logger.info("got a dataSource from properties:" + dataSourceName);
+            logger.info("从配置文件中获取一个数据库源:" + dataSourceName);
 
             return dataSource;
         }

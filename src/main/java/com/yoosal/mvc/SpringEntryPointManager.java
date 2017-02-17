@@ -1,12 +1,20 @@
 package com.yoosal.mvc;
 
-import com.yoosal.common.event.EventOccurListener;
+import com.yoosal.common.Logger;
+import com.yoosal.common.StringUtils;
 import com.yoosal.mvc.annotation.APIController;
 import com.yoosal.mvc.event.RequestEventListener;
+import com.yoosal.mvc.spring.DynamicSpringController;
+import com.yoosal.mvc.spring.InvokeHandlerController;
+import com.yoosal.mvc.spring.OutJavaApiHandlerController;
 import com.yoosal.mvc.support.AuthoritySupport;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.beans.factory.support.BeanDefinitionRegistry;
+import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
+import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.web.context.ServletContextAware;
@@ -16,7 +24,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-public class SpringEntryPointManager extends EntryPointManager implements InitializingBean, DisposableBean, ServletContextAware, ApplicationContextAware {
+public class SpringEntryPointManager extends EntryPointManager implements BeanDefinitionRegistryPostProcessor, InitializingBean, DisposableBean, ServletContextAware, ApplicationContextAware {
+    private static final Logger logger = Logger.getLogger(SpringEntryPointManager.class);
+
     private ServletContext servletContext;
     private ApplicationContext applicationContext;
     /**
@@ -33,6 +43,7 @@ public class SpringEntryPointManager extends EntryPointManager implements Initia
     private String methodParamName;
     private String classParamName;
     private String requestUri;
+    private String apiRequestUri;
     private String isCompressorJs;
     private String isRestful;
     private AuthoritySupport authoritySupport;
@@ -97,6 +108,10 @@ public class SpringEntryPointManager extends EntryPointManager implements Initia
         this.setProperty(EntryPointManager.KEY_REQUEST_URI, requestUri);
     }
 
+    public void setApiRequestUri(String apiRequestUri) {
+        this.apiRequestUri = apiRequestUri;
+    }
+
     public void setIsCompressorJs(String isCompressorJs) {
         this.isCompressorJs = isCompressorJs;
         this.setProperty(EntryPointManager.KEY_COMPRESSOR_JS, isCompressorJs);
@@ -156,5 +171,31 @@ public class SpringEntryPointManager extends EntryPointManager implements Initia
     @Override
     public void setServletContext(ServletContext servletContext) {
         this.servletContext = servletContext;
+    }
+
+    /**
+     * 在此注册动态生成的Controller
+     *
+     * @param registry
+     * @throws BeansException
+     */
+    @Override
+    public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
+        if (StringUtils.isNotBlank(requestUri)) {
+            DynamicSpringController.setMapping(requestUri, InvokeHandlerController.SPRING_CONTROLLER_INVOKE_HANDLER);
+            registry.registerBeanDefinition(InvokeHandlerController.SPRING_CONTROLLER_INVOKE_HANDLER, new RootBeanDefinition(InvokeHandlerController.class));
+        }
+        if (StringUtils.isNotBlank(apiRequestUri)) {
+            DynamicSpringController.setMapping(apiRequestUri, OutJavaApiHandlerController.SPRING_CONTROLLER_API_HANDLER);
+            registry.registerBeanDefinition(OutJavaApiHandlerController.SPRING_CONTROLLER_API_HANDLER, new RootBeanDefinition(OutJavaApiHandlerController.class));
+        }
+
+        registry.registerBeanDefinition(DynamicSpringController.SPRING_CONTROLLER_NAME, new RootBeanDefinition(DynamicSpringController.class));
+        logger.info("动态注册Spring的入口Controller");
+    }
+
+    @Override
+    public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
+
     }
 }

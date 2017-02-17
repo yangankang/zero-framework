@@ -158,7 +158,7 @@ public class DefaultDBMapping implements DBMapping {
                 }
             }
             connection.close();
-            logger.info("Doing Mapping : [" + logs + "] used time : " + ((System.currentTimeMillis() - time) / 1000) + "s");
+            logger.info("匹配数据库和Java对象完成 : [" + logs + "] 耗时 : " + ((System.currentTimeMillis() - time) / 1000) + "s");
         } finally {
             ccs(connection, null);
         }

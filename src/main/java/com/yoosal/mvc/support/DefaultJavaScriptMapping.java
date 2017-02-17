@@ -148,7 +148,7 @@ public class DefaultJavaScriptMapping implements JavaScriptMapping {
             }
 
             FileUtils.writeStringToFile(new File(developPath), js);
-            logger.info("is develop env js write path:" + developPath);
+            logger.info("开发调试环境自动生成JS映射文件:" + developPath);
         }
     }
 

@@ -252,7 +252,7 @@ public abstract class MiddleCreator implements SQLDialect {
         if (this.isShowSQL) {
             try {
                 logger.info(sql);
-                logger.info("Parameter:" + JSONObject.toJSONString(valuesForPrepared.getKeyValues()));
+                logger.info("SQL参数列表:" + JSONObject.toJSONString(valuesForPrepared.getKeyValues()));
             } catch (Exception e) {
                 e.printStackTrace();
             }

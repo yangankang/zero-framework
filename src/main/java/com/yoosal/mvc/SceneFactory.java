@@ -94,7 +94,7 @@ public abstract class SceneFactory {
         String findMethodKey = className + "." + methodName;
         ControllerMethodParse classSupport = controllers.get(findMethodKey.toLowerCase());
         if (classSupport == null) {
-            logger.info("no class or method name " + findMethodKey);
+            logger.info("没有相匹配的类或者方法:" + findMethodKey);
             return null;
         }
         return new HttpSceneSupport(request, response, classSupport);

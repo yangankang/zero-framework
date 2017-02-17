@@ -69,7 +69,7 @@ public class OperationManager {
     }
 
     private void initDataSource() throws InvocationTargetException, ClassNotFoundException, InstantiationException, IllegalAccessException {
-        logger.info("begin initialize dataSource");
+        logger.info("开始初始化数据库源");
         Map<String, Object> dsmap = new HashMap<String, Object>();
         for (Map.Entry<String, Object> entry : properties.entrySet()) {
             if (entry.getKey().startsWith(KEY_DATASOURCE_INFO)) {
@@ -144,7 +144,7 @@ public class OperationManager {
     }
 
     void doMapping() throws SQLException {
-        logger.info("begin do mapping count " + classesFromScan.size());
+        logger.info("开始执行数据库和Java对象匹配检查,总数:" + classesFromScan.size());
         boolean isCanAlter = canAlter();
         mapping.doMapping(dataSourceManager, classesFromScan, getMappingConvert(), isCanAlter);
     }
