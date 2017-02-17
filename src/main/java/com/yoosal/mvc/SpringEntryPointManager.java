@@ -183,14 +183,14 @@ public class SpringEntryPointManager extends EntryPointManager implements BeanDe
     public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
         if (StringUtils.isNotBlank(requestUri)) {
             DynamicSpringController.setMapping(requestUri, InvokeHandlerController.SPRING_CONTROLLER_INVOKE_HANDLER);
-            registry.registerBeanDefinition(InvokeHandlerController.SPRING_CONTROLLER_INVOKE_HANDLER, new RootBeanDefinition(InvokeHandlerController.class));
+            registry.registerBeanDefinition(requestUri, new RootBeanDefinition(InvokeHandlerController.class));
         }
         if (StringUtils.isNotBlank(apiRequestUri)) {
             DynamicSpringController.setMapping(apiRequestUri, OutJavaApiHandlerController.SPRING_CONTROLLER_API_HANDLER);
-            registry.registerBeanDefinition(OutJavaApiHandlerController.SPRING_CONTROLLER_API_HANDLER, new RootBeanDefinition(OutJavaApiHandlerController.class));
+            registry.registerBeanDefinition(apiRequestUri, new RootBeanDefinition(OutJavaApiHandlerController.class));
         }
 
-        registry.registerBeanDefinition(DynamicSpringController.SPRING_CONTROLLER_NAME, new RootBeanDefinition(DynamicSpringController.class));
+        //registry.registerBeanDefinition(DynamicSpringController.SPRING_CONTROLLER_NAME, new RootBeanDefinition(DynamicSpringController.class));
         logger.info("动态注册Spring的入口Controller");
     }
 

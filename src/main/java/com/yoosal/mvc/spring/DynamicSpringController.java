@@ -1,5 +1,6 @@
 package com.yoosal.mvc.spring;
 
+import org.springframework.core.Ordered;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.handler.SimpleUrlHandlerMapping;
 
@@ -16,8 +17,11 @@ public class DynamicSpringController extends SimpleUrlHandlerMapping {
     }
 
     public DynamicSpringController() {
+        this.setOrder(Ordered.LOWEST_PRECEDENCE);
         if (mapping.size() > 0) {
             this.setUrlMap(mapping);
         }
     }
+
+
 }
