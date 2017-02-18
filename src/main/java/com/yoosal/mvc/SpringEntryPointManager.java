@@ -1,10 +1,8 @@
 package com.yoosal.mvc;
 
 import com.yoosal.common.Logger;
-import com.yoosal.common.StringUtils;
 import com.yoosal.mvc.annotation.APIController;
 import com.yoosal.mvc.event.RequestEventListener;
-import com.yoosal.mvc.spring.DynamicSpringController;
 import com.yoosal.mvc.spring.InvokeHandlerController;
 import com.yoosal.mvc.spring.OutJavaApiHandlerController;
 import com.yoosal.mvc.support.AuthoritySupport;
@@ -12,19 +10,17 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
-import org.springframework.beans.factory.support.BeanDefinitionRegistry;
-import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
-import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.web.context.ServletContextAware;
+import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import javax.servlet.ServletContext;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-public class SpringEntryPointManager extends EntryPointManager implements BeanDefinitionRegistryPostProcessor, InitializingBean, DisposableBean, ServletContextAware, ApplicationContextAware {
+public class SpringEntryPointManager extends EntryPointManager implements InitializingBean, DisposableBean, ServletContextAware, ApplicationContextAware {
     private static final Logger logger = Logger.getLogger(SpringEntryPointManager.class);
 
     private ServletContext servletContext;
@@ -171,31 +167,5 @@ public class SpringEntryPointManager extends EntryPointManager implements BeanDe
     @Override
     public void setServletContext(ServletContext servletContext) {
         this.servletContext = servletContext;
-    }
-
-    /**
-     * 在此注册动态生成的Controller
-     *
-     * @param registry
-     * @throws BeansException
-     */
-    @Override
-    public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
-        if (StringUtils.isNotBlank(requestUri)) {
-            DynamicSpringController.setMapping(requestUri, InvokeHandlerController.SPRING_CONTROLLER_INVOKE_HANDLER);
-            registry.registerBeanDefinition(requestUri, new RootBeanDefinition(InvokeHandlerController.class));
-        }
-        if (StringUtils.isNotBlank(apiRequestUri)) {
-            DynamicSpringController.setMapping(apiRequestUri, OutJavaApiHandlerController.SPRING_CONTROLLER_API_HANDLER);
-            registry.registerBeanDefinition(apiRequestUri, new RootBeanDefinition(OutJavaApiHandlerController.class));
-        }
-
-        //registry.registerBeanDefinition(DynamicSpringController.SPRING_CONTROLLER_NAME, new RootBeanDefinition(DynamicSpringController.class));
-        logger.info("动态注册Spring的入口Controller");
-    }
-
-    @Override
-    public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
-
     }
 }
