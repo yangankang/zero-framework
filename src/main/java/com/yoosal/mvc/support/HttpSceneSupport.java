@@ -34,6 +34,16 @@ public class HttpSceneSupport extends AbstractSceneSupport {
     }
 
     @Override
+    public HttpServletRequest getServletRequest() {
+        return this.request;
+    }
+
+    @Override
+    public HttpServletResponse getServletResponse() {
+        return this.response;
+    }
+
+    @Override
     public void addParam(String key, String[] values) {
         params.put(key, values);
     }

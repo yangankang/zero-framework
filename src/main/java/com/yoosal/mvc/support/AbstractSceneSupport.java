@@ -10,6 +10,7 @@ import com.yoosal.mvc.event.RequestEvent;
 import com.yoosal.mvc.exception.SceneInvokeException;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.Map;
 
 public abstract class AbstractSceneSupport implements SceneSupport {
@@ -60,7 +61,9 @@ public abstract class AbstractSceneSupport implements SceneSupport {
                         this.controllerClassSupport.getMethodName(),
                         this.controllerClassSupport.getInvokeName(),
                         this.controllerClassSupport.getInstance());
-                authorityReply = authoritySupport.judge(authorityReply);
+
+
+                authorityReply = authoritySupport.judge(authorityReply, this.getServletRequest(), this.getServletResponse());
                 if (authorityReply != null && !authorityReply.isCanExecute()) {
                     return authorityReply.getMessage();
                 }
@@ -112,6 +115,10 @@ public abstract class AbstractSceneSupport implements SceneSupport {
     public abstract Map<String, String[]> getParams();
 
     public abstract Map<Class, Object> getPenetrate();
+
+    public abstract HttpServletRequest getServletRequest();
+
+    public abstract HttpServletResponse getServletResponse();
 
     @Override
     public String serialize(Object object) {

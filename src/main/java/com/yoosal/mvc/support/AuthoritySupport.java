@@ -1,5 +1,7 @@
 package com.yoosal.mvc.support;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 /**
@@ -9,7 +11,7 @@ import java.util.List;
  */
 public interface AuthoritySupport {
 
-    AuthorityReply judge(AuthorityReply model);
+    AuthorityReply judge(AuthorityReply model, HttpServletRequest request, HttpServletResponse response);
 
     /**
      * 被生成的js api应该有哪些方法
