@@ -9,7 +9,7 @@ public class AuthorityReply {
     private String invokeName;
     private String methodName;
     private Object object;
-    private String message;
+    private Object message;
     private boolean canExecute = true;
 
     public AuthorityReply(Class clazz, String controllerName, String methodName, String invokeName, Object object) {
@@ -44,11 +44,11 @@ public class AuthorityReply {
         return canExecute;
     }
 
-    public String getMessage() {
+    public Object getMessage() {
         return message;
     }
 
-    public void setMessage(String message) {
+    public void setMessage(Object message) {
         this.message = message;
     }
 
