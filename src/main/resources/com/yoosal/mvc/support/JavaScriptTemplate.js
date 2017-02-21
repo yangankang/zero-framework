@@ -12,6 +12,7 @@ function executor(cinfo) {
     codeArray.push("var " + defaultSuffixName + "=" + defaultSuffixName + "||{}");
     codeArray.push(defaultSuffixName + ".address=\"\"");
     codeArray.push(__mvc_ajax_object.toString());
+    codeArray.push(__$assign.toString());
     for (var i in controllers) {
         var controllerName = i,
             cunits = controllers[i];
@@ -46,13 +47,35 @@ function executor(cinfo) {
 
 var templateFunction = function (_params_) {
     var _$object = new Object();
+    _$object.add = function (key, value) {
+        if (!this._params) this._params = {};
+        this._params[key] = value;
+        return this;
+    };
+    _$object.setPage = function (page) {
+        if (!this._params) this._params = {};
+        this._params['_page'] = page;
+        return this;
+    };
     _$object.call = function (SuccessFunction, FailedFunction) {
-        __mvc_ajax_object("POST", _address_ + "_url_", _json_, SuccessFunction, FailedFunction);
+        var _$json = __$assign(_json_, this._params);
+        __mvc_ajax_object("POST", _address_ + "_url_", _$json, SuccessFunction, FailedFunction);
     };
     _$object.info = function () {
-        return {url: _address_ + "_url_", param: _json_};
+        var _$json = __$assign(_json_, this._params);
+        return {url: _address_ + "_url_", param: _$json};
     };
     return _$object;
+};
+
+function __$assign(a, b) {
+    if (!a) a = {};
+    if (b) {
+        for (var i in b) {
+            a[i] = b[i];
+        }
+    }
+    return a;
 }
 
 function __mvc_ajax_object(type, url, data, success, failed) {
