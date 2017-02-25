@@ -154,24 +154,28 @@ public class Query {
     }
 
     public Query interval(Object key, Object start, Object end) {
-        Wheres wheres = new Wheres();
-        wheres.setKey(String.valueOf(key));
-        wheres.setIntervalStartValue(start);
-        wheres.setIntervalEndValue(end);
-        wheres.setOperation(Wheres.Operation.INTERVAL);
-        this.where(wheres);
+        if (start != null || end != null) {
+            Wheres wheres = new Wheres();
+            wheres.setKey(String.valueOf(key));
+            wheres.setIntervalStartValue(start);
+            wheres.setIntervalEndValue(end);
+            wheres.setOperation(Wheres.Operation.INTERVAL);
+            this.where(wheres);
+        }
         return this;
     }
 
     public Query interval(Object key, Object start, Object end, Wheres.Operation startOperation, Wheres.Operation endOperation) {
-        Wheres wheres = new Wheres();
-        wheres.setKey(String.valueOf(key));
-        wheres.setIntervalStartValue(start);
-        wheres.setIntervalEndValue(end);
-        wheres.setIntervalStartOperation(startOperation);
-        wheres.setIntervalEndOperation(endOperation);
-        wheres.setOperation(Wheres.Operation.INTERVAL);
-        this.where(wheres);
+        if (start != null || end != null) {
+            Wheres wheres = new Wheres();
+            wheres.setKey(String.valueOf(key));
+            wheres.setIntervalStartValue(start);
+            wheres.setIntervalEndValue(end);
+            wheres.setIntervalStartOperation(startOperation);
+            wheres.setIntervalEndOperation(endOperation);
+            wheres.setOperation(Wheres.Operation.INTERVAL);
+            this.where(wheres);
+        }
         return this;
     }
 

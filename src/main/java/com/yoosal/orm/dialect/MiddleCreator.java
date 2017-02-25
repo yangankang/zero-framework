@@ -337,11 +337,15 @@ public abstract class MiddleCreator implements SQLDialect {
             valuesForPrepared.addValue(":" + cn, "%" + whs.getValue() + "%");
         } else if (operation.equals(Wheres.Operation.INTERVAL)) {
             if (whs.getIntervalStartValue() != null) {
-                chain.setValue(cn + whs.getIntervalStartOperation() + ":" + cn + "_start");
+
+                chain.setValue(cn + Wheres.getOperation(whs.getIntervalStartOperation()) + ":" + cn + "_start");
                 valuesForPrepared.addValue(":" + cn + "_start", whs.getIntervalStartValue());
             }
             if (whs.getIntervalEndValue() != null) {
-                chain.setValue(cn + whs.getIntervalEndOperation() + ":" + cn + "_end");
+                if (whs.getIntervalStartValue() != null) {
+                    chain.and();
+                }
+                chain.setValue(cn + Wheres.getOperation(whs.getIntervalEndOperation()) + ":" + cn + "_end");
                 valuesForPrepared.addValue(":" + cn + "_end", whs.getIntervalEndValue());
             }
         } else {

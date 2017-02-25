@@ -451,4 +451,11 @@ public class SQLChain {
         }
         return sql.toString();
     }
+
+    public boolean lastIsWhere() {
+        if (commands.lastIndexOf(Command.WHERE) == commands.size() - 1) {
+            return true;
+        }
+        return false;
+    }
 }
