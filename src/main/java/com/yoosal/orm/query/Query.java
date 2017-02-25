@@ -229,6 +229,9 @@ public class Query {
      * @return
      */
     public Query addBeginPriority() {
+        if (this.wheres.size() <= 0) {
+            throw new IllegalArgumentException("优先级(必须有一个已知条件");
+        }
         Wheres wheres = this.wheres.get(this.wheres.size() - 1);
         wheres.addBeginPriority();
         return this;
@@ -240,6 +243,9 @@ public class Query {
      * @return
      */
     public Query addEndPriority() {
+        if (this.wheres.size() <= 0) {
+            throw new IllegalArgumentException("优先级)必须有一个已知条件");
+        }
         Wheres wheres = this.wheres.get(this.wheres.size() - 1);
         wheres.addEndPriority();
         return this;
