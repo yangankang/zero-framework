@@ -45,15 +45,15 @@ public class Query {
         return query;
     }
 
-    public static Query interval(Class clazz, Object start, Object end) {
+    public static Query interval(Class clazz, Object key, Object start, Object end) {
         Query query = new Query(clazz);
-        query.interval(start, end);
+        query.interval(key, start, end);
         return query;
     }
 
-    public Query interval(Class clazz, Object start, Object end, Wheres.Operation startOperation, Wheres.Operation endOperation) {
+    public Query interval(Class clazz, Object key, Object start, Object end, Wheres.Operation startOperation, Wheres.Operation endOperation) {
         Query query = new Query(clazz);
-        query.interval(start, end, startOperation, endOperation);
+        query.interval(key, start, end, startOperation, endOperation);
         return query;
     }
 
@@ -153,8 +153,9 @@ public class Query {
         return this;
     }
 
-    public Query interval(Object start, Object end) {
+    public Query interval(Object key, Object start, Object end) {
         Wheres wheres = new Wheres();
+        wheres.setKey(String.valueOf(key));
         wheres.setIntervalStartValue(start);
         wheres.setIntervalEndValue(end);
         wheres.setOperation(Wheres.Operation.INTERVAL);
@@ -162,8 +163,9 @@ public class Query {
         return this;
     }
 
-    public Query interval(Object start, Object end, Wheres.Operation startOperation, Wheres.Operation endOperation) {
+    public Query interval(Object key, Object start, Object end, Wheres.Operation startOperation, Wheres.Operation endOperation) {
         Wheres wheres = new Wheres();
+        wheres.setKey(String.valueOf(key));
         wheres.setIntervalStartValue(start);
         wheres.setIntervalEndValue(end);
         wheres.setIntervalStartOperation(startOperation);
