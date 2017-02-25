@@ -589,18 +589,18 @@ public abstract class MiddleCreator implements SQLDialect {
                     }
                 }
 
-                //添加结束的括号 )
-                if (beginPriorities != null && endPriorities.size() > 0) {
-                    for (Wheres.Priority priority : endPriorities) {
-                        chain.setEnd();
-                    }
-                }
-
                 if (i != 0) {
                     chain.setOperation(wh.getLogic());
                 }
 
                 selectWhereChain(tableModel, tableAsName, wh, chain, valuesForPrepared);
+
+                //添加结束的括号 )
+                if (endPriorities != null && endPriorities.size() > 0) {
+                    for (Wheres.Priority priority : endPriorities) {
+                        chain.setEnd();
+                    }
+                }
             }
         }
     }

@@ -264,7 +264,7 @@ public class Wheres {
     }
 
     protected void addEndPriority() {
-        begins.add(Priority.END);
+        ends.add(Priority.END);
     }
 
     public List<Priority> getBegins() {
