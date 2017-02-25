@@ -16,7 +16,7 @@ import java.util.List;
  */
 public class Wheres {
     public enum Operation {
-        EQUAL, IN, LIKE, NOT_EQUAL, GT, GT_EQUAL, LT, LT_EQUAL
+        EQUAL, IN, LIKE, NOT_EQUAL, GT, GT_EQUAL, LT, LT_EQUAL, INTERVAL
     }
 
     public enum Logic {
@@ -37,6 +37,14 @@ public class Wheres {
 
     private List<Priority> begins = new ArrayList<Priority>();
     private List<Priority> ends = new ArrayList<Priority>();
+
+    /**
+     * 如果是INTERVAL区间查询则用此方法
+     */
+    private Operation intervalStartOperation = Operation.GT_EQUAL;
+    private Operation intervalEndOperation = Operation.LT_EQUAL;
+    private Object intervalStartValue;
+    private Object intervalEndValue;
 
     /**
      * in 操作符，判断某列是否包含
@@ -265,5 +273,37 @@ public class Wheres {
 
     public List<Priority> getEnds() {
         return ends;
+    }
+
+    public Operation getIntervalStartOperation() {
+        return intervalStartOperation;
+    }
+
+    public void setIntervalStartOperation(Operation intervalStartOperation) {
+        this.intervalStartOperation = intervalStartOperation;
+    }
+
+    public Operation getIntervalEndOperation() {
+        return intervalEndOperation;
+    }
+
+    public void setIntervalEndOperation(Operation intervalEndOperation) {
+        this.intervalEndOperation = intervalEndOperation;
+    }
+
+    public Object getIntervalStartValue() {
+        return intervalStartValue;
+    }
+
+    public void setIntervalStartValue(Object intervalStartValue) {
+        this.intervalStartValue = intervalStartValue;
+    }
+
+    public Object getIntervalEndValue() {
+        return intervalEndValue;
+    }
+
+    public void setIntervalEndValue(Object intervalEndValue) {
+        this.intervalEndValue = intervalEndValue;
     }
 }

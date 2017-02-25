@@ -45,6 +45,18 @@ public class Query {
         return query;
     }
 
+    public static Query interval(Class clazz, Object start, Object end) {
+        Query query = new Query(clazz);
+        query.interval(start, end);
+        return query;
+    }
+
+    public Query interval(Class clazz, Object start, Object end, Wheres.Operation startOperation, Wheres.Operation endOperation) {
+        Query query = new Query(clazz);
+        query.interval(start, end, startOperation, endOperation);
+        return query;
+    }
+
 
     public static Query priority(Class clazz, Wheres... wheres) {
         Query query = new Query(clazz);
@@ -138,6 +150,26 @@ public class Query {
 
     public Query or(Object key, Object value, Wheres.Operation operation) {
         this.wheres.add(new Wheres(String.valueOf(key), value, operation, Wheres.Logic.OR));
+        return this;
+    }
+
+    public Query interval(Object start, Object end) {
+        Wheres wheres = new Wheres();
+        wheres.setIntervalStartValue(start);
+        wheres.setIntervalEndValue(end);
+        wheres.setOperation(Wheres.Operation.INTERVAL);
+        this.where(wheres);
+        return this;
+    }
+
+    public Query interval(Object start, Object end, Wheres.Operation startOperation, Wheres.Operation endOperation) {
+        Wheres wheres = new Wheres();
+        wheres.setIntervalStartValue(start);
+        wheres.setIntervalEndValue(end);
+        wheres.setIntervalStartOperation(startOperation);
+        wheres.setIntervalEndOperation(endOperation);
+        wheres.setOperation(Wheres.Operation.INTERVAL);
+        this.where(wheres);
         return this;
     }
 
