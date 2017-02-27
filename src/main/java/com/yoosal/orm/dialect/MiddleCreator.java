@@ -187,6 +187,7 @@ public abstract class MiddleCreator implements SQLDialect {
 
         if (whereColumnModels.size() <= 0) {
             logger.debug("update sql no where statement");
+            throw new IllegalArgumentException("更新操作不允许更新全表(没有对象id或者其他条件)！");
         }
 
         SQLChain chain = new SQLChain(this.getEnumType());
