@@ -139,6 +139,16 @@ public class SessionOperationManager implements Operation {
         }
     }
 
+    @Override
+    public double sum(Query query, Enum o) {
+        try {
+            LocalSessionModel sessionModel = getOperation();
+            return sessionModel.getSessionOperation().sum(query,o);
+        } finally {
+            this.close();
+        }
+    }
+
     private void close() {
         LocalSessionModel sessionModel = getOperation();
         sessionModel.close(threadLocal);

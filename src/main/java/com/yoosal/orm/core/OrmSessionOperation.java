@@ -105,4 +105,9 @@ public class OrmSessionOperation implements SessionOperation {
     public long count(Query query) {
         return sessionOperation.count(query);
     }
+
+    @Override
+    public double sum(Query query, Enum o) {
+        return sessionOperation.sum(query, o);
+    }
 }

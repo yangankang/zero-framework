@@ -65,4 +65,6 @@ public interface SQLDialect {
 
     void setShowSQL(boolean isShowSQL);
 
+    ValuesForPrepared prepareSum(TableModel tableMapping, Query query, String field);
+
 }

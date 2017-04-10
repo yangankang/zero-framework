@@ -33,4 +33,6 @@ public interface Operation {
     ModelObject query(Query query);
 
     long count(Query query);
+
+    double sum(Query query, Enum o);
 }

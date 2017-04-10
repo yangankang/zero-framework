@@ -34,7 +34,7 @@ public class SQLChain {
         CREATE, TABLE, IF, NOT, EXISTS, PRIMARY, KEY, AUTO_INCREMENT, NULL, DEFAULT,
         INDEX, ALTER, ADD, INSERT, INTO, VALUES, UPDATE, SET, WHERE, AND, OR, ENGINE,
         CHARSET, IN, LIKE, BY, ORDER, ASC, DESC, LIMIT, DELETE, FROM, SELECT, COUNT,
-        ON, AS, LEFT, JOIN, FIRST, AFTER, COMMENT
+        ON, AS, LEFT, JOIN, FIRST, AFTER, COMMENT, SUM
     }
 
     private List commands = new ArrayList();
@@ -71,6 +71,11 @@ public class SQLChain {
 
     public SQLChain count() {
         commands.add(Command.COUNT);
+        return this;
+    }
+
+    public SQLChain sum() {
+        commands.add(Command.SUM);
         return this;
     }
 

@@ -445,4 +445,27 @@ public class StandAloneSessionOperation implements SessionOperation {
         }
         return count;
     }
+
+    @Override
+    public double sum(Query query, Enum o) {
+        PreparedStatement statement = null;
+        long count = 0;
+        try {
+            connection = getConnection();
+            SQLDialect sqlDialect = getDialect(connection);
+            TableModel tableModel = dbMapping.getTableMapping(query.getObjectClass());
+            ValuesForPrepared valuesForPrepared = sqlDialect.prepareSum(tableModel, query, String.valueOf(o));
+            statement = connection.prepareStatement(valuesForPrepared.getSql());
+            valuesForPrepared.setPrepared(statement);
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                count = resultSet.getLong(1);
+            }
+        } catch (SQLException e) {
+            throw new DatabaseOperationException("count throw", e);
+        } finally {
+            close(statement);
+        }
+        return count;
+    }
 }

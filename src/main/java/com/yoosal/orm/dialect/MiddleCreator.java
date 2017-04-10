@@ -559,9 +559,19 @@ public abstract class MiddleCreator implements SQLDialect {
 
     @Override
     public ValuesForPrepared prepareSelectCount(TableModel tableMapping, Query query) {
+        return this.prepareFunSelect(tableMapping, query, 1, null);
+    }
+
+    private ValuesForPrepared prepareFunSelect(TableModel tableMapping, Query query, int type, String field) {
         ValuesForPrepared valuesForPrepared = new ValuesForPrepared();
         SQLChain chain = new SQLChain(this.getEnumType());
-        chain.select().count().setBegin().setALL().setEnd().from().setValue(tableMapping.getDbTableName());
+        chain.select();
+        if (type == 1) {
+            chain.count().setBegin().setALL().setEnd();
+        } else if (type == 2) {
+            chain.sum().setBegin().setValue(field).setEnd();
+        }
+        chain.from().setValue(tableMapping.getDbTableName());
 
         List<Wheres> wheres = query.getWheres();
         if (wheres != null && wheres.size() > 0) {
@@ -609,5 +619,11 @@ public abstract class MiddleCreator implements SQLDialect {
     @Override
     public void setShowSQL(boolean isShowSQL) {
         this.isShowSQL = isShowSQL;
+    }
+
+    @Override
+    public ValuesForPrepared prepareSum(TableModel tableMapping, Query query, String field) {
+        query.clearJoin();
+        return this.prepareFunSelect(tableMapping, query, 2, field);
     }
 }
