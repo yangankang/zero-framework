@@ -153,5 +153,6 @@ public class SessionOperationManager implements Operation {
         LocalSessionModel sessionModel = getOperation();
         sessionModel.close();
         threadLocal.remove();
+        sessionModel = null;
     }
 }
