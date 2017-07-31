@@ -15,10 +15,9 @@ public class LocalSessionModel {
         this.sessionOperation = sessionOperation;
     }
 
-    public void close(ThreadLocal<LocalSessionModel> threadLocal) {
+    public void close() {
         if (!sessionOperation.isTransacting()) {
             sessionOperation.close();
-            threadLocal.set(null);
         }
     }
 }

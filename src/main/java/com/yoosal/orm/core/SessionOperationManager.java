@@ -143,7 +143,7 @@ public class SessionOperationManager implements Operation {
     public double sum(Query query, Enum o) {
         try {
             LocalSessionModel sessionModel = getOperation();
-            return sessionModel.getSessionOperation().sum(query,o);
+            return sessionModel.getSessionOperation().sum(query, o);
         } finally {
             this.close();
         }
@@ -151,6 +151,7 @@ public class SessionOperationManager implements Operation {
 
     private void close() {
         LocalSessionModel sessionModel = getOperation();
-        sessionModel.close(threadLocal);
+        sessionModel.close();
+        threadLocal.remove();
     }
 }

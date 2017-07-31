@@ -18,6 +18,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.List;
 
 public class TestOrmJoin {
@@ -69,8 +70,10 @@ public class TestOrmJoin {
         OrmFactory.properties(TestDBMapping.class.getResourceAsStream("/orm_mapping.properties"));
 
         SessionOperationManager sceneOperation = new SessionOperationManager();
-        ModelObject object = sceneOperation.query(Query.query(TableStudent.class).like(TableStudent.nameForAccount, "mt"));
-        System.out.println(object);
+        for (int i = 0; i < 100000; i++) {
+            ModelObject object = sceneOperation.query(Query.query(TableStudent.class).like(TableStudent.nameForAccount, "mt"));
+            System.out.println(object);
+        }
     }
 
     @Test
@@ -78,7 +81,13 @@ public class TestOrmJoin {
         OrmFactory.properties(TestDBMapping.class.getResourceAsStream("/orm_mapping.properties"));
 
         SessionOperationManager sceneOperation = new SessionOperationManager();
-        List<ModelObject> object = sceneOperation.list(Query.query(TableStudent.class).limit(0, 32).orderByDesc(TableStudent.idColumn));
-        System.out.println(object.size());
+        for (; ; ) {
+            ModelObject o = classModelObject.clone()
+                    .fluentPut(TableClass.className, "语文");
+            sceneOperation.save(o);
+            List<ModelObject> object = sceneOperation.list(Query.query(TableStudent.class).limit(0, 32).orderByDesc(TableStudent.idColumn));
+            int c = object.size();
+//            System.out.println(object.size());
+        }
     }
 }
