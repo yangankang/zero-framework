@@ -54,13 +54,7 @@ public class DefaultEmerge implements Emerge {
             return conversionService.executeConversion(o, s);
         } else {
             String obj = (String) object[0];
-            if (obj != null) {
-                try {
-                    obj = URLDecoder.decode(obj, "UTF-8");
-                } catch (UnsupportedEncodingException e) {
-                } catch (IllegalArgumentException ie) {
-                }
-            }
+
             if (Collection.class.isAssignableFrom(s)) {
                 //simple Implementation
                 try {
