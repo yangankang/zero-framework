@@ -58,7 +58,7 @@ public class DefaultEmerge implements Emerge {
                 try {
                     obj = URLDecoder.decode(obj, "UTF-8");
                 } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
+                } catch (IllegalArgumentException ie) {
                 }
             }
             if (Collection.class.isAssignableFrom(s)) {
